@@ -1,30 +1,28 @@
 import React from "react";
-import { Nav } from "react-bootstrap";
-import './Navbar.css'
+import { Navbar as BootstrapNavbar, Container, Nav } from "react-bootstrap";
+import './Navbar.css';
 
 const Navbar = () => {
-    return (
-        <>
-            <Nav className="justify-content-end" activeKey="/home">
-                <Nav.Item>
-                    <Nav.Link href="/home">Our Projects</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-1">Services</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-2">Blogs</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-2">About Us</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link eventKey="link-2">Contact Us</Nav.Link>
-                </Nav.Item>
-            
+  return (
+    <>
+      <BootstrapNavbar bg="dark" variant="dark" expand="lg">
+        <Container>
+          <BootstrapNavbar.Brand href="#home">AxiSys</BootstrapNavbar.Brand>
+          <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
+          <BootstrapNavbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <Nav.Link href="#home">Home</Nav.Link>
+              <Nav.Link href="#projects">Our Projects</Nav.Link>
+              <Nav.Link href="#services">Services</Nav.Link>
+              <Nav.Link href="#blogs">Blogs</Nav.Link>
+              <Nav.Link href="#about">About Us</Nav.Link>
+              <Nav.Link href="#contact">Contact Us</Nav.Link>
             </Nav>
-        </>
-    )
-}
+          </BootstrapNavbar.Collapse>
+        </Container>
+      </BootstrapNavbar>
+    </>
+  );
+};
 
 export default Navbar;
