@@ -10,7 +10,7 @@ const Layout=()=>{
                 <div>
                     <NavBar/>
                 </div>
-                <div className="container-xxl">
+                <div className="w-100">
                     <Outlet/>
                 </div>
 

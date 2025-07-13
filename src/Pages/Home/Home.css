@@ -1,0 +1,133 @@
+.home_container {
+  width: 100%;
+  height: fit-content;
+  background-image: url("../../Assets/homebg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: top center;
+}
+
+.home_container > div {
+  margin-top: 9rem !important;
+  height: 100vh;
+}
+
+.para_content h1 {
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  margin-right: 6rem;
+}
+
+.para_content p {
+  font-size: 34px;
+  letter-spacing: 0.6px;
+}
+.typewriter p,
+.typewriter h1 {
+  color: #fff;
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: 0.15em;
+  width: 0;
+  animation: typing 3.5s steps(60, end) infinite,
+    blink-caret 1s step-end infinite;
+}
+
+/* The typing effect */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: orange;
+  }
+}
+
+.servives_main {
+  background-color: #050e14;
+  width: 100%;
+  padding: 4rem 2rem;
+}
+
+.card_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.serve_card {
+  background: linear-gradient(145deg, #1e1e1e, #1a1a1a);
+  padding: 1.5rem;
+  border-radius: 16px;
+  width: 390px;
+  height: 100%;
+  min-height: 300px;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  text-align: center;
+  border: 1px solid #2a2a2a;
+}
+
+
+.serve_card:hover {
+  transform: scale(1.01) translateY(-4px);
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+}
+
+.serve_card img {
+  /* width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  object-fit: cover; */
+
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  object-fit: cover;
+  height: 210px;
+}
+
+.serve_card h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  line-height: 1.5;
+  margin-top: 0.4rem;
+  color: #eaeaea;
+}
+
+
+/* Make it responsive */
+@media screen and (max-width: 765px) {
+  .typewriter p,
+  .typewriter h1 {
+    font-size: 16px; /* or adjust as needed */
+    max-width: 90vw;
+    white-space: nowrap;
+  }
+}
+
+@media screen and (max-width: 565px) {
+ .para_content h1{
+    margin-right: 0;
+ }
+ .servives_main h1{
+    font-size: 20px;
+}
+}
