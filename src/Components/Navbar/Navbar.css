@@ -1,7 +1,9 @@
 .navbar_container {
   width: 100%;
-  position: fixed;
+  position: sticky;
   top: 0;
+  z-index: 100;
+  background-color: #02183d;
 }
 
 .navbar_container .nav-link {
@@ -35,7 +37,7 @@
   }
   .navItems_style {
     /* background-color: #06071D; */
-  background: linear-gradient(135deg, #10152A, #1F2342); 
+    background: linear-gradient(135deg, #10152a, #1f2342);
     box-shadow: 0 0 10px rgba(0, 102, 255, 0.2);
     max-width: 190px;
     min-width: 160px;
