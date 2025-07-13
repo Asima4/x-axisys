@@ -17,21 +17,28 @@
   height: 60px;
 }
 
-.navbar-toggler-icon{
-    background-image:url('../../Assets/menu.png') ;
+.navbar-toggler-icon {
+  background-image: url("../../Assets/menu.png");
 }
 
-.navItems_style{
-    /* background-color: #06071D; */
-    background-color: #34366f;
-    padding: 4px 6px;
-    border-radius: 4px;
+.navItems_style {
+  border-radius: 12px;
+
+  transition: all 0.3s ease-in-out;
+  padding: 1rem;
 }
 
 @media screen and (max-width: 991px) {
   .brand_logo {
     width: 190px;
     height: 60px;
+  }
+  .navItems_style {
+    /* background-color: #06071D; */
+  background: linear-gradient(135deg, #10152A, #1F2342); 
+    box-shadow: 0 0 10px rgba(0, 102, 255, 0.2);
+    max-width: 190px;
+    min-width: 160px;
   }
 }
 @media screen and (max-width: 765px) {

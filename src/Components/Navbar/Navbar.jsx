@@ -1,6 +1,7 @@
 import React from "react";
 import { Navbar as BootstrapNavbar, Nav } from "react-bootstrap";
-import axisysLogo from '../../Assets/AXISYSLogo.png'
+// import axisysLogo from '../../Assets/AXISYSLogo.png'
+import axisysLogo from '../../Assets/logoxxxx.png'
 import './Navbar.css';
 import { Link } from "react-router-dom";
 
@@ -11,7 +12,7 @@ const NavBar = () => {
         <BootstrapNavbar className="pt-0" expand="lg">
         {/* <BootstrapNavbar bg="dark" variant="dark" expand="lg"> */}
           <div className="container-xxl">
-            <BootstrapNavbar.Brand as={Link} to="/home">
+            <BootstrapNavbar.Brand as={Link} to="/">
               <img className="brand_logo" src={axisysLogo} alt="axisys logo" />
             </BootstrapNavbar.Brand>
             <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />

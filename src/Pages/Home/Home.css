@@ -1,10 +1,18 @@
 .home_container {
+  position: relative;
   width: 100%;
-  height: fit-content;
-  background-image: url("../../Assets/homebg.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: top center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.bg_video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -1;
+  object-fit: cover;
 }
 
 .home_container > div {
@@ -23,6 +31,7 @@
   font-size: 34px;
   letter-spacing: 0.6px;
 }
+
 .typewriter p,
 .typewriter h1 {
   color: #fff;
@@ -56,8 +65,9 @@
   }
 }
 
+/* Services Section Styles (unchanged) */
 .servives_main {
-  background-color: #050e14;
+  background-color: #02183d;
   width: 100%;
   padding: 4rem 2rem;
 }
@@ -71,11 +81,10 @@
 }
 
 .serve_card {
-  background: linear-gradient(145deg, #1e1e1e, #1a1a1a);
+  /* background: linear-gradient(145deg, #1e1e1e, #1a1a1a); */
   padding: 1.5rem;
   border-radius: 16px;
   width: 390px;
-  height: 100%;
   min-height: 300px;
   transition: all 0.3s ease;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
@@ -84,18 +93,12 @@
   border: 1px solid #2a2a2a;
 }
 
-
 .serve_card:hover {
   transform: scale(1.01) translateY(-4px);
   box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
 }
 
 .serve_card img {
-  /* width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  object-fit: cover; */
-
   width: 100%;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -112,22 +115,22 @@
   color: #eaeaea;
 }
 
-
-/* Make it responsive */
+/* Responsive Styles */
 @media screen and (max-width: 765px) {
   .typewriter p,
   .typewriter h1 {
-    font-size: 16px; /* or adjust as needed */
+    font-size: 16px;
     max-width: 90vw;
     white-space: nowrap;
   }
 }
 
 @media screen and (max-width: 565px) {
- .para_content h1{
+  .para_content h1 {
     margin-right: 0;
- }
- .servives_main h1{
+  }
+
+  .servives_main h1 {
     font-size: 20px;
-}
+  }
 }
