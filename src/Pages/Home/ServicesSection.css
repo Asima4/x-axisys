@@ -1,0 +1,104 @@
+.services-section {
+  /* background-color: #f9fafb; */
+}
+
+.services-title {
+  font-weight: 600;
+  color: #cbd1dc;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.services-subtitle {
+  font-size: 1rem;
+  color: #e9eef7;
+  max-width: 700px;
+}
+
+.services-wrapper {
+  position: relative;
+}
+
+/* Overlay */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+  border-radius: 0.5rem;
+  padding: 2rem;
+}
+
+.icon-wrapper {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrapper i {
+  font-size: 28px;
+}
+
+.overlay-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.overlay-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+  max-width: 500px;
+}
+
+/* Cards */
+.service-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease-in-out;
+}
+
+.service-card:hover {
+  border-color: rgba(37, 99, 235, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #2563eb, #9333ea);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+.service-card:hover .service-name {
+  color: #2563eb;
+}
+
+.service-desc {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 992px) {
+  .services-title {
+    font-size: 2rem;
+  }
+}

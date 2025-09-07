@@ -1,0 +1,20 @@
+.logo-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2563eb, #9333ea, #dc2626);
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.logo-text {
+  /* font-family: 'Montserrat', sans-serif; */
+  font-weight: 700;
+  font-size: 16px;
+  color: #aeadad; /* dark gray / black */
+  text-transform: uppercase;
+  margin-left: 10px; /* spacing between AX and text */
+}

@@ -1,0 +1,35 @@
+footer {
+  background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
+  /* color: #adb5bd; */
+}
+
+footer .logo-box {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #0d6efd, #6f42c1); /* primary → accent */
+  border-radius: 8px;
+  font-weight: bold;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-link {
+  font-size: 0.875rem;
+  color: #dee3e8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+  color: #0d6efd;
+}
+
+.footer-contact span {
+  font-size: 0.875rem;
+}

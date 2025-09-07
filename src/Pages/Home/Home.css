@@ -1,8 +1,8 @@
 .home_container {
   position: relative;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  /* height: 100vh;
+  overflow: hidden; */
 }
 
 .bg_video {
@@ -16,8 +16,8 @@
 }
 
 .home_container > div {
-  margin-top: 9rem !important;
-  height: 100vh;
+  /* margin-top: 9rem !important; */
+  /* height: 100vh; */
 }
 
 .para_content h1 {
@@ -43,6 +43,33 @@
   animation: typing 3.5s steps(60, end) infinite,
     blink-caret 1s step-end infinite;
 }
+
+.stats-grid {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Big numbers */
+.stat-number {
+  /* font-family: 'Poppins', sans-serif; */
+  font-weight: 700;
+  color: #d8dce4; /* text-foreground */
+  font-size: 1.75rem; /* text-3xl */
+}
+
+@media (min-width: 992px) {
+  .stat-number {
+    font-size: 2.25rem; /* lg:text-4xl */
+  }
+}
+
+/* Labels */
+.stat-label {
+  font-size: 0.875rem;
+  color: #c7cdd7;
+  margin-top: 0.25rem;
+}
+
 
 /* The typing effect */
 @keyframes typing {

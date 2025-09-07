@@ -1,0 +1,55 @@
+/* Container with gradient background */
+.animated-bg-container {
+  position: absolute;
+  inset: 0;
+  top: 0;
+  background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
+  overflow: hidden;
+  z-index: -1;
+}
+
+/* Semi-transparent overlay */
+.animated-bg-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+}
+
+/* Common styles for circles */
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: pulse 6s infinite ease-in-out;
+}
+
+/* Circle 1 */
+.circle-1 {
+  top: 25%;
+  left: 25%;
+  width: 24rem;
+  height: 24rem;
+  background: #007bff; /* Bootstrap primary */
+}
+
+/* Circle 2 */
+.circle-2 {
+  bottom: 25%;
+  right: 25%;
+  width: 24rem;
+  height: 24rem;
+  background: #e83e8c; /* Bootstrap pink accent */
+  animation-delay: 3s;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.9;
+  }
+}

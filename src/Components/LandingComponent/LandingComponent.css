@@ -1,0 +1,46 @@
+/* ------ */
+.hero-text-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Heading styles */
+.hero-heading {
+  font-weight: 700;
+  color: #cbd1dc;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+@media (min-width: 576px) {
+  .hero-heading {
+    font-size: 3rem; 
+  }
+}
+@media (min-width: 992px) {
+  .hero-heading {
+    font-size: 4.5rem;
+  }
+}
+
+/* Subtitle styles */
+.hero-subtitle {
+  font-size: 1.125rem; 
+  color: #c0c5ce;
+  max-width: 900px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+@media (min-width: 576px) {
+  .hero-subtitle {
+    font-size: 1.25rem; 
+  }
+}
+@media (min-width: 992px) {
+  .hero-subtitle {
+    font-size: 1.5rem;
+  }
+}

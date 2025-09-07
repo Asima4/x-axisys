@@ -1,0 +1,59 @@
+/* .testimonials .testimonial-card {
+  max-width: 700px;
+  border-radius: 12px;
+}
+
+.testimonials .dot {
+  width: 10px;
+  height: 10px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background-color: #bbb;
+  border: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.testimonials .dot.active {
+  background-color: #0d6efd;
+} */
+
+/* Testimonials Section */
+.testimonials {
+  /* background-color: #f8f9fa; */
+}
+
+.testimonial-card {
+  padding: 1rem;
+}
+
+.testimonial-inner-card {
+  max-width: 700px;
+  border-radius: 12px;
+}
+
+/* Center carousel items */
+.carousel .slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Adjust carousel arrows */
+.carousel .control-arrow {
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #6c757d; 
+  transition: color 0.3s ease;
+}
+
+.carousel .control-arrow:hover {
+  color: #0d6efd; 
+}
+
+/* Hide default carousel legend */
+.carousel .legend {
+  display: none;
+}

@@ -1,6 +1,6 @@
 .navbar_container {
   width: 100%;
-  position: sticky;
+  position: fixed;
   top: 0;
   z-index: 100;
   background-color: #02183d;
@@ -8,6 +8,8 @@
 
 .navbar_container .nav-link {
   color: #d0cdcd;
+  padding: 4px 0px;
+  font-size: 14px;
 }
 .navbar_container .nav-link:focus,
 .nav-link:hover {
@@ -27,7 +29,7 @@
   border-radius: 12px;
 
   transition: all 0.3s ease-in-out;
-  padding: 1rem;
+  /* padding: 0; */
 }
 
 @media screen and (max-width: 991px) {
@@ -37,9 +39,9 @@
   }
   .navItems_style {
     /* background-color: #06071D; */
-    background: linear-gradient(135deg, #10152a, #1f2342);
-    box-shadow: 0 0 10px rgba(0, 102, 255, 0.2);
-    max-width: 190px;
+    /* background: linear-gradient(135deg, #10152a, #1f2342); */
+    /* box-shadow: 0 0 10px rgba(0, 102, 255, 0.2); */
+    max-width: 100%;
     min-width: 160px;
   }
 }
@@ -55,4 +57,46 @@
     width: 120px;
     height: 40px;
   }
+}
+
+.navbar_container {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  background-color: #02183d;
+}
+
+.navbar_container .nav-link {
+  color: #d0cdcd;
+  padding: 4px 0px;
+  font-size: 14px;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+/* Hover effect with underline animation */
+.navbar_container .nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background: #ffffff;
+  transition: width 0.3s ease-in-out;
+}
+
+.navbar_container .nav-link:hover::after {
+  width: 100%;
+}
+
+/* Active page link (NavLink adds "active" class) */
+.navbar_container .nav-link.active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.navbar_container .nav-link.active::after {
+  width: 100%;
 }
