@@ -1,0 +1,77 @@
+.service-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  background: #fff;
+}
+
+.service-card:hover {
+  border-color: #0d6efd; /* primary */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Icon Box */
+.icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover .icon-box {
+  transform: scale(1.1);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Gradient background for normal */
+.icon-box.gradient {
+  background: linear-gradient(135deg, #0d6efd, #6610f2);
+  color: #fff;
+}
+
+/* Solid background when selected */
+.icon-box.selected {
+  background: #0d6efd;
+  color: #fff;
+}
+
+/* Title text */
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #212529;
+  transition: color 0.3s ease;
+}
+
+.service-card:hover .title {
+  color: #0d6efd;
+}
+
+/* Selected text */
+.title.selected-text {
+  color: #0d6efd;
+}
+
+/* Order text */
+.order-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+}

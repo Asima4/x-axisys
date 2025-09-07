@@ -34,14 +34,14 @@
   width: 64px;
   height: 64px;
   background: linear-gradient(135deg, #2563eb, #9333ea);
-  border-radius: 50%;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .icon-wrapper i {
-  font-size: 28px;
+  font-size: 20px;
 }
 
 .overlay-title {

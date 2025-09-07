@@ -49,6 +49,23 @@ button, a, p, span{
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
+.section-subtitle {
+  font-weight: 400;
+  color: #dce0e7;
+  font-size: 16px;
+  margin-bottom: 1rem;
+  letter-spacing: 0.4px;
+}
+
+.gradient-text {
+  background: linear-gradient(61deg, #116aed, #8b42aa); 
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  font-weight: 600;
+}
+
 
 @media (min-width: 992px) {
   .section-title {

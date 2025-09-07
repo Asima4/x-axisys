@@ -7,9 +7,9 @@ import { Container } from "react-bootstrap";
 const LandingComponent = () => {
     return (
         <>
+            <div className="main_landingComponent py-4 pb-5">
                 <AnimatedBackground />
-            <div className="main_landingComponent mb-4">
-                 <Container className="hero-text-container text-center">
+                <Container className="hero-text-container text-center">
                     <h1 className="hero-heading">
                         BEYOND BOUNDARIES BEYOND BLUEPRINTS
                     </h1>

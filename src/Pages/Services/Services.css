@@ -1,0 +1,110 @@
+.service_main {
+  background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
+}
+
+.main_landingComponent{
+    z-index: 2px;
+}
+
+/* Hero section */
+.hero-section {
+  min-height: 90vh;
+  background: linear-gradient(135deg, #0d6efd, #6f42c1);
+}
+.hero-title {
+  font-size: 3rem;
+  font-weight: bold;
+}
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #e9ecef;
+}
+.gradient-text {
+  background: linear-gradient(90deg, #0d6efd, #6f42c1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Service cards */
+.service-card {
+  cursor: pointer;
+  border: 1px solid #dee2e6;
+  transition: 0.3s;
+}
+.service-card:hover {
+  border-color: #0d6efd;
+  transform: translateY(-5px);
+}
+.service-card.active {
+  border-color: #0d6efd;
+  background-color: #f8f9fa;
+}
+.service-icon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #0d6efd, #6f42c1);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  border-radius: 10px;
+}
+
+/* Selected Service */
+.service-detail-icon {
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(135deg, #0d6efd, #6f42c1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+
+/* ------------- service card-------*/
+
+.service-card {
+  border: 1px solid #e1e4e8;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.service-card:hover {
+  border-color: #0d6efd; /* Bootstrap primary */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.selected-icon-wrappers {
+     background: linear-gradient(135deg, #2563eb, #9333ea); 
+}
+.icon-wrappers {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(to bottom right, #4f46e5, #f43f5e);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 15px;
+  color: #0d6efd;
+}
+
+.service-order {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.selected-border{
+  background: rgb(37 99 235 / 5%)!important;
+  color: white;
+}

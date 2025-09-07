@@ -3,6 +3,7 @@ import { Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { Phone, MailboxFlag, PinMap } from "react-bootstrap-icons";
 import "./Footer.css";
+import Logo from "../Logo/Logo";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -13,13 +14,16 @@ const navigation = [
 
 const Footer = () => {
   return (
-    <footer className="footer shadow border-top pt-5">
+    <>
+    <footer className="footer shadow">
+    <hr className="border-light pt-5 my-0" />
+        
       <Container>
         <Row className="gy-4">
           {/* Company Info */}
           <Col md={6} lg={3}>
             <div className="d-flex align-items-center mb-3">
-              <div className="logo-box">AX</div>
+              <Logo isName={false}/>
               <span className="fw-bold ms-2">AXISYS GLOBAL ENGINEERING</span>
             </div>
             <p className="section-subtitle ">
@@ -107,6 +111,7 @@ const Footer = () => {
         </div>
       </Container>
     </footer>
+    </>
   );
 };
 

@@ -1,11 +1,15 @@
 import React from "react";
+import LandingComponent from "../../Components/LandingComponent/LandingComponent";
+import './Services.css'
+import LandingSection from "./LandingSection";
+import CoreServices from "./CoreServices";
 
 const Services=()=>{
     return (
         <>
             <div className="service_main">
-                <h1>Services Page</h1>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque similique minus repellendus? Sint vero pariatur neque necessitatibus, voluptatum maiores temporibus nobis tenetur. In labore perferendis sed ut impedit neque quos.
+               <LandingSection/>
+               <CoreServices/>
             </div>
         </>
     )

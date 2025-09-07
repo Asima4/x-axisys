@@ -1,6 +1,6 @@
 /* Container with gradient background */
 .animated-bg-container {
-  position: absolute;
+  /* position: absolute; */
   inset: 0;
   top: 0;
   background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
@@ -13,6 +13,7 @@
   position: absolute;
   inset: 0;
   opacity: 0.2;
+  z-index: -1;
 }
 
 /* Common styles for circles */
@@ -51,5 +52,11 @@
   50% {
     transform: scale(1.2);
     opacity: 0.9;
+  }
+}
+
+@media screen and (max-width:765px) {
+  .circle-1{
+    width: 45%;
   }
 }

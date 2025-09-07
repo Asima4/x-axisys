@@ -1,4 +1,8 @@
 /* ------ */
+/* .main_landingComponent{
+  background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
+} */
+
 .hero-text-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -20,7 +24,7 @@
   }
 }
 @media (min-width: 992px) {
-  .hero-heading {
+  .hero-heading, .hero-heading span {
     font-size: 4.5rem;
   }
 }
