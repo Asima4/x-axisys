@@ -31,7 +31,7 @@ h1 {
 }
 
 button, a, p, span{
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .hero-heading {
@@ -64,6 +64,80 @@ button, a, p, span{
   background-clip: text;
   color: transparent;
   font-weight: 600;
+}
+
+.icon_wrapper{
+  margin: 0 auto;
+  width: 60px;
+  height: 60px;
+  /* padding: 40px; */
+  background: linear-gradient(to bottom right, #4f46e5, #f43f5e);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.purple_bg{
+  background: linear-gradient(135deg, #7f00ff 0%, #e100ff 100%);
+}
+
+.darkPurple_bg{
+  background: linear-gradient(135deg, #1a1f4b 0%, #283e70 50%, #3f5efb 100%);
+}
+
+.max-width{
+  max-width: 700px;
+}
+
+.service_card_active_bg {
+  background: linear-gradient(133deg, #4d59ba 12%, #2b4b97db 51%, #6b7ede 93%);
+  color: #fff;
+  border: none;
+}
+
+/* Style the select field itself */
+.form-select {
+  background-color: transparent !important; /* dark theme bg */
+  color: #eee4e4 !important;            /* text color */
+  border: 1px solid #334155;            /* subtle border */
+  border-radius: 8px;
+}
+
+/* Style the dropdown options */
+.form-select option {
+  background-color: #0a0f1c;  /* dark background */
+  color: #e2e8f0;             /* light gray text */
+  padding: 10px;
+  border: none;
+  outline: unset;
+}
+
+/* Highlight on hover */
+.form-select option:hover,
+.form-select option:focus,
+.form-select option:checked {
+  background-color: #062870 !important; /* blue highlight */
+  color: #ffffff !important;
+    border: none;
+  outline: unset;
+}
+
+.form-control, .form-select, #location.form-select {
+    background-color: transparent;
+    color: #efe6e6;
+}
+
+.form-control:focus{
+  background-color: transparent;
+}
+
+.form-control input:focus,
+.form-control:focus ,
+.form-control input:active,
+.form-control input{
+  color: #f4e9e9;
+  letter-spacing: 0.6px;
 }
 
 

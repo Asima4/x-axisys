@@ -1,11 +1,25 @@
 import React from "react";
+import LandingAboutSection from "./LandingAboutSection";
+import './About.css'
+import OurStory from "./OurStory";
+import GlobalLocations from "./GlobalLocations";
+import DynamicCTA from "../../Components/DynamicCTA/DynamicCTA";
 
 const AboutUs=()=>{
     return(
         <>
             <div className="about_us">
-                <h1>About Us</h1>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi eum est non! Veniam exercitationem ab temporibus assumenda doloribus maxime rerum sit at soluta porro eligendi aliquid, ipsum magni nihil unde.
+                <LandingAboutSection/>
+                <OurStory/>
+                <GlobalLocations/>
+                 <DynamicCTA
+          title="Join Our Journey"
+          description="Be part of the future of engineering. Whether you're a client, partner, or potential team member, we'd love to hear from you."
+          primaryBtnText="Join Our Team"
+          primaryBtnLink="/career"
+          secondaryBtnText="Apply Now"
+          secondaryBtnLink="/career"
+        />
             </div>
         </>
     )

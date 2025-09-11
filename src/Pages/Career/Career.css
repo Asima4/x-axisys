@@ -1,0 +1,188 @@
+.career_main{
+    background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
+}
+
+/* Opening Position */
+
+/* 
+.openPositions_card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.openPositions_card.active {
+  border: 2px solid #0d6efd;
+  background: #f0f6ff;
+}
+
+.job_title {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+.job_meta {
+  font-size: 0.9rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+}
+
+.job_desc {
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.openPositions_detail {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.apply_btn {
+  background-color: #0d6efd;
+  border: none;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+} */
+
+/* Open Positions Section */
+.openPositions_section {
+  /* background: #ffffff;  */
+  padding: 80px 0;
+}
+
+/* Job List Cards */
+.openPositions_card {
+  background: linear-gradient(135deg, #2f6aaa42, #27485f4a);
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #e3e5ec;
+}
+
+.openPositions_card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 6px 18px rgba(59, 130, 246, 0.25);
+}
+
+/* Active Card */
+.openPositions_card.active {
+      background: linear-gradient(135deg, #2563eb, #7e97c1d1, #916fa7);
+  border: none;
+  color: #ffffff;
+}
+
+.openPositions_card.active .job_title {
+  color: #fff !important;
+}
+.openPositions_card.active .job_meta {
+  color: #f1f5f9;
+}
+.openPositions_card.active .job_desc {
+  color: #e0f2fe;
+}
+
+/* Job Title */
+.job_title {
+  font-weight: 600;
+  color: #eaecf2;
+  margin-bottom: 0.5rem;
+}
+
+/* Job Meta (icons row) */
+.job_meta {
+  font-size: 0.9rem;
+  color: #ebedf1;
+  display: flex;
+  align-items: center;
+}
+
+/* Job Description (list card) */
+.job_desc {
+  font-size: 0.95rem;
+  color: #eef1f5;
+  margin-bottom: 0;
+}
+
+/* Right Side Detail Card */
+.openPositions_detail {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2f6aaa42, #27485f4a);
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.openPositions_detail .job_title {
+  color: #e4e6ec;
+}
+
+.openPositions_detail h6 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: #e7eaf0;
+}
+
+.openPositions_detail p {
+  color: #ebeef3;
+  font-size: 0.95rem;
+}
+
+
+/* Apply Now */
+
+.application-card {
+  background: linear-gradient(135deg, #0a0f1c, #162447, #0a0f1c);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  color: #fff;
+}
+
+.success-icon {
+  font-size: 3rem;
+  color: #22c55e;
+}
+
+.file-upload-wrapper {
+  position: relative;
+}
+
+.upload-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: #9ca3af;
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #3f5efb, #6366f1, #8b5cf6);
+  border: none;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  transform: translateY(-2px);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.form-control input{
+    color: #ece3e3;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}

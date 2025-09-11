@@ -1,0 +1,113 @@
+
+/* Info Cards */
+.info-card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.268);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: #e5e7eb;
+}
+
+.map-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+
+.card-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Icons */
+.icon-box {
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, #2563eb, #dc2626);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  margin-bottom: 10px;
+}
+.icon {
+  color: #ffffff;
+  font-size: 1.25rem;
+}
+.icon-lg {
+  font-size: 1.75rem;
+}
+
+/* Info Text */
+.info-title {
+  font-weight: 600;
+  color: #ffffff;
+}
+.info-text {
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+.info-sub {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Chat button */
+.chat-btn {
+  background: linear-gradient(135deg, #2563eb, #dc2626);
+  border: none;
+  font-weight: 600;
+}
+
+/* Company details */
+.company-details span {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.info-item{
+    margin-bottom: 1rem;
+}
+
+/* Map */
+.map-placeholder {
+  background: #111827;
+  border-radius: 8px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+.map-icon {
+  font-size: 2rem;
+  color: #2563eb;
+  margin-bottom: 0.5rem;
+}
+
+/* FAQ */
+.faq-section {
+  /* background: #34466f; */
+}
+.faq-card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.233);
+}
+.faq-question {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+.faq-answer {
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.contact-info-section p{
+    margin-bottom: 0;
+}

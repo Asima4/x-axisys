@@ -65,8 +65,8 @@ const NavBar = () => {
               <Nav.Link as={NavLink} to="/" end>Home</Nav.Link>
               <Nav.Link as={NavLink} to="/services">Our Services</Nav.Link>
               <Nav.Link as={NavLink} to="/projects">Projects</Nav.Link>
-              <Nav.Link as={NavLink} to="/blogs">AI & Innovation</Nav.Link>
-              <Nav.Link as={NavLink} to="/careers">Careers</Nav.Link>
+              <Nav.Link as={NavLink} to="/ai-and-inovations">AI & Innovation</Nav.Link>
+              <Nav.Link as={NavLink} to="/career">Careers</Nav.Link>
               <Nav.Link as={NavLink} to="/about-us">About Us</Nav.Link>
               <Nav.Link as={NavLink} to="/contact-us">Contact</Nav.Link>
             </Nav>

@@ -1,0 +1,14 @@
+
+/* CTA Wrapper with gradient background */
+.cta-wrapper {
+  background: linear-gradient(135deg, #13294b 0%, #ff004c 100%);
+}
+
+/* Card styling */
+.cta-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: #fff;
+}

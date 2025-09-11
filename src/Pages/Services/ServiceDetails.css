@@ -1,0 +1,24 @@
+.service-section {
+  /* background: #f8f9fa; */
+  
+}
+
+.service-card-details {
+      background: linear-gradient(to bottom right, #74acff, #770990);
+  border-radius: 20px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* .section-row{
+    border: 1px solid rgb(86, 52, 241);
+} */
+
+.icon-circle {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(to bottom right, #4f46e5, #f43f5e);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

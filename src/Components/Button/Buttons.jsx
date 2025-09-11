@@ -1,8 +1,8 @@
 import './Buttons.css'
 
-export const FillButton = ({ onClick, text }) => {
+export const FillButton = ({ onClick, text, disabled }) => {
   return (
-    <button onClick={onClick} className="fil_btn transition-colors">
+    <button disabled={disabled} onClick={onClick} className="fil_btn transition-colors">
       {text}
     </button>
   )

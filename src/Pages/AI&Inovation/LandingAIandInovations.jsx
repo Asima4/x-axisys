@@ -1,12 +1,11 @@
 import React from "react";
-import { FillButton, OuterButton } from "../../Components/Button/Buttons";
+import { useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
+import { FillButton, OuterButton } from "../../Components/Button/Buttons";
 import AnimatedBackground from "../../Components/StyleTool/AnimatedBackground";
 import '../../Components/LandingComponent/LandingComponent.css'
-import './Services.css'
-import { useNavigate } from "react-router-dom";
 
-const LandingSection=()=>{
+const LandingAIandInovations=()=>{
     const navigate = useNavigate();
     return(
         <>
@@ -17,37 +16,38 @@ const LandingSection=()=>{
                         className={'mx-auto'}
                         text={
                             <>
-                                <i class="bi bi-cpu"></i>
-                                <span>11 Integrated Services</span>
+                            
+                                <i class="bi bi-lightbulb"></i>
+                                <span>Innovation & AI</span>
                             </>
                         }
                     />
                     <h1 className="hero-heading mt-3">
-                        Comprehensive Engineering
+                        Engineering the Future with Artificial Intelligence
                         <br />
-                        <span class="gradient-text">Solutions</span>
+                        <span class="gradient-text">Coming Soon</span>
                     </h1>
                     <p className="hero-subtitle fs-5">
-                       From structural engineering to AI-assisted design, our integrated services cover every aspect of modern engineering, delivering comprehensive solutions powered by cutting-edge technology.
+                      Discover how Axisys is revolutionizing engineering through cutting-edge AI technologies, innovative solutions, and forward-thinking approaches that redefine what's possible.
                     </p>
                 </Container>
                 <div className="d-flex align-items-center gap-3 justify-content-center flex-wrap">
                     <FillButton 
                         text={
                             <span className="d-flex gap-2">
-                                Request Quote
+                                Explore Innovations
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
                                 </svg>
                             </span>
                         }
-                        onClick={()=>navigate('/contact-us')} 
+                        onClick={()=>navigate('/projects')} 
                     />
-                    <OuterButton onClick={()=>navigate('/projects')} text={'View Our Work'} />          
+                    <OuterButton onClick={()=>navigate('/contact-us')} text={'Partner With Us'} />          
                 </div>
             </div>
         </>
     )
 }
 
-export default LandingSection;
+export default LandingAIandInovations

@@ -7,6 +7,8 @@ import Contact from "./Pages/Contact/Contact";
 import AboutUs from "./Pages/AboutUs/About";
 import "./App.css";
 import Projects from "./Pages/Projects/Projects";
+import AIandInovations from "./Pages/AI&Inovation/AIandInovations";
+import Career from "./Pages/Career/Career";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="projects" element={<Projects />} />
           <Route path="services" element={<Services />} />
           <Route path="blogs" element={<Blog />} />
+          <Route path="career" element={<Career />} />
+          <Route path="ai-and-inovations" element={<AIandInovations />} />
           <Route path="contact-us" element={<Contact />} />
           <Route path="about-us" element={<AboutUs />} />
         </Route>

@@ -1,0 +1,149 @@
+/* === Projects Section Background === */
+.projects-section-theme {
+  /* background-color: #0b1a2d; */
+}
+
+/* === Filters Box === */
+.filters-box-theme {
+  background: linear-gradient(90deg, #0f1a30 0%, #13294b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Title */
+.filters-title-theme {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Input */
+.filter-input-theme {
+  background: #1e2e4f !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px;
+}
+.filter-input-theme::placeholder {
+  color: #9aa8c7;
+}
+.filter-input-theme:focus {
+  background: #24385f !important;
+  border: 1px solid #3d5af1 !important;
+  box-shadow: none !important;
+}
+
+/* Select */
+.filter-select-theme {
+  background: #1e2e4f !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.filter-select-theme:focus {
+  background: #24385f !important;
+  border: 1px solid #3d5af1 !important;
+  box-shadow: none !important;
+}
+
+/* Count */
+.filter-count-theme {
+  color: #9aa8c7;
+  font-size: 0.9rem;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* === Project Card === */
+.project-card-theme {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #13294b;
+  color: #ffffff;
+  transition: transform 0.3s ease, border 0.3s ease;
+}
+.project-card-theme:hover {
+  transform: translateY(-6px);
+  border-color: #007bff;
+}
+
+/* Image */
+.project-img-wrapper-theme {
+  position: relative;
+  overflow: hidden;
+}
+.project-img-theme {
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.project-card-theme:hover .project-img-theme {
+  transform: scale(1.05);
+}
+.overlay-gradient-theme {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(11, 26, 45, 0.85), transparent);
+}
+
+/* Badges */
+.project-badge-theme {
+  position: absolute;
+  top: 10px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+.project-badge-theme.left { left: 10px; }
+.project-badge-theme.right { right: 10px; }
+
+/* Title & Desc */
+.project-title-theme {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.project-desc-theme {
+  font-size: 14px;
+  color: #d0d6e1;
+}
+
+.project-title-theme:hover{
+    color: #0d6efd;
+}
+
+/* Service tags */
+.service-badge-theme {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #d0d6e1;
+  font-size: 0.75rem;
+}
+
+/* Case study link */
+.case-study-link-theme {
+  color: #007bff;
+  text-decoration: none;
+}
+.case-study-link-theme:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filters-box-theme {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem;
+  }
+  .filter-count-theme {
+    text-align: right;
+    margin-top: 0.5rem;
+  }
+}

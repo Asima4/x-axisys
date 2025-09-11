@@ -1,0 +1,39 @@
+.services-section {
+  /* background-color: #f8f9fa; */
+}
+
+.service-cardxx {
+  border: 2px solid #04478b;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 1rem;
+}
+
+.service-cardxx:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+  color: #0d6efd; /* Bootstrap primary color */
+}
+
+.service-list {
+  margin-top: 1rem;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.service-list li {
+  margin-bottom: 0.5rem;
+}
+
+.service_title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 15px;
+  color: #0d6efd;
+}
+

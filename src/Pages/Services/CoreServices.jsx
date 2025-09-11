@@ -19,10 +19,10 @@ export default function CoreServices() {
     ];
     return (
         <>
-            <div className="coreservice_main py-4">
+            <div className="coreservice_main container py-4">
                 <h1 className='section-title text-center'>Our Core Services</h1>
                 <p className='section-subtitle text-center'>Eleven specialized services working in perfect harmony to deliver complete engineering solutions for projects of any scale and complexity.</p>
-                <Row className="g-4 w-100 px-4 mt-4">
+                <Row className="g-4 w-100 px-2 mt-4">
                     {services.map((service) => (
                         <Col key={service.id} xs={12} sm={6} md={4} lg={3}>
                             <Card onClick={()=>setSelectedService(service?.id)} className={`service-card h-100 text-center ${service.id === selectedService && 'border-primary selected-border'}`}>
