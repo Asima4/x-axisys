@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Axisys Global Engineering",
+  "short_name": "Axisys",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -17,5 +17,7 @@
   ],
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
-  "display": "standalone"
+  "display": "standalone",
+  "start_url": "/",
+  "orientation": "portrait"
 }

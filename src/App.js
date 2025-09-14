@@ -9,23 +9,27 @@ import "./App.css";
 import Projects from "./Pages/Projects/Projects";
 import AIandInovations from "./Pages/AI&Inovation/AIandInovations";
 import Career from "./Pages/Career/Career";
+import { HelmetProvider } from "react-helmet-async";
+
 
 function App() {
   return (
-    <div className="App">
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="services" element={<Services />} />
-          <Route path="blogs" element={<Blog />} />
-          <Route path="career" element={<Career />} />
-          <Route path="ai-and-inovations" element={<AIandInovations />} />
-          <Route path="contact-us" element={<Contact />} />
-          <Route path="about-us" element={<AboutUs />} />
-        </Route>
-      </Routes>
-    </div>
+    <HelmetProvider>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="services" element={<Services />} />
+            <Route path="blogs" element={<Blog />} />
+            <Route path="career" element={<Career />} />
+            <Route path="ai-and-inovations" element={<AIandInovations />} />
+            <Route path="contact-us" element={<Contact />} />
+            <Route path="about-us" element={<AboutUs />} />
+          </Route>
+        </Routes>
+      </div>
+    </HelmetProvider>
   );
 }
 

@@ -8,6 +8,7 @@ import OpenPosition from './OpenPosition';
 import ApplyNow from './ApplyNow';
 import DynamicCTA from '../../Components/DynamicCTA/DynamicCTA';
 import { Container } from 'react-bootstrap';
+import { Helmet } from 'react-helmet-async';
 
 export default function Career() {
 
@@ -55,6 +56,15 @@ export default function Career() {
 
   return (
     <>
+      <Helmet>
+        <title>Careers at Axisys Global Engineering</title>
+        <meta name="description" content="Join Axisys Global Engineering and be part of an innovative team transforming the AEC industry with AI-powered solutions. Explore current job openings and opportunities." />
+        <meta name="keywords" content="engineering careers, jobs at Axisys, AI engineering jobs, career in construction technology" />
+        <meta property="og:title" content="Axisys Global Careers" />
+        <meta property="og:description" content="Explore career opportunities with our global engineering team." />
+        <meta property="og:url" content="https://axisysglobal.com/career" />
+      </Helmet>
+
       <div className="career_main">
         <CareerLanding />
         <CustomeCard

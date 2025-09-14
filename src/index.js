@@ -14,4 +14,11 @@ root.render(
   </React.StrictMode>
 );
 
-// reportWebVitals();
+// reportWebVitals((metric) => {
+//   console.log(`📊 Web Vital: ${metric.name}`);
+//   console.log(`   Value: ${metric.value}`);
+//   console.log(`   ID: ${metric.id}`);
+//   console.log(`   Entries:`, metric.entries);
+//   console.log('----------------------------------');
+// });
+

@@ -5,6 +5,7 @@ import ProjectFilters from "./ProjectFilters";
 import { Card, Col, Container, Row } from "react-bootstrap";
 import ProjectCategories from "./ProjectCategories";
 import DynamicCTA from "../../Components/DynamicCTA/DynamicCTA";
+import { Helmet } from "react-helmet-async";
 
 const Projects = () => {
 
@@ -17,6 +18,15 @@ const Projects = () => {
 
     return (
         <>
+            <Helmet>
+                <title>Our Projects – Axisys Global Engineering</title>
+                <meta name="description" content="View our portfolio of completed and ongoing structural engineering and construction projects powered by AI-driven innovations." />
+                <meta name="keywords" content="engineering projects, construction portfolio, Axisys projects, structural case studies" />
+                <meta property="og:title" content="Axisys Global Engineering Projects" />
+                <meta property="og:description" content="Explore how we deliver advanced engineering solutions across industries." />
+                <meta property="og:url" content="https://axisysglobal.com/projects" />
+            </Helmet>
+
             <div className="Projects_main">
                 <ProjectLanding />
                 <ProjectFilters />

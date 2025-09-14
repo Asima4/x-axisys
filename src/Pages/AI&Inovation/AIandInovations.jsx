@@ -8,6 +8,7 @@ import { Cpu, LayerBackward, Layers } from 'react-bootstrap-icons'
 import { FiZap } from 'react-icons/fi'
 import { Brain } from 'lucide-react'
 import StruxNovaPreview from './StruxNovaPreview/StruxNovaPreview'
+import { Helmet } from 'react-helmet-async'
 
 export default function AIandInovations() {
 
@@ -47,7 +48,7 @@ export default function AIandInovations() {
     {
       icon: 3,
       title: "Integration",
-      description:`Seamlessly incorporating proven technologies into our existing workflows.`,
+      description: `Seamlessly incorporating proven technologies into our existing workflows.`,
     },
     {
       icon: 4,
@@ -59,6 +60,15 @@ export default function AIandInovations() {
 
   return (
     <>
+      <Helmet>
+        <title>AI & Innovations – Axisys Global Engineering</title>
+        <meta name="description" content="Discover how Axisys Global is integrating AI and innovation into structural engineering and construction to revolutionize the AEC industry." />
+        <meta name="keywords" content="AI in construction, engineering innovations, smart engineering, AEC AI technology" />
+        <meta property="og:title" content="AI & Innovations at Axisys Global" />
+        <meta property="og:description" content="Driving the future of engineering with AI-powered innovations." />
+        <meta property="og:url" content="https://axisysglobal.com/ai-and-inovations" />
+      </Helmet>
+
       <div className='aiAndInovations_main'>
         <LandingAIandInovations />
         <OurAiInnovations />
@@ -67,7 +77,7 @@ export default function AIandInovations() {
           title="Core AI Capabilities"
           subTitle="The foundational technologies that power our intelligent engineering solutions and drive innovation across all our services."
         />
-        <StruxNovaPreview/>
+        <StruxNovaPreview />
         <CustomeCard
           cardDataList={innovationProcessList}
           title="Our Innovation Process"
