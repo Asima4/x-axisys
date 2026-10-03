@@ -1,0 +1,82 @@
+---
+import Icon from './Icon.astro';
+import '../styles/forms.css';
+
+interface Props {
+  roles: string[];
+}
+
+const { roles } = Astro.props;
+const experience = ['0–2 years', '3–5 years', '6–10 years', '10+ years'];
+---
+
+<form class="form" action="/api/contact.php" method="post" enctype="multipart/form-data" data-ajax-form novalidate>
+  <input type="hidden" name="form_type" value="application" />
+  <input type="hidden" name="started" value="" data-started />
+  <div class="form__hp" aria-hidden="true">
+    <label for="a-website">Leave this field empty</label>
+    <input id="a-website" type="text" name="website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="form__grid">
+    <div class="field">
+      <label for="a-name">Full name <span aria-hidden="true">*</span></label>
+      <input id="a-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+    </div>
+    <div class="field">
+      <label for="a-email">Email <span aria-hidden="true">*</span></label>
+      <input id="a-email" name="email" type="email" autocomplete="email" required maxlength="160" />
+    </div>
+    <div class="field">
+      <label for="a-phone">Phone / WhatsApp</label>
+      <input id="a-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
+    </div>
+    <div class="field">
+      <label for="a-location">Current location</label>
+      <input id="a-location" name="location" type="text" placeholder="City, country" maxlength="160" />
+    </div>
+    <div class="field">
+      <label for="a-role">Role you're applying for <span aria-hidden="true">*</span></label>
+      <select id="a-role" name="role" required>
+        <option value="">Select a role</option>
+        {roles.map((r) => <option value={r}>{r}</option>)}
+        <option value="General application">General application</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="a-experience">Experience</label>
+      <select id="a-experience" name="experience">
+        <option value="">Select experience</option>
+        {experience.map((e) => <option value={e}>{e}</option>)}
+      </select>
+    </div>
+    <div class="field field--full">
+      <label for="a-portfolio">LinkedIn or portfolio link</label>
+      <input id="a-portfolio" name="portfolio" type="url" placeholder="https://" maxlength="300" />
+    </div>
+    <div class="field field--full">
+      <label for="a-cv">CV / résumé <span aria-hidden="true">*</span></label>
+      <input id="a-cv" name="cv" type="file" accept=".pdf,.doc,.docx" required data-max-mb="5" />
+      <p class="field__hint">PDF or Word, up to 5 MB.</p>
+    </div>
+    <div class="field field--full">
+      <label for="a-message">Why Axisys?</label>
+      <textarea id="a-message" name="message" rows="5" maxlength="5000" placeholder="Tell us briefly about your experience and the kind of work you want to do."></textarea>
+    </div>
+  </div>
+
+  <div class="form__footer">
+    <p class="form__note">
+      We use your details only to assess your application. See our <a href="/privacy-policy/">Privacy Policy</a>.
+    </p>
+    <button class="btn" type="submit" data-submit>
+      <span data-label>Submit application</span>
+      <Icon name="Send" />
+    </button>
+  </div>
+  <p class="form__status" role="status" aria-live="polite" data-status></p>
+</form>
+
+<script>
+  import '../scripts/forms.ts';
+</script>

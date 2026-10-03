@@ -1,0 +1,47 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { site } from '../data/site';
+---
+
+<LegalPage title="Terms of Use" description={`Terms governing the use of the ${site.name} website.`} updated="September 2026">
+  <h2>Using this website</h2>
+  <p>
+    By using this website you agree to these terms. If you do not agree, please do not use the site. The website is operated by
+    {site.name}.
+  </p>
+
+  <h2>Information only</h2>
+  <p>
+    Content on this website is provided for general information about our services. It is not engineering advice and must not be
+    relied on for design, construction or any other decision. Professional services are provided only under a separate written
+    agreement.
+  </p>
+
+  <h2>Intellectual property</h2>
+  <p>
+    The Axisys name, logo, text, graphics and other content on this website belong to {site.name} or its licensors. You may view
+    and print pages for your own reference, but you may not copy, reproduce or reuse the content for commercial purposes without
+    our written permission.
+  </p>
+
+  <h2>Enquiries and submissions</h2>
+  <p>
+    Information you send us through this website must be accurate and must not infringe anyone else’s rights. Sending an enquiry
+    does not create a contract or oblige either party to proceed.
+  </p>
+
+  <h2>Links to other websites</h2>
+  <p>We are not responsible for the content or practices of any external websites linked from this site.</p>
+
+  <h2>Liability</h2>
+  <p>
+    We work to keep this website accurate and available, but we do not guarantee that it will be error-free or uninterrupted. To
+    the extent permitted by law, we are not liable for any loss arising from use of this website.
+  </p>
+
+  <h2>Changes</h2>
+  <p>We may update these terms at any time. Continued use of the website means you accept the current version.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about these terms can be sent through our <a href="/contact/">contact page</a>.</p>
+</LegalPage>

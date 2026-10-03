@@ -1,0 +1,207 @@
+---
+import type { ImageMetadata } from 'astro';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import ProjectMap from '../../components/ProjectMap.astro';
+import Icon from '../../components/Icon.astro';
+import { sampleProject } from '../../data/sampleProject';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
+
+const renderFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/renders/residence-all.{png,jpg,webp}', { eager: true });
+const sampleCover = Object.values(renderFiles)[0]?.default;
+
+const filters = [
+  { id: 'all', label: 'All' },
+  { id: 'arch', label: 'Architecture' },
+  { id: 'str', label: 'Structure' },
+  { id: 'mep', label: 'MEP' },
+];
+---
+
+<Base
+  title="Projects"
+  description="Axisys Global Engineering projects — 3D models, plans, elevations, structural and MEP drawings across architecture, structure and building services."
+>
+  <PageHero
+    eyebrow="Projects"
+    title="Engineering you can see — in 2D and 3D."
+    lead={`${projects.length} projects across residential, commercial, hospitality and infrastructure — with the renderings, plans, elevations, structural and MEP drawings we delivered.`}
+  >
+    <div class="filters" role="group" aria-label="Filter projects by discipline">
+      {
+        filters.map((f) => (
+          <button type="button" aria-pressed={f.id === 'all' ? 'true' : 'false'} data-filter={f.id}>
+            {f.label}
+          </button>
+        ))
+      }
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container">
+      <div class="project-grid">
+        {
+          projects.map((p, i) => (
+            <ProjectCard
+              featured={i === 0}
+              href={`/projects/${p.id}/`}
+              title={p.data.title}
+              sector={p.data.sector}
+              meta={p.data.location?.replace(', USA', '')}
+              summary={p.data.summary}
+              disciplines={p.data.disciplines}
+              image={p.data.cover ?? p.data.renders[0]?.src}
+              badge={p.data.status}
+            />
+          ))
+        }
+        <ProjectCard
+          featured={projects.length === 0}
+          href={`/projects/${sampleProject.slug}/`}
+          title={`${sampleProject.title} — Interactive Demo`}
+          sector="Demo"
+          meta="3D model + 9 sheets"
+          summary="Explore an interactive 3D model with architecture, structure and MEP layers, plus a fully coordinated drawing set."
+          disciplines={[...sampleProject.disciplines]}
+          image={sampleCover}
+          badge="Interactive 3D"
+        />
+      </div>
+
+      {
+        projects.length === 0 && (
+          <aside class="portfolio-note reveal">
+            <span class="portfolio-note__icon">
+              <Icon name="Layers" size={26} />
+            </span>
+            <div>
+              <h2>Portfolio update in progress</h2>
+              <p>
+                We’re preparing case studies of completed Axisys projects, with client permission. In the meantime, explore the sample
+                project to see the models and drawings we deliver.
+              </p>
+            </div>
+            <a class="btn btn--outline" href="/contact/">
+              Discuss your project
+            </a>
+          </aside>
+        )
+      }
+      <p class="filter-empty" hidden data-filter-empty>No projects in this discipline yet.</p>
+    </div>
+  </section>
+
+  <ProjectMap />
+
+  <CtaBand />
+</Base>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .filters button {
+    min-height: 42px;
+    padding: 0 18px;
+    border: 1px solid var(--line-dark);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--on-dark-2);
+    font: inherit;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .filters button[aria-pressed='true'] {
+    background: var(--on-dark);
+    border-color: var(--on-dark);
+    color: var(--steel);
+  }
+
+  .project-grid {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 760px) {
+    .project-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .project-grid > :global(.project-card--featured) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .project-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .portfolio-note {
+    display: grid;
+    gap: 20px;
+    align-items: center;
+    margin-top: 24px;
+    padding: clamp(24px, 3.5vw, 40px);
+    border: 1px dashed #bdb9ae;
+    background: var(--paper-2);
+  }
+
+  @media (min-width: 860px) {
+    .portfolio-note {
+      grid-template-columns: auto 1fr auto;
+      gap: 28px;
+    }
+  }
+
+  .portfolio-note__icon {
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .portfolio-note h2 {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+
+  .filter-empty {
+    margin-top: 24px;
+    color: var(--muted);
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const cards = document.querySelectorAll<HTMLElement>('.project-card');
+  const empty = document.querySelector<HTMLElement>('[data-filter-empty]')!;
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      const f = b.dataset.filter!;
+      buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      let shown = 0;
+      cards.forEach((c) => {
+        const match = f === 'all' || (c.dataset.disciplines ?? '').split(' ').includes(f);
+        c.hidden = !match;
+        if (match) shown++;
+      });
+      empty.hidden = shown > 0;
+    }),
+  );
+</script>

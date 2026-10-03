@@ -1,0 +1,23 @@
+---
+// Renders a Lucide icon inline at build time (no client JavaScript).
+import * as icons from 'lucide-static';
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  strokeWidth?: number;
+}
+
+const { name, size = 24, class: className = '', strokeWidth = 1.75 } = Astro.props;
+const raw = (icons as Record<string, string>)[name];
+if (!raw) throw new Error(`Unknown icon: ${name}`);
+
+const svg = raw
+  .replace(/width="24"/, `width="${size}"`)
+  .replace(/height="24"/, `height="${size}"`)
+  .replace(/stroke-width="2"/, `stroke-width="${strokeWidth}"`)
+  .replace(/class="([^"]*)"/, `class="$1 ${className}" aria-hidden="true" focusable="false"`);
+---
+
+<Fragment set:html={svg} />

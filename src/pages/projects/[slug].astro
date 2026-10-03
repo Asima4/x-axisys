@@ -1,0 +1,676 @@
+---
+// Page template for real projects added in /projects/<folder>/project.md
+import { Image, getImage } from 'astro:assets';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import CompareSlider from '../../components/CompareSlider.astro';
+
+export async function getStaticPaths() {
+  const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
+  return projects.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { entry, next } = Astro.props as { entry: CollectionEntry<'projects'>; next: CollectionEntry<'projects'> };
+const p = entry.data;
+const { Content } = await render(entry);
+
+const labels: Record<string, string> = {
+  arch: 'Architecture',
+  str: 'Structure',
+  mep: 'MEP',
+  bim: 'BIM',
+  render: 'Visualisation',
+  scan: 'Laser scanning',
+};
+
+const groups = [
+  { id: 'renders', title: '3D views & renderings', short: '3D views', items: p.renders },
+  { id: 'plans', title: 'Plans', short: 'Plans', items: p.plans },
+  { id: 'elevations', title: 'Elevations', short: 'Elevations', items: p.elevations },
+  { id: 'sections', title: 'Sections', short: 'Sections', items: p.sections },
+  { id: 'structural', title: 'Structural', short: 'Structural', items: p.structural },
+  { id: 'mep', title: 'MEP', short: 'MEP', items: p.mep },
+].filter((g) => g.items.length > 0);
+
+const galleries = await Promise.all(
+  groups.map(async (g) => ({
+    ...g,
+    items: await Promise.all(
+      g.items.map(async (it) => ({ ...it, full: await getImage({ src: it.src, width: Math.min(it.src.width, 2400), format: 'webp' }) })),
+    ),
+  })),
+);
+
+const facts = [
+  { label: 'Sector', value: p.sector },
+  { label: 'Location', value: p.location },
+  { label: 'Year', value: p.year ? String(p.year) : undefined },
+  { label: 'Client', value: p.client },
+  { label: 'Area', value: p.area },
+  { label: 'Status', value: p.status },
+].filter((f) => f.value);
+const cover = p.cover ?? p.renders[0]?.src;
+const totalImages = galleries.reduce((n, g) => n + g.items.length, 0);
+const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600, format: 'webp' }) : undefined;
+---
+
+<Base title={`${p.title}${p.location ? ` — ${p.location.split(',')[0]}` : ''}`} description={p.summary}>
+  <section class="project-hero dark">
+    <div class="container">
+      <nav class="crumbs mono" aria-label="Breadcrumb">
+        <a href="/projects/">Projects</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{p.title}</span>
+      </nav>
+      <div class="project-hero__grid">
+        <div class="project-hero__copy">
+          <p class="eyebrow">{p.sector}{p.location ? ` · ${p.location}` : ''}</p>
+          <h1>{p.title}</h1>
+          <p class="lead">{p.summary}</p>
+          <ul class="chips">{p.disciplines.map((d) => <li>{labels[d]}</li>)}</ul>
+        </div>
+        <dl class="facts">
+          {
+            facts.map((f) => (
+              <div>
+                <dt class="mono">{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            ))
+          }
+          <div>
+            <dt class="mono">Deliverables shown</dt>
+            <dd>{totalImages} drawings & views</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  {
+    cover && (
+      <div class="cover dark">
+        <div class="container">
+          <Image src={cover} alt={p.title} widths={[800, 1400, 2000]} sizes="(min-width: 1280px) 1240px, 100vw" loading="eager" />
+        </div>
+      </div>
+    )
+  }
+
+  {
+    galleries.length > 1 && (
+      <nav class="jump" aria-label="Project sections">
+        <div class="container jump__inner">
+          <a href="#case-study">Case study</a>
+          {p.compare.length > 0 && <a href="#compare">Drawing ↔ 3D</a>}
+          {p.video && <a href="#walkthrough">Walkthrough</a>}
+          {p.model && <a href="#model">3D model</a>}
+          {galleries.map((g) => (
+            <a href={`#${g.id}`}>
+              {g.short} <span class="mono">{g.items.length}</span>
+            </a>
+          ))}
+        </div>
+      </nav>
+    )
+  }
+
+  <section class="section" id="case-study">
+    <div class="container">
+      <div class="case__intro reveal">
+        <p class="eyebrow">Case study</p>
+        <p class="case__brief">{p.brief ?? p.summary}</p>
+        <div class="case__body">
+          <Content />
+        </div>
+      </div>
+      <div class="case">
+        {
+          p.challenge && (
+            <article class="case__card reveal">
+              <span class="case__num mono">01</span>
+              <h2 class="case__title">The challenge</h2>
+              <p>{p.challenge}</p>
+            </article>
+          )
+        }
+        {
+          p.scope.length > 0 && (
+            <article class="case__card case__card--wide reveal">
+              <span class="case__num mono">{p.challenge ? '02' : '01'}</span>
+              <h2 class="case__title">What Axisys did</h2>
+              <ul class="check-list">
+                {p.scope.map((s) => (
+                  <li>
+                    <Icon name="Check" />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+              {p.tools.length > 0 && (
+                <ul class="tags case__tools">
+                  {p.tools.map((t) => (
+                    <li>{t}</li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          )
+        }
+        {
+          p.outcome && (
+            <article class="case__card case__card--outcome reveal">
+              <span class="case__num mono">{String([p.challenge, p.scope.length].filter(Boolean).length + 1).padStart(2, '0')}</span>
+              <h2 class="case__title">Outcome</h2>
+              <p>{p.outcome}</p>
+            </article>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    p.compare.length > 0 && (
+      <section class="section section--white" id="compare">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow">Drawing ↔ 3D</p>
+            <h2>Drag to compare.</h2>
+          </div>
+          <div class="compare-list">
+            {p.compare.map((c) => (
+              <div class="reveal compare-list__item" style={`max-width:min(100%, calc(78vh * ${(c.after.width / c.after.height).toFixed(3)}))`}>
+                <CompareSlider before={c.before} after={c.after} beforeLabel={c.beforeLabel} afterLabel={c.afterLabel} caption={c.caption} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    p.video && (
+      <section class="section dark" id="walkthrough">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow">Walkthrough</p>
+            <h2>Rendered animation.</h2>
+          </div>
+          <video class="video" controls playsinline muted preload="none" poster={poster?.src}>
+            <source src={p.video} type="video/mp4" />
+          </video>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    p.model && (
+      <section class="section dark" id="model">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow">3D model</p>
+            <h2>Explore the model.</h2>
+          </div>
+          <div class="model-frame">
+            <ModelViewer modelUrl={p.model} zoom caption={`3D model of ${p.title}`} />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    galleries.map((g, gi) => (
+      <section class:list={['section gallery-section', gi % 2 === 0 ? 'section--white' : '']} id={g.id}>
+        <div class="container">
+          <div class="gallery-head reveal">
+            <p class="eyebrow">{String(gi + 1).padStart(2, '0')} · {g.title}</p>
+            <p class="mono gallery-count">
+              {g.items.length} {g.items.length === 1 ? 'sheet' : 'sheets'} · click to zoom
+            </p>
+          </div>
+          <div class:list={['gallery', { 'gallery--single': g.items.length === 1 }]}>
+            {g.items.map((it, i) => (
+              <figure class="gallery__item reveal">
+                <button
+                  type="button"
+                  data-open-image
+                  data-full={it.full.src}
+                  data-w={it.src.width}
+                  data-h={it.src.height}
+                  data-label={g.short.toUpperCase()}
+                  data-caption={it.caption ?? `${g.title} ${i + 1}`}
+                  aria-label={`Open ${it.caption ?? g.title} full screen`}
+                >
+                  <Image
+                    src={it.src}
+                    alt={it.caption ?? `${p.title} — ${g.title} ${i + 1}`}
+                    widths={[600, 1000, 1400]}
+                    sizes={g.items.length === 1 ? '(min-width: 1280px) 1240px, 100vw' : '(min-width: 900px) 50vw, 100vw'}
+                  />
+                  <span class="gallery__zoom" aria-hidden="true">
+                    <Icon name="Maximize2" size={18} />
+                  </span>
+                </button>
+                {it.caption && <figcaption>{it.caption}</figcaption>}
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  {
+    next && next.id !== entry.id && (
+      <section class="next dark">
+        <a class="container next__link" href={`/projects/${next.id}/`}>
+          <span class="mono">Next project</span>
+          <span class="next__title">
+            {next.data.title} <Icon name="ArrowRight" size={28} />
+          </span>
+        </a>
+      </section>
+    )
+  }
+
+  <Lightbox />
+  <CtaBand />
+</Base>
+
+<style>
+  .project-hero {
+    padding-block: clamp(40px, 6vw, 72px);
+  }
+
+  .crumbs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .crumbs a {
+    color: var(--on-dark-2);
+    text-decoration: none;
+  }
+
+  .crumbs [aria-current] {
+    color: var(--on-dark);
+  }
+
+  .project-hero__grid {
+    display: grid;
+    gap: 40px;
+  }
+
+  @media (min-width: 1000px) {
+    .project-hero__grid {
+      grid-template-columns: 1.2fr 1fr;
+      gap: 72px;
+      align-items: end;
+    }
+  }
+
+  .project-hero__copy {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+  }
+
+  .project-hero h1 {
+    font-size: clamp(2.3rem, 5vw, 4.2rem);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chips li {
+    padding: 6px 12px;
+    border: 1px solid var(--line-dark);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--on-dark);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 0;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .facts div {
+    padding: 16px 16px 16px 0;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .facts dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .facts dd {
+    margin: 0;
+    color: var(--on-dark);
+    font-weight: 600;
+  }
+
+  .cover {
+    padding-bottom: clamp(40px, 6vw, 72px);
+  }
+
+  .cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+    background: #fff;
+  }
+
+  .jump {
+    position: sticky;
+    top: 76px;
+    z-index: 20;
+    background: rgba(244, 243, 239, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .jump__inner {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-block: 10px;
+    scrollbar-width: none;
+  }
+
+  .jump a {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .jump a:hover {
+    background: var(--paper-2);
+  }
+
+  .jump .mono {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .case__intro {
+    display: grid;
+    gap: 18px;
+    max-width: 900px;
+    margin-bottom: clamp(36px, 5vw, 56px);
+  }
+
+  .case__brief {
+    font-size: clamp(1.5rem, 2.8vw, 2.3rem);
+    font-weight: 700;
+    font-stretch: 105%;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  .case__body {
+    max-width: 68ch;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .case__body :global(p + p) {
+    margin-top: 0.8em;
+  }
+
+  .case {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  @media (min-width: 900px) {
+    .case {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .case__card--wide {
+      grid-column: span 1;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .case:has(.case__card:nth-child(3)) {
+      grid-template-columns: 1fr 1.4fr 1fr;
+    }
+
+    .case:has(.case__card:nth-child(2)):not(:has(.case__card:nth-child(3))) {
+      grid-template-columns: 1fr 1.4fr;
+    }
+  }
+
+  .case__card {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: clamp(24px, 3vw, 40px);
+    background: var(--paper);
+  }
+
+  .case__card--outcome {
+    background: var(--ink);
+    color: var(--on-dark-2);
+  }
+
+  .case__card--outcome .case__title,
+  .case__card--outcome p {
+    color: var(--on-dark);
+  }
+
+  .case__card p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .case__num {
+    font-size: 0.8rem;
+    color: var(--blue);
+  }
+
+  .case__card--outcome .case__num {
+    color: var(--blue-on-dark);
+  }
+
+  .case__title {
+    font-size: 1.35rem;
+  }
+
+  .case__tools {
+    margin-top: 8px;
+  }
+
+  .compare-list {
+    display: grid;
+    gap: 40px;
+  }
+
+  .compare-list__item {
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border: 1px solid var(--line-dark);
+  }
+
+  .model-frame {
+    padding: 16px;
+    border: 1px solid var(--line-dark);
+  }
+
+  .model-frame :global(.viewer3d__stage) {
+    height: clamp(420px, 60vw, 720px);
+  }
+
+  .gallery-section,
+  #case-study,
+  #compare,
+  #walkthrough,
+  #model {
+    scroll-margin-top: 130px;
+  }
+
+  .gallery-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .gallery-head .eyebrow {
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  .gallery-count {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .gallery {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 900px) {
+    .gallery:not(.gallery--single) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .gallery__item {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+
+  .gallery__item button {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--line);
+    background: var(--white);
+    cursor: zoom-in;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .gallery__item button:hover {
+    border-color: #bdb9ae;
+    box-shadow: 0 20px 40px -24px rgba(20, 22, 26, 0.35);
+  }
+
+  .gallery__item img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .gallery__zoom {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    opacity: 0.85;
+  }
+
+  .gallery__item figcaption {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .next {
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .next__link {
+    display: grid;
+    gap: 8px;
+    padding-block: clamp(40px, 6vw, 72px);
+    color: var(--on-dark);
+    text-decoration: none;
+  }
+
+  .next__link .mono {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .next__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 780;
+    font-stretch: 110%;
+    letter-spacing: -0.01em;
+  }
+
+  .next__link:hover .next__title {
+    color: var(--blue-on-dark);
+  }
+</style>

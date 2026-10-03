@@ -1,0 +1,56 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { site } from '../data/site';
+---
+
+<LegalPage title="Privacy Policy" description={`How ${site.name} collects, uses and protects personal information.`} updated="September 2026">
+  <h2>Who we are</h2>
+  <p>
+    This website is operated by {site.name} (“Axisys”, “we”, “us”). This policy explains what personal information we collect
+    through this website, how we use it and the choices you have.
+  </p>
+
+  <h2>Information we collect</h2>
+  <p>We only collect information you choose to give us, when you:</p>
+  <ul>
+    <li>send an enquiry or quote request — name, email, phone number, company, project location and project details;</li>
+    <li>apply for a job — name, contact details, location, role, experience, portfolio link, CV and any message you include.</li>
+  </ul>
+  <p>
+    Like most websites, our hosting provider automatically records basic technical data such as IP address, browser type and the
+    pages requested. This is used to keep the site secure and working properly.
+  </p>
+
+  <h2>How we use your information</h2>
+  <ul>
+    <li>to respond to your enquiry and prepare proposals or quotes;</li>
+    <li>to assess job applications and contact candidates;</li>
+    <li>to protect the website against spam and misuse;</li>
+    <li>to meet legal and regulatory obligations.</li>
+  </ul>
+  <p>We do not sell your personal information, and we do not use it for unrelated marketing without your consent.</p>
+
+  <h2>Cookies</h2>
+  <p>This website does not use advertising or analytics cookies.</p>
+
+  <h2>Sharing</h2>
+  <p>
+    Your information is shared only with service providers that help us run this website and our email (such as our hosting
+    provider), and only as needed to provide those services, or where required by law.
+  </p>
+
+  <h2>How long we keep it</h2>
+  <p>
+    We keep enquiries for as long as needed to respond and manage any resulting project, and job applications for up to 12
+    months unless you ask us to delete them sooner.
+  </p>
+
+  <h2>Your rights</h2>
+  <p>
+    Depending on where you live, you may have the right to access, correct or delete your personal information, or to object to
+    how we use it. To make a request, contact us through our <a href="/contact/">contact page</a>.
+  </p>
+
+  <h2>Changes to this policy</h2>
+  <p>We may update this policy from time to time. The latest version will always be published on this page.</p>
+</LegalPage>

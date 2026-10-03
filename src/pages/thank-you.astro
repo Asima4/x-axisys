@@ -1,0 +1,19 @@
+---
+// Fallback confirmation page for form submissions made without JavaScript.
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<Base title="Thank you" noindex>
+  <PageHero
+    eyebrow="Message received"
+    title="Thank you."
+    lead="We’ve received your submission. Our team will review it and get back to you within one to two business days."
+  >
+    <div class="btn-row">
+      <a class="btn" href="/">Back to home <Icon name="ArrowRight" /></a>
+      <a class="btn btn--outline" href="/services/">Explore services</a>
+    </div>
+  </PageHero>
+</Base>

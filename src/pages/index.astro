@@ -1,0 +1,554 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroShowcase from '../components/HeroShowcase.astro';
+import ScrollBuild from '../components/ScrollBuild.astro';
+import CompareSlider from '../components/CompareSlider.astro';
+import ProjectMap from '../components/ProjectMap.astro';
+import elevDrawing from '../assets/compare/sample-elev-drawing.jpg';
+import elevRender from '../assets/compare/sample-elev-render.jpg';
+import strView from '../assets/compare/sample-3d-str.jpg';
+import archView from '../assets/compare/sample-3d-arch.jpg';
+import CtaBand from '../components/CtaBand.astro';
+import DrawingSet from '../components/DrawingSet.astro';
+import { getSheets } from '../lib/sheets';
+import { getCollection } from 'astro:content';
+import ProjectCard from '../components/ProjectCard.astro';
+import Icon from '../components/Icon.astro';
+import { processSteps, sectors, serviceGroups, site } from '../data/site';
+
+const featured = (await getCollection('projects', ({ data }) => !data.draft && data.featured)).sort((a, b) => a.data.order - b.data.order).slice(0, 4);
+const projectCount = (await getCollection('projects', ({ data }) => !data.draft)).length;
+
+const ellijayEntry = (await getCollection('projects')).find((p) => p.id === 'mountain-modern-residence-ellijay');
+const ellijay = ellijayEntry?.data.compare[0];
+
+const pillars = [
+  {
+    icon: 'Network',
+    title: 'Integrated by design',
+    text: 'Structure, architecture and MEP are developed together in one coordinated model — so clashes are solved on screen, not on site.',
+  },
+  {
+    icon: 'Cpu',
+    title: 'Digital-first delivery',
+    text: 'BIM, automation and AI-assisted checks speed up iterations and give you accurate quantities and documentation.',
+  },
+  {
+    icon: 'Leaf',
+    title: 'Sustainable outcomes',
+    text: 'Energy, daylight and carbon are considered from concept, helping you meet targets without late redesign.',
+  },
+];
+---
+
+<Base>
+  <HeroShowcase />
+
+  <!-- Featured projects -->
+  {
+    featured.length > 0 && (
+      <section class="section section--white rule-top" id="projects">
+        <div class="container">
+          <div class="section-head section-head--split reveal">
+            <div>
+              <p class="eyebrow">Selected work</p>
+              <h2>Projects we’ve engineered.</h2>
+            </div>
+            <div class="services-head__aside">
+              <p class="lead">From mountain homes and tiny home villages to food courts and rail facilities — see the drawings and models behind each one.</p>
+              <a class="text-link" href="/projects/">
+                View all {projectCount} projects <Icon name="ArrowRight" />
+              </a>
+            </div>
+          </div>
+          <div class="featured-grid">
+            {featured.map((p) => (
+              <ProjectCard
+                href={`/projects/${p.id}/`}
+                title={p.data.title}
+                sector={p.data.sector}
+                meta={p.data.location?.replace(', USA', '')}
+                summary={p.data.summary}
+                disciplines={p.data.disciplines}
+                image={p.data.cover ?? p.data.renders[0]?.src}
+                badge={p.data.status}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- Build -->
+  <ScrollBuild />
+
+  <!-- Compare -->
+  <section class="section section--white compare-section" id="drawing-to-render">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">Drawing ↔ Render</p>
+          <h2>Drag to see the drawing become the building.</h2>
+        </div>
+        <p class="lead">Our drawings and models come from the same source, so every line matches. Drag the handle on each image.</p>
+      </div>
+      <div class="compare-grid">
+        {
+          ellijay && (
+            <div class="compare-grid__main reveal">
+              <CompareSlider
+                before={ellijay.before}
+                after={ellijay.after}
+                beforeLabel={ellijay.beforeLabel}
+                afterLabel={ellijay.afterLabel}
+                caption="Mountain Modern Residence — main level plan and 3D overview"
+                sizes="(min-width: 1000px) 55vw, 100vw"
+              />
+            </div>
+          )
+        }
+        <div class="compare-grid__side">
+          <div class="reveal">
+            <CompareSlider before={elevDrawing} after={elevRender} beforeLabel="Elevation" afterLabel="3D model" caption="Front elevation drawing and 3D model" start={55} sizes="(min-width: 1000px) 40vw, 100vw" />
+          </div>
+          <div class="reveal">
+            <CompareSlider before={strView} after={archView} beforeLabel="Structure" afterLabel="Architecture" caption="Steel frame inside the finished building" start={50} sizes="(min-width: 1000px) 40vw, 100vw" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Map -->
+  <ProjectMap />
+
+  <!-- Approach -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">Our approach</p>
+          <h2>Engineering that connects every axis of your project.</h2>
+        </div>
+        <p class="lead">
+          Most delays and cost overruns happen where disciplines meet. Axisys brings them under one roof, working in a shared
+          model with one point of contact — so decisions are faster and drawings agree with each other.
+        </p>
+      </div>
+
+      <div class="pillars">
+        {
+          pillars.map((p, i) => (
+            <article class="pillar reveal" style={`transition-delay:${i * 80}ms`}>
+              <span class="pillar__icon"><Icon name={p.icon} size={26} /></span>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Services index -->
+  <section class="section section--white" id="services">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">The XI</p>
+          <h2>Eleven disciplines. One accountable team.</h2>
+        </div>
+        <div class="services-head__aside">
+          <p class="lead">Engage us for a single discipline, or for complete multidisciplinary delivery.</p>
+          <a class="text-link" href="/services/">See all services in detail <Icon name="ArrowRight" /></a>
+        </div>
+      </div>
+
+      <div class="service-index">
+        {
+          serviceGroups.map((group) => (
+            <div class="service-index__group reveal">
+              <h3 class="service-index__title">{group.title}</h3>
+              <ul>
+                {group.services.map((s) => (
+                  <li>
+                    <a href={`/services/${s.id}/`}>
+                      <span class="service-index__code mono">{s.code}</span>
+                      <span class="service-index__name">{s.name}</span>
+                      <Icon name="ArrowUpRight" size={20} class="service-index__arrow" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Drawings -->
+  <section class="section dark drawings" id="drawings">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">Drawings &amp; documentation</p>
+          <h2>Every discipline, drawn from one model.</h2>
+        </div>
+        <div class="services-head__aside">
+          <p class="lead">
+            Plans, elevations, framing, details and services layouts that agree with each other — because they come from the same
+            coordinated model. Click any sheet to zoom in.
+          </p>
+          <a class="text-link" href="/projects/sample-residence/">Explore the full sample project <Icon name="ArrowRight" /></a>
+        </div>
+      </div>
+      <DrawingSet sheets={getSheets()} initial="arch" layout="feature" />
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">How we work</p>
+        <h2>A clear process from brief to build.</h2>
+      </div>
+      <ol class="process">
+        {
+          processSteps.map((step, i) => (
+            <li class="process__step reveal" style={`transition-delay:${i * 80}ms`}>
+              <span class="process__num mono">0{i + 1}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- AI & Innovation -->
+  <section class="section dark innovation">
+    <div class="container innovation__inner">
+      <div class="innovation__copy reveal">
+        <p class="eyebrow">AI &amp; Innovation</p>
+        <h2>Introducing StruxNova.</h2>
+        <p class="lead">
+          Our AI engineering platform in development — bringing design automation, model checking and real-time collaboration into
+          one workspace for every discipline.
+        </p>
+        <a class="text-link" href="/ai-innovation/">Explore AI &amp; Innovation <Icon name="ArrowRight" /></a>
+      </div>
+      <div class="innovation__panel reveal">
+        <div class="innovation__panel-head">
+          <span class="mono">STRUXNOVA</span>
+          <span class="badge mono">In development</span>
+        </div>
+        <ul class="check-list">
+          {
+            ['Unified AI interface', 'Real-time collaboration', 'Cloud-based processing', 'Automated model checking', 'Advanced analytics', 'Cross-platform integration'].map((f) => (
+              <li>
+                <Icon name="Check" />
+                <span>{f}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sectors -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Sectors</p>
+        <h2>Built for the buildings that shape how we live and work.</h2>
+      </div>
+      <ul class="sectors">
+        {
+          sectors.map((s, i) => (
+            <li class="reveal" style={`transition-delay:${i * 50}ms`}>
+              <Icon name={s.icon} size={28} />
+              <span>{s.name}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+
+  <CtaBand />
+</Base>
+
+<style>
+  /* Drawing to render */
+  .compare-grid {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 1000px) {
+    .compare-grid {
+      grid-template-columns: 1.15fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .compare-grid__side {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* Pillars */
+  .pillars {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  @media (min-width: 820px) {
+    .pillars {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .pillar {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: clamp(28px, 3.5vw, 44px);
+    background: var(--paper);
+  }
+
+  .pillar__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 8px;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: #fff;
+  }
+
+  /* Featured projects */
+  .featured-grid {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 760px) {
+    .featured-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* Service index */
+  .services-head__aside {
+    display: grid;
+    gap: 18px;
+    justify-items: start;
+  }
+
+  .service-index {
+    display: grid;
+    gap: 40px;
+  }
+
+  @media (min-width: 1000px) {
+    .service-index {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+  }
+
+  .service-index__title {
+    padding-bottom: 14px;
+    margin-bottom: 4px;
+    border-bottom: 2px solid var(--ink);
+    font-size: 1.05rem;
+  }
+
+  .service-index ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .service-index a {
+    display: grid;
+    grid-template-columns: 56px 1fr 20px;
+    align-items: center;
+    gap: 8px;
+    padding: 17px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+    transition: padding 0.2s ease, color 0.2s ease;
+  }
+
+  .service-index__code {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .service-index__name {
+    font-size: 1.08rem;
+    font-weight: 600;
+  }
+
+  .service-index a :global(.service-index__arrow) {
+    color: var(--muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .service-index a:hover {
+    color: var(--blue);
+    padding-left: 6px;
+  }
+
+  .service-index a:hover :global(.service-index__arrow) {
+    color: var(--blue);
+    transform: translate(2px, -2px);
+  }
+
+  /* Process */
+  .process {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 32px;
+    counter-reset: step;
+  }
+
+  @media (min-width: 700px) {
+    .process {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1040px) {
+    .process {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+  }
+
+  .process__step {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding-top: 28px;
+    border-top: 2px solid var(--ink);
+  }
+
+  @media (min-width: 1040px) {
+    .process__step {
+      padding-right: 32px;
+    }
+  }
+
+  .process__step::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    background: var(--blue);
+  }
+
+  .process__step:last-child::before {
+    background: var(--red);
+  }
+
+  .process__num {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* Innovation */
+  .innovation__inner {
+    display: grid;
+    gap: 48px;
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .innovation__inner {
+      grid-template-columns: 1.1fr 1fr;
+      gap: 80px;
+    }
+  }
+
+  .innovation__copy {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+  }
+
+  .innovation__panel {
+    padding: clamp(28px, 3.5vw, 40px);
+    border: 1px solid var(--line-dark);
+    background:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 32px 32px,
+      var(--steel-2);
+    color: var(--on-dark);
+  }
+
+  .innovation__panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--line-dark);
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border: 1px solid var(--red);
+    color: #ff8a8b;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Sectors */
+  .sectors {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: 12px;
+  }
+
+  .sectors li {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 24px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .sectors li :global(svg) {
+    flex: none;
+    color: var(--blue);
+  }
+</style>

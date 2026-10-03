@@ -1,0 +1,278 @@
+---
+import Sheet from './Sheet.astro';
+import Icon from './Icon.astro';
+import Lightbox from './Lightbox.astro';
+import '../styles/sheets.css';
+import { disciplineLabels, type Discipline, type SheetData } from '../lib/sheets';
+
+interface Props {
+  sheets: SheetData[];
+  initial?: Discipline | 'all';
+  showAll?: boolean;
+  layout?: 'feature' | 'grid';
+}
+
+const { sheets, initial = 'arch', showAll = false, layout = 'feature' } = Astro.props;
+const tabs: (Discipline | 'all')[] = [...(showAll ? (['all'] as const) : []), 'arch', 'str', 'mep'];
+const leadIndex = initial === 'all' ? 0 : sheets.findIndex((s) => s.discipline === initial);
+const count = (d: Discipline | 'all') => (d === 'all' ? sheets.length : sheets.filter((s) => s.discipline === d).length);
+---
+
+<div class:list={['drawing-set', `drawing-set--${layout}`]} data-drawing-set>
+  <div class="drawing-set__tabs" role="tablist" aria-label="Drawing disciplines">
+    {
+      tabs.map((t) => (
+        <button type="button" role="tab" aria-selected={t === initial ? 'true' : 'false'} data-tab={t}>
+          {t === 'all' ? 'All sheets' : disciplineLabels[t]}
+          <span class="mono">{String(count(t)).padStart(2, '0')}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="drawing-set__grid">
+    {
+      sheets.map((s, i) => (
+        <article
+          class:list={['sheet-card', { 'is-lead': i === leadIndex }]}
+          data-discipline={s.discipline} data-sheet-anim hidden={initial !== 'all' && s.discipline !== initial}>
+          <button type="button" class="sheet-card__open" data-open-sheet aria-label={`Open ${s.number} ${s.title} full screen`}>
+            <Sheet sheet={s} />
+            <span class="sheet-card__zoom" aria-hidden="true">
+              <Icon name="Maximize2" size={18} />
+            </span>
+          </button>
+          <div class="sheet-card__meta">
+            <span class="sheet-card__number mono">{s.number}</span>
+            <div>
+              <h3>{s.title}</h3>
+              <p>{s.description}</p>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</div>
+
+<Lightbox />
+
+<style>
+  .drawing-set__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .drawing-set__tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--line-dark);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--on-dark-2);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .drawing-set__tabs button .mono {
+    font-size: 0.72rem;
+    opacity: 0.7;
+  }
+
+  .drawing-set__tabs button:hover {
+    color: var(--on-dark);
+    border-color: #4a505b;
+  }
+
+  .drawing-set__tabs button[aria-selected='true'] {
+    background: var(--on-dark);
+    border-color: var(--on-dark);
+    color: var(--steel);
+  }
+
+  :global(.section:not(.dark)) .drawing-set__tabs button {
+    border-color: var(--line);
+    color: var(--ink-2);
+  }
+
+  :global(.section:not(.dark)) .drawing-set__tabs button[aria-selected='true'] {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+  }
+
+  .drawing-set__grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 720px) {
+    .drawing-set__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .drawing-set--grid .drawing-set__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .drawing-set--feature .drawing-set__grid {
+      grid-template-columns: 1.7fr 1fr;
+      grid-auto-flow: dense;
+    }
+
+    .drawing-set--feature .sheet-card.is-lead {
+      grid-row: span 2;
+    }
+  }
+
+  .sheet-card {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .sheet-card[hidden] {
+    display: none;
+  }
+
+  .sheet-card__open {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 3px;
+    background: #fdfdfb;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.2),
+      0 18px 40px -18px rgba(0, 0, 0, 0.55);
+    cursor: zoom-in;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .sheet-card__open:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.2),
+      0 28px 50px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  .sheet-card__zoom {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .sheet-card__open:hover .sheet-card__zoom,
+  .sheet-card__open:focus-visible .sheet-card__zoom {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (hover: none) {
+    .sheet-card__zoom {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .sheet-card__meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .sheet-card__number {
+    padding: 3px 8px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--blue-on-dark);
+  }
+
+  :global(.section:not(.dark)) .sheet-card__number {
+    color: var(--blue);
+  }
+
+  .sheet-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+
+  .sheet-card p {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .drawing-set--feature .sheet-card:not(.is-lead) p {
+    display: none;
+  }
+
+</style>
+
+<script>
+  // ----- Tabs + draw-on animation -----
+  document.querySelectorAll<HTMLElement>('[data-drawing-set]').forEach((set) => {
+    const tabs = set.querySelectorAll<HTMLButtonElement>('[data-tab]');
+    const cards = [...set.querySelectorAll<HTMLElement>('.sheet-card')];
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-drawn');
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.25 },
+    );
+
+    const markLead = () => {
+      cards.forEach((c) => c.classList.remove('is-lead'));
+      cards.find((c) => !c.hidden)?.classList.add('is-lead');
+    };
+
+    const show = (tab: string) => {
+      tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === tab)));
+      cards.forEach((c) => {
+        const visible = tab === 'all' || c.dataset.discipline === tab;
+        c.hidden = !visible;
+        if (visible) {
+          c.classList.remove('is-drawn');
+          io.observe(c);
+        }
+      });
+      markLead();
+    };
+
+    tabs.forEach((t) => t.addEventListener('click', () => show(t.dataset.tab!)));
+    cards.filter((c) => !c.hidden).forEach((c) => io.observe(c));
+    markLead();
+  });
+
+</script>

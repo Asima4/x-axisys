@@ -1,0 +1,436 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Base from '../../layouts/Base.astro';
+import ModelViewer from '../../components/ModelViewer.astro';
+import DrawingSet from '../../components/DrawingSet.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import CompareSlider from '../../components/CompareSlider.astro';
+import elevDrawing from '../../assets/compare/sample-elev-drawing.jpg';
+import elevRender from '../../assets/compare/sample-elev-render.jpg';
+import strView from '../../assets/compare/sample-3d-str.jpg';
+import archView from '../../assets/compare/sample-3d-arch.jpg';
+import { getSheets, disciplineLabels } from '../../lib/sheets';
+import { sampleProject as P } from '../../data/sampleProject';
+
+// 3D renders captured from the model (src/assets/renders/residence-*.png)
+const renderFiles = import.meta.glob<{ default: ImageMetadata }>('../../assets/renders/residence-*.{png,jpg,webp}', { eager: true });
+const renderCaptions: Record<string, string> = {
+  arch: 'Architectural model',
+  str: 'Structural frame & foundations',
+  mep: 'MEP services',
+  explode: 'Exploded coordination view',
+};
+const renders = await Promise.all(
+  Object.entries(renderFiles)
+    .map(([path, mod]) => ({ key: path.match(/residence-(\w+)\./)?.[1] ?? '', img: mod.default }))
+    .filter((r) => renderCaptions[r.key])
+    .sort((a, b) => Object.keys(renderCaptions).indexOf(a.key) - Object.keys(renderCaptions).indexOf(b.key))
+    .map(async (r) => ({ ...r, full: await getImage({ src: r.img, width: 2000, format: 'webp' }) })),
+);
+---
+
+<Base
+  title={`${P.title} — Sample Project`}
+  description="Sample Axisys project with an interactive 3D model and full architectural, structural and MEP drawing set: plans, elevations, framing, details, HVAC, plumbing and electrical layouts."
+>
+  <section class="project-hero dark">
+    <div class="container">
+      <nav class="crumbs mono" aria-label="Breadcrumb">
+        <a href="/projects/">Projects</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{P.title}</span>
+      </nav>
+      <div class="project-hero__grid">
+        <div class="project-hero__copy">
+          <p class="eyebrow">Sample project · {P.sector}</p>
+          <h1>{P.title}</h1>
+          <p class="lead">{P.summary}</p>
+          <ul class="chips">
+            {P.disciplines.map((d) => <li>{disciplineLabels[d]}</li>)}
+          </ul>
+        </div>
+        <dl class="facts">
+          {
+            P.facts.map((f) => (
+              <div>
+                <dt class="mono">{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+      <p class="sample-note mono">
+        <Icon name="Info" size={16} /> Demonstration project created to illustrate our deliverables. Real client projects will be published here.
+      </p>
+    </div>
+  </section>
+
+  <section class="section dark model-section" id="model">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">01 · 3D model</p>
+          <h2>Explore the coordinated model.</h2>
+        </div>
+        <p class="lead">
+          Switch between architecture, structure and MEP, or explode the floors to see how every system fits together. Drag to
+          rotate and scroll to zoom.
+        </p>
+      </div>
+      <div class="model-frame">
+        <ModelViewer mode="all" zoom caption="Interactive coordinated 3D model of the sample residence" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white" id="compare">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Drawing ↔ 3D</p>
+        <h2>The drawing and the model always agree.</h2>
+      </div>
+      <div class="compare-pair">
+        <div class="reveal">
+          <CompareSlider before={elevDrawing} after={elevRender} beforeLabel="Elevation A-201" afterLabel="3D model" caption="Front elevation — drawing sheet vs. 3D model" start={55} sizes="(min-width: 1000px) 50vw, 100vw" />
+        </div>
+        <div class="reveal">
+          <CompareSlider before={strView} after={archView} beforeLabel="Structure" afterLabel="Architecture" caption="Steel frame inside the finished building" sizes="(min-width: 1000px) 50vw, 100vw" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {
+    renders.length > 0 && (
+      <section class="section section--tint" id="renders">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow">02 · 3D views</p>
+            <h2>One model, every discipline.</h2>
+          </div>
+          <div class="renders">
+            {renders.map((r, i) => (
+              <figure class:list={['render reveal', { 'render--wide': i === 0 }]}>
+                <button
+                  type="button"
+                  data-open-image
+                  data-full={r.full.src}
+                  data-w={r.img.width}
+                  data-h={r.img.height}
+                  data-label={`VIEW 0${i + 1}`}
+                  data-caption={renderCaptions[r.key]}
+                  aria-label={`Open ${renderCaptions[r.key]} full screen`}
+                >
+                  <Image
+                    src={r.img}
+                    alt={renderCaptions[r.key]}
+                    widths={[600, 900, 1400, 1600]}
+                    sizes={i === 0 ? '(min-width: 1280px) 1240px, 100vw' : '(min-width: 760px) 33vw, 100vw'}
+                  />
+                  <span class="render__zoom" aria-hidden="true">
+                    <Icon name="Maximize2" size={18} />
+                  </span>
+                </button>
+                <figcaption>
+                  <span class="mono">0{i + 1}</span> {renderCaptions[r.key]}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section dark" id="drawings">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">{renders.length > 0 ? '03' : '02'} · Drawing set</p>
+          <h2>Nine sheets. Fully coordinated.</h2>
+        </div>
+        <p class="lead">
+          Architectural plans and elevations, structural foundations, framing and connection details, and HVAC, plumbing and
+          electrical layouts — all generated from the same model. Click a sheet to zoom into the detail.
+        </p>
+      </div>
+      <DrawingSet sheets={getSheets()} initial="all" showAll layout="grid" />
+    </div>
+  </section>
+
+  <section class="section" id="scope">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Scope delivered</p>
+        <h2>What a full Axisys package includes.</h2>
+      </div>
+      <div class="scope">
+        {
+          P.scope.map((s) => (
+            <article class="scope__col reveal">
+              <span class="scope__icon">
+                <Icon name={s.icon} size={24} />
+              </span>
+              <h3>{s.discipline}</h3>
+              <ul class="check-list">
+                {s.items.map((i) => (
+                  <li>
+                    <Icon name="Check" />
+                    <span>{i}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="Want this level of detail for your project?" text="Send us your brief or existing drawings and we’ll propose a coordinated architecture, structure and MEP package." />
+</Base>
+
+<style>
+  .project-hero {
+    padding-block: clamp(40px, 6vw, 72px) clamp(40px, 6vw, 64px);
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .crumbs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 32px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .crumbs a {
+    color: var(--on-dark-2);
+    text-decoration: none;
+  }
+
+  .crumbs a:hover {
+    color: var(--on-dark);
+  }
+
+  .crumbs [aria-current] {
+    color: var(--on-dark);
+  }
+
+  .project-hero__grid {
+    display: grid;
+    gap: 40px;
+  }
+
+  @media (min-width: 1000px) {
+    .project-hero__grid {
+      grid-template-columns: 1.2fr 1fr;
+      gap: 72px;
+      align-items: end;
+    }
+  }
+
+  .project-hero__copy {
+    display: grid;
+    gap: 22px;
+    justify-items: start;
+  }
+
+  .project-hero h1 {
+    font-size: clamp(2.4rem, 5.2vw, 4.4rem);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chips li {
+    padding: 6px 12px;
+    border: 1px solid var(--line-dark);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--on-dark);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 0;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .facts div {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .facts div:nth-child(odd) {
+    padding-right: 16px;
+  }
+
+  .facts dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .facts dd {
+    margin: 0;
+    color: var(--on-dark);
+    font-weight: 600;
+  }
+
+  .sample-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 32px;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--on-dark-2);
+  }
+
+  .model-section {
+    padding-top: clamp(56px, 7vw, 88px);
+  }
+
+  .model-frame {
+    padding: clamp(12px, 2vw, 20px);
+    border: 1px solid var(--line-dark);
+    background:
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 48px 48px,
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px) 0 0 / 48px 48px,
+      var(--steel);
+  }
+
+  .model-frame :global(.viewer3d__stage) {
+    height: clamp(420px, 60vw, 720px);
+  }
+
+  .compare-pair {
+    display: grid;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (min-width: 1000px) {
+    .compare-pair {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .renders {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 760px) {
+    .renders {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .render--wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .render {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .render button {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: var(--steel);
+    cursor: zoom-in;
+    overflow: hidden;
+  }
+
+  .render img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .render--wide img {
+    aspect-ratio: 21 / 9;
+  }
+
+  .render button:hover img {
+    transform: scale(1.03);
+  }
+
+  .render__zoom {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+  }
+
+  .render figcaption {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .render figcaption .mono {
+    margin-right: 8px;
+    font-size: 0.78rem;
+    color: var(--blue);
+  }
+
+  .scope {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  @media (min-width: 860px) {
+    .scope {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .scope__col {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    padding: clamp(26px, 3.5vw, 40px);
+    background: var(--paper);
+  }
+
+  .scope__icon {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: #fff;
+  }
+</style>

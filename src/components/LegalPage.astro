@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  updated: string;
+}
+
+const { title, description, updated } = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <PageHero eyebrow="Legal" title={title} lead={`Last updated: ${updated}`} />
+  <section class="section">
+    <div class="container">
+      <div class="prose">
+        <slot />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .prose {
+    max-width: 72ch;
+  }
+
+  .prose :global(h2) {
+    font-size: 1.45rem;
+    font-stretch: 104%;
+    margin: 48px 0 14px;
+  }
+
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(p),
+  .prose :global(ul) {
+    margin: 0 0 16px;
+  }
+
+  .prose :global(ul) {
+    padding-left: 22px;
+  }
+
+  .prose :global(li) {
+    margin-bottom: 6px;
+  }
+</style>

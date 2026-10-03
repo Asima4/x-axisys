@@ -1,0 +1,271 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+
+const values = [
+  { icon: 'Ruler', title: 'Precision', text: 'Accurate calculations, coordinated drawings and models you can build from with confidence.' },
+  { icon: 'Network', title: 'Integration', text: 'Disciplines designed together, not in isolation — fewer clashes, fewer RFIs, less rework.' },
+  { icon: 'Lightbulb', title: 'Innovation', text: 'We adopt new tools when they make projects better, faster or safer — not for the sake of it.' },
+  { icon: 'Leaf', title: 'Sustainability', text: 'Energy, carbon and lifecycle performance considered from the first sketch.' },
+  { icon: 'Handshake', title: 'Accountability', text: 'Clear scope, honest timelines and one team responsible for the result.' },
+];
+
+const workingModel = [
+  { icon: 'MessagesSquare', title: 'One point of contact', text: 'A dedicated project lead coordinates every discipline and keeps you updated.' },
+  { icon: 'Globe', title: 'Global delivery', text: 'Distributed teams and cloud collaboration let us support projects across time zones.' },
+  { icon: 'FileCheck2', title: 'Your standards', text: 'We work to the codes, standards and drawing conventions required where your project is built.' },
+  { icon: 'Clock', title: 'Predictable schedules', text: 'Agreed milestones, regular reviews and transparent progress reporting.' },
+];
+---
+
+<Base
+  title="About Us"
+  description="Axisys Global Engineering is a multidisciplinary engineering firm integrating structure, architecture, MEP, BIM and AI to deliver better buildings."
+>
+  <PageHero
+    eyebrow="About Axisys"
+    title="Aligning every axis of the built environment."
+    lead="Axisys Global Engineering is a multidisciplinary engineering practice. We combine structural, architectural, MEP and digital expertise with AI-driven workflows to help clients design and deliver better buildings."
+  />
+
+  <section class="section">
+    <div class="container story">
+      <div class="story__mark reveal" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <line x1="20" y1="100" x2="180" y2="100" class="axis" />
+          <line x1="100" y1="20" x2="100" y2="180" class="axis" />
+          <line x1="48" y1="48" x2="152" y2="152" class="x" />
+          <line x1="152" y1="48" x2="48" y2="152" class="x" />
+          <rect x="18" y="96" width="26" height="8" fill="#004e92" />
+          <rect x="156" y="96" width="26" height="8" fill="#e8383a" />
+        </svg>
+      </div>
+      <div class="story__copy reveal">
+        <p class="eyebrow">Our story</p>
+        <h2>Built on a simple idea: engineering works best when everything lines up.</h2>
+        <p>
+          Every building project runs along many axes at once — structure, space, services, cost, time and sustainability. When those
+          are handled by separate firms working in separate files, problems hide in the gaps between them.
+        </p>
+        <p>
+          Axisys was founded to close those gaps. We bring eleven engineering and digital disciplines together in one team and one
+          coordinated model, and we use AI and automation to move faster without cutting corners.
+        </p>
+        <p>The result is design that is safer, clearer to build and ready for the future.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white rule-top">
+    <div class="container">
+      <div class="mv">
+        <article class="mv__item reveal">
+          <span class="mv__label mono"><Icon name="Target" size={18} /> Mission</span>
+          <p>
+            To transform how buildings are engineered by delivering intelligent, integrated and sustainable solutions that exceed our
+            clients’ expectations.
+          </p>
+        </article>
+        <article class="mv__item reveal">
+          <span class="mv__label mono"><Icon name="Eye" size={18} /> Vision</span>
+          <p>To be a leading AI-powered engineering firm, setting new standards for innovation, sustainability and client success.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Values</p>
+        <h2>What we hold ourselves to.</h2>
+      </div>
+      <ul class="values">
+        {
+          values.map((v, i) => (
+            <li class="reveal" style={`transition-delay:${i * 60}ms`}>
+              <Icon name={v.icon} size={26} />
+              <h3>{v.title}</h3>
+              <p>{v.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">Working with us</p>
+          <h2>Easy to work with, wherever you are.</h2>
+        </div>
+        <p class="lead">Whether you’re an architect, developer, contractor or owner, we fit into your process and your team.</p>
+      </div>
+      <ul class="model">
+        {
+          workingModel.map((m) => (
+            <li class="reveal">
+              <Icon name={m.icon} size={24} />
+              <div>
+                <h3>{m.title}</h3>
+                <p>{m.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  .story {
+    display: grid;
+    gap: 48px;
+    align-items: center;
+  }
+
+  @media (min-width: 900px) {
+    .story {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 88px;
+    }
+  }
+
+  .story__mark {
+    max-width: 380px;
+    width: 100%;
+    justify-self: center;
+    padding: clamp(24px, 4vw, 48px);
+    border: 1px solid var(--line);
+    background:
+      linear-gradient(to right, rgba(20, 22, 26, 0.06) 1px, transparent 1px) 0 0 / 20px 20px,
+      linear-gradient(to bottom, rgba(20, 22, 26, 0.06) 1px, transparent 1px) 0 0 / 20px 20px,
+      var(--white);
+  }
+
+  .story__mark .axis {
+    stroke: #b9b5aa;
+    stroke-width: 1;
+    stroke-dasharray: 6 4;
+  }
+
+  .story__mark .x {
+    stroke: var(--ink);
+    stroke-width: 16;
+  }
+
+  .story__copy {
+    display: grid;
+    gap: 20px;
+  }
+
+  .story__copy h2 {
+    margin-bottom: 8px;
+  }
+
+  .mv {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 860px) {
+    .mv {
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+    }
+  }
+
+  .mv__item {
+    display: grid;
+    gap: 20px;
+    padding-top: 24px;
+    border-top: 2px solid var(--ink);
+  }
+
+  .mv__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  .mv__item p {
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+    font-weight: 560;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+
+  .values {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: 12px;
+  }
+
+  .values li {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding: 28px 24px;
+    background: var(--white);
+    border: 1px solid var(--line);
+  }
+
+  .values li :global(svg) {
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+
+  .values h3 {
+    font-size: 1.15rem;
+  }
+
+  .values p {
+    font-size: 0.96rem;
+  }
+
+  .model {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0 56px;
+  }
+
+  @media (min-width: 820px) {
+    .model {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .model li {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    padding: 28px 0;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .model li :global(svg) {
+    color: var(--blue-on-dark);
+    margin-top: 2px;
+  }
+
+  .model h3 {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+  }
+</style>

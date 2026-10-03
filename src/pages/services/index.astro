@@ -1,0 +1,293 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { processSteps, serviceGroups } from '../../data/site';
+---
+
+<Base
+  title="Engineering Services"
+  description="Structural engineering, architecture, MEP, piping, BIM, rendering, AR/VR, 3D printing, AI-assisted design, laser scanning and sustainability consulting — eleven integrated disciplines from Axisys Global Engineering."
+>
+  <PageHero
+    eyebrow="Services · The XI"
+    title="Eleven disciplines, one coordinated team."
+    lead="Engage Axisys for a single discipline or complete multidisciplinary delivery. Every service works from the same model, standards and point of contact."
+  >
+    <nav class="group-nav" aria-label="Service groups">
+      {
+        serviceGroups.map((g, i) => (
+          <a href={`#${g.id}`}>
+            <span class="mono">0{i + 1}</span> {g.title}
+          </a>
+        ))
+      }
+    </nav>
+  </PageHero>
+
+  {
+    serviceGroups.map((group, gi) => (
+      <section class:list={['section', gi % 2 === 1 ? 'section--white' : '', gi > 0 ? 'rule-top' : '']} id={group.id}>
+        <div class="container">
+          <div class="group-head reveal">
+            <p class="eyebrow">0{gi + 1} / {group.title}</p>
+            <h2>{group.title}</h2>
+            <p class="lead">{group.intro}</p>
+          </div>
+
+          <div class="services">
+            {group.services.map((s) => (
+              <article class="service reveal" id={s.id}>
+                <header class="service__head">
+                  <span class="service__icon">
+                    <Icon name={s.icon} size={26} />
+                  </span>
+                  <span class="service__code mono">{s.code}</span>
+                </header>
+                <h3>
+                  <a class="service__link" href={`/services/${s.id}/`}>{s.name}</a>
+                </h3>
+                <p class="service__summary">{s.summary}</p>
+
+                <div class="service__detail">
+                  <h4 class="service__label mono">Deliverables</h4>
+                  <ul class="check-list">
+                    {s.deliverables.map((d) => (
+                      <li>
+                        <Icon name="Check" />
+                        <span>{d}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div class="service__detail">
+                  <h4 class="service__label mono">Typical tools</h4>
+                  <ul class="tags">
+                    {s.tools.map((t) => (
+                      <li>{t}</li>
+                    ))}
+                  </ul>
+                </div>
+                <a class="text-link service__more" href={`/services/${s.id}/`} tabindex="-1" aria-hidden="true">
+                  Explore {s.name} <Icon name="ArrowRight" />
+                </a>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section section--tint rule-top">
+    <div class="container">
+      <div class="group-head reveal">
+        <p class="eyebrow">Delivery</p>
+        <h2>How every engagement runs.</h2>
+      </div>
+      <ol class="steps">
+        {
+          processSteps.map((step, i) => (
+            <li class="reveal">
+              <span class="steps__num mono">0{i + 1}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <CtaBand title="Not sure which services you need?" text="Send us your brief or drawings. We’ll recommend the right mix of disciplines and a delivery plan that fits your schedule." />
+</Base>
+
+<style>
+  .group-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .group-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border: 1px solid var(--line-dark);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--on-dark);
+    font-weight: 560;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .group-nav a:hover {
+    border-color: var(--blue-on-dark);
+    background: rgba(91, 155, 230, 0.08);
+  }
+
+  .group-nav .mono {
+    font-size: 0.75rem;
+    color: var(--on-dark-2);
+  }
+
+  .group-head {
+    display: grid;
+    gap: 18px;
+    max-width: 720px;
+    margin-bottom: clamp(36px, 5vw, 56px);
+  }
+
+  .services {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 760px) {
+    .services {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .services {
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    }
+  }
+
+  .service {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(24px, 3vw, 32px);
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--ink);
+    scroll-margin-top: 100px;
+  }
+
+  .section--white .service {
+    background: var(--paper);
+  }
+
+  .service {
+    position: relative;
+  }
+
+  .service__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .service__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .service:hover {
+    border-top-color: var(--blue);
+  }
+
+  .service__more {
+    margin-top: 4px;
+  }
+
+  .service:target {
+    border-top-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(0, 78, 146, 0.14);
+  }
+
+  .service__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .service__icon {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius);
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  .service__code {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .service h3 {
+    font-size: 1.35rem;
+  }
+
+  .service__summary {
+    font-size: 0.99rem;
+  }
+
+  .service__detail {
+    display: grid;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .service__detail:last-child {
+    margin-top: auto;
+  }
+
+  .service__label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .service .check-list {
+    font-size: 0.95rem;
+    gap: 8px;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 900px) {
+    .steps {
+      grid-template-columns: repeat(2, 1fr);
+      column-gap: 56px;
+    }
+  }
+
+  .steps li {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 16px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .steps__num {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--blue);
+  }
+
+  .steps h3 {
+    margin-bottom: 8px;
+  }
+</style>

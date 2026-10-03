@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import QuoteForm from '../components/QuoteForm.astro';
+import Icon from '../components/Icon.astro';
+
+const nextSteps = [
+  { title: 'We review your brief', text: 'An engineer reads your enquiry and any details you share.' },
+  { title: 'We get in touch', text: 'Usually within one to two business days, to clarify scope and requirements.' },
+  { title: 'You receive a proposal', text: 'A clear scope, approach, timeline and fee — with no obligation.' },
+];
+
+const include = ['Type and size of the building', 'Project location', 'Current stage (concept, permit, construction)', 'Services and deliverables needed', 'Target dates or deadlines'];
+---
+
+<Base
+  title="Contact & Request a Quote"
+  description="Request a quote from Axisys Global Engineering for structural, architectural, MEP, BIM and digital engineering services."
+>
+  <PageHero
+    eyebrow="Contact"
+    title="Let’s talk about your project."
+    lead="Tell us what you’re planning. We’ll come back with the right team, approach and a clear quote."
+  />
+
+  <section class="section">
+    <div class="container contact">
+      <aside class="contact__aside reveal">
+        <div class="contact__block">
+          <h2 class="contact__title">What happens next</h2>
+          <ol class="next">
+            {
+              nextSteps.map((s, i) => (
+                <li>
+                  <span class="mono">0{i + 1}</span>
+                  <div>
+                    <h3>{s.title}</h3>
+                    <p>{s.text}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        <div class="contact__block">
+          <h2 class="contact__title">Helpful to include</h2>
+          <ul class="check-list">
+            {
+              include.map((i) => (
+                <li>
+                  <Icon name="Check" />
+                  <span>{i}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
+
+      <div class="contact__card reveal">
+        <QuoteForm />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    gap: 48px;
+  }
+
+  .contact__aside {
+    display: grid;
+    gap: 48px;
+    order: 1;
+  }
+
+  @media (min-width: 1000px) {
+    .contact {
+      grid-template-columns: 0.75fr 1.25fr;
+      gap: 72px;
+      align-items: start;
+    }
+
+    .contact__aside {
+      position: sticky;
+      top: 120px;
+      order: 0;
+    }
+  }
+
+  .contact__block {
+    display: grid;
+    gap: 20px;
+  }
+
+  .contact__title {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .next {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 2px solid var(--ink);
+  }
+
+  .next li {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .next .mono {
+    color: var(--blue);
+    font-weight: 500;
+    padding-top: 2px;
+  }
+
+  .next h3 {
+    font-size: 1.08rem;
+    margin-bottom: 4px;
+  }
+
+  .next p {
+    font-size: 0.96rem;
+  }
+
+  .contact__card {
+    padding: clamp(24px, 4vw, 48px);
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--blue);
+  }
+</style>

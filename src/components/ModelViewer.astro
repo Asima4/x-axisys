@@ -1,0 +1,450 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  mode?: 'arch' | 'str' | 'mep' | 'all';
+  autoCycle?: boolean;
+  zoom?: boolean;
+  modelUrl?: string;
+  class?: string;
+  caption?: string;
+}
+
+const { mode = 'arch', autoCycle = false, zoom = false, modelUrl, class: className = '', caption } = Astro.props;
+
+const modes = [
+  { id: 'arch', label: 'Architecture', short: 'ARCH' },
+  { id: 'str', label: 'Structure', short: 'STR' },
+  { id: 'mep', label: 'MEP', short: 'MEP' },
+  { id: 'all', label: 'Coordinated', short: 'ALL' },
+];
+
+const legends: Record<string, { c: string; t: string }[]> = {
+  arch: [
+    { c: '#f2f0eb', t: 'Walls & slabs' },
+    { c: '#9cc3dc', t: 'Glazing' },
+    { c: '#b08a5a', t: 'Deck' },
+  ],
+  str: [
+    { c: '#3b6fd6', t: 'Steel frame' },
+    { c: '#e8913a', t: 'Joists' },
+    { c: '#e8383a', t: 'Bracing' },
+    { c: '#9ca2a9', t: 'Foundations' },
+  ],
+  mep: [
+    { c: '#4fc3f7', t: 'Supply air' },
+    { c: '#9b7fe0', t: 'Return air' },
+    { c: '#2f7cf6', t: 'Cold water' },
+    { c: '#e53935', t: 'Hot water' },
+    { c: '#7d8591', t: 'Drainage' },
+    { c: '#f5b700', t: 'Electrical' },
+  ],
+  all: [
+    { c: '#f2f0eb', t: 'Architecture' },
+    { c: '#3b6fd6', t: 'Structure' },
+    { c: '#4fc3f7', t: 'MEP' },
+  ],
+};
+---
+
+<figure
+  class:list={['viewer3d', className]}
+  data-viewer
+  data-mode={mode}
+  data-auto-cycle={autoCycle ? 'true' : undefined}
+  data-zoom={zoom ? 'true' : undefined}
+  data-model-url={modelUrl}
+>
+  <div class="viewer3d__stage" data-stage>
+    <div class="viewer3d__loading" aria-hidden="true">
+      <span class="viewer3d__spinner"></span>
+      <span class="mono">Loading 3D model…</span>
+    </div>
+    <p class="viewer3d__hint mono" aria-hidden="true">
+      <Icon name="Rotate3d" size={16} /> Drag to rotate{zoom ? ' · scroll to zoom' : ''}
+    </p>
+    <noscript><p class="viewer3d__noscript">Enable JavaScript to view the interactive 3D model.</p></noscript>
+  </div>
+
+  {
+    !modelUrl && (
+      <div class="viewer3d__bar">
+        <div class="viewer3d__modes" role="radiogroup" aria-label="Model layers">
+          {modes.map((m) => (
+            <button type="button" role="radio" aria-checked={m.id === mode ? 'true' : 'false'} data-set-mode={m.id}>
+              <span class="viewer3d__mode-long">{m.label}</span>
+              <span class="viewer3d__mode-short">{m.short}</span>
+            </button>
+          ))}
+        </div>
+        <label class="viewer3d__toggle">
+          <input type="checkbox" data-explode />
+          <span class="viewer3d__switch" aria-hidden="true" />
+          Explode
+        </label>
+      </div>
+    )
+  }
+
+  {
+    !modelUrl && (
+      <ul class="viewer3d__legend" aria-label="Legend">
+        {Object.entries(legends).map(([m, items]) =>
+          items.map((i) => (
+            <li data-legend={m} hidden={m !== mode}>
+              <span style={`background:${i.c}`} />
+              {i.t}
+            </li>
+          )),
+        )}
+      </ul>
+    )
+  }
+  {caption && <figcaption class="visually-hidden">{caption}</figcaption>}
+</figure>
+
+<style>
+  .viewer3d {
+    position: relative;
+    margin: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    min-height: 0;
+    color: var(--on-dark);
+  }
+
+  .viewer3d__stage {
+    position: relative;
+    min-height: 320px;
+    overflow: hidden;
+  }
+
+  .viewer3d__stage :global(.viewer3d__canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    cursor: grab;
+    outline: none;
+  }
+
+  .viewer3d__stage :global(.viewer3d__canvas:active) {
+    cursor: grabbing;
+  }
+
+  .viewer3d__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 14px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    transition: opacity 0.5s ease;
+  }
+
+  .viewer3d:global(.is-ready) .viewer3d__loading {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .viewer3d__spinner {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--line-dark);
+    border-top-color: var(--blue-on-dark);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .viewer3d__hint {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 12px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: rgba(13, 15, 19, 0.7);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    color: var(--on-dark-2);
+    opacity: 0;
+    transition: opacity 0.4s ease 0.8s;
+    pointer-events: none;
+  }
+
+  .viewer3d:global(.is-ready) .viewer3d__hint {
+    opacity: 1;
+  }
+
+  .viewer3d:global(.has-interacted) .viewer3d__hint {
+    opacity: 0;
+    transition-delay: 0s;
+  }
+
+  .viewer3d__noscript {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+  }
+
+  .viewer3d__stage :global(.viewer3d__labels) {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .viewer3d__stage :global(.viewer3d__label) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 5px 10px 5px 20px;
+    margin: -13px 0 0 -6px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 3px;
+    background: rgba(13, 15, 19, 0.82);
+    color: var(--on-dark);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    will-change: transform;
+  }
+
+  .viewer3d__stage :global(.viewer3d__label::before) {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 0 3px rgba(232, 56, 58, 0.25);
+  }
+
+  .viewer3d__stage :global(.viewer3d__label.is-on) {
+    opacity: 1;
+  }
+
+  .viewer3d__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    padding-top: 14px;
+  }
+
+  .viewer3d__modes {
+    display: inline-flex;
+    padding: 4px;
+    gap: 2px;
+    border: 1px solid var(--line-dark);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .viewer3d__modes button {
+    min-height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--on-dark-2);
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 560;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .viewer3d__modes button:hover {
+    color: var(--on-dark);
+  }
+
+  .viewer3d__modes button[aria-checked='true'] {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .viewer3d__mode-short {
+    display: none;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 520px) {
+    .viewer3d__mode-long {
+      display: none;
+    }
+
+    .viewer3d__mode-short {
+      display: inline;
+    }
+
+    .viewer3d__modes button {
+      padding: 0 12px;
+    }
+  }
+
+  .viewer3d__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    font-weight: 560;
+    color: var(--on-dark-2);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .viewer3d__toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .viewer3d__switch {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--steel-3);
+    border: 1px solid var(--line-dark);
+    transition: background-color 0.2s ease;
+  }
+
+  .viewer3d__switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--on-dark);
+    transition: transform 0.2s ease;
+  }
+
+  .viewer3d__toggle input:checked + .viewer3d__switch {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .viewer3d__toggle input:checked + .viewer3d__switch::after {
+    transform: translateX(16px);
+  }
+
+  .viewer3d__toggle input:focus-visible + .viewer3d__switch {
+    outline: 2px solid var(--blue-on-dark);
+    outline-offset: 2px;
+  }
+
+  .viewer3d__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--on-dark-2);
+  }
+
+  .viewer3d__legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .viewer3d__legend li[hidden] {
+    display: none;
+  }
+
+  .viewer3d__legend span {
+    width: 14px;
+    height: 8px;
+    border-radius: 1px;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-viewer]').forEach((root) => {
+    const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-set-mode]');
+    const explode = root.querySelector<HTMLInputElement>('[data-explode]');
+    const legend = root.querySelectorAll<HTMLElement>('[data-legend]');
+
+    const reflectMode = (mode: string) => {
+      buttons.forEach((b) => b.setAttribute('aria-checked', String(b.dataset.setMode === mode)));
+      legend.forEach((li) => (li.hidden = li.dataset.legend !== mode));
+    };
+
+    let started = false;
+    const start = async () => {
+      if (started) return;
+      started = true;
+      try {
+        const { mountViewer } = await import('../scripts/viewer3d');
+        const viewer = mountViewer(stage, {
+          mode: (root.dataset.mode as 'arch') ?? 'arch',
+          autoCycle: root.dataset.autoCycle === 'true',
+          zoom: root.dataset.zoom === 'true',
+          modelUrl: root.dataset.modelUrl,
+          onModeChange: reflectMode,
+          onReady: () => root.classList.add('is-ready'),
+        });
+        buttons.forEach((b) =>
+          b.addEventListener('click', () => {
+            viewer.setMode(b.dataset.setMode as 'arch', true);
+            reflectMode(b.dataset.setMode!);
+          }),
+        );
+        explode?.addEventListener('change', () => viewer.setExploded(explode.checked));
+        stage.addEventListener('pointerdown', () => root.classList.add('has-interacted'), { once: true });
+      } catch (err) {
+        console.error(err);
+        stage.querySelector('.viewer3d__loading span:last-child')!.textContent = '3D view unavailable on this device';
+        stage.querySelector('.viewer3d__spinner')?.remove();
+      }
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          start();
+        }
+      },
+      { rootMargin: '300px' },
+    );
+    io.observe(root);
+  });
+</script>

@@ -1,0 +1,506 @@
+---
+// One page per service, showing real project drawings for that discipline.
+import { Image, getImage } from 'astro:assets';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import type { ImageMetadata } from 'astro';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import Lightbox from '../../components/Lightbox.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import { allServices, processSteps, serviceGroups, type Service } from '../../data/site';
+
+type Category = 'renders' | 'plans' | 'elevations' | 'sections' | 'structural' | 'mep';
+type WorkRule = { categories: Category[]; disciplines?: string[]; file?: RegExp; label: string; video?: boolean };
+
+// Which project drawings illustrate each service.
+const WORK: Record<string, WorkRule> = {
+  'structural-engineering': { categories: ['structural'], disciplines: ['str'], label: 'Structural drawings & analysis' },
+  architecture: { categories: ['plans', 'elevations', 'sections'], disciplines: ['arch'], label: 'Plans, elevations & sections' },
+  'mep-engineering': { categories: ['mep'], disciplines: ['mep'], label: 'MEP layouts' },
+  'bim-services': { categories: ['renders', 'structural'], file: /(3d|model|isometric|compare-3d)/i, label: '3D models' },
+  '3d-rendering-animation': { categories: ['renders'], disciplines: ['render'], file: /(render|video-still)/i, label: 'Renderings & animation', video: true },
+};
+
+export async function getStaticPaths() {
+  return allServices.map((service) => ({ params: { id: service.id }, props: { service } }));
+}
+
+const { service } = Astro.props as { service: Service };
+const group = serviceGroups.find((g) => g.services.some((s) => s.id === service.id))!;
+const rule = WORK[service.id];
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
+
+// Round-robin across projects so the gallery shows breadth, not one project.
+type Work = { src: ImageMetadata; caption: string; project: CollectionEntry<'projects'> };
+let work: Work[] = [];
+if (rule) {
+  const perProject = projects.map((p) =>
+    rule.categories
+      .flatMap((c) => p.data[c].map((it) => ({ src: it.src, caption: it.caption ?? '', project: p })))
+      .filter((w) => !rule.file || rule.file.test(w.src.src))
+      .filter((w) => !rule.disciplines || rule.disciplines.some((d) => p.data.disciplines.includes(d as never))),
+  );
+  for (let i = 0; work.length < 8 && perProject.some((l) => l.length > i); i++) {
+    for (const list of perProject) if (list[i] && work.length < 8) work.push(list[i]);
+  }
+}
+const gallery = await Promise.all(
+  work.map(async (w) => ({ ...w, full: await getImage({ src: w.src, width: Math.min(w.src.width, 2400), format: 'webp' }) })),
+);
+
+const related = rule
+  ? projects.filter((p) => work.some((w) => w.project.id === p.id) || (rule.disciplines ?? []).some((d) => p.data.disciplines.includes(d as never))).slice(0, 3)
+  : [];
+const videoProject = rule?.video ? projects.find((p) => p.data.video) : undefined;
+const siblings = group.services.filter((s) => s.id !== service.id);
+---
+
+<Base title={service.name} description={`${service.summary} Axisys Global Engineering — ${group.title}.`}>
+  <PageHero eyebrow={`${service.code} · ${group.title}`} title={service.name} lead={service.summary}>
+    <div class="btn-row">
+      <a class="btn" href="/contact/">Request a quote <Icon name="ArrowRight" /></a>
+      <a class="btn btn--outline" href="/services/">All services</a>
+    </div>
+    {
+      gallery[0] && (
+        <figure class="svc-hero-img" aria-hidden="true">
+          <Image src={gallery[0].src} alt="" widths={[600, 1000]} sizes="40vw" loading="eager" />
+        </figure>
+      )
+    }
+  </PageHero>
+
+  <section class="section">
+    <div class="container detail">
+      <div class="detail__main reveal">
+        <p class="eyebrow">What you get</p>
+        <h2>Deliverables</h2>
+        <ul class="deliverables">
+          {
+            service.deliverables.map((d, i) => (
+              <li>
+                <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+                {d}
+              </li>
+            ))
+          }
+        </ul>
+        <div class="detail__tools">
+          <h3 class="detail__label mono">Typical tools</h3>
+          <ul class="tags">{service.tools.map((t) => <li>{t}</li>)}</ul>
+        </div>
+      </div>
+      <aside class="detail__aside reveal">
+        <h3 class="detail__label mono">How we deliver</h3>
+        <ol class="steps">
+          {
+            processSteps.map((s, i) => (
+              <li>
+                <span class="mono">0{i + 1}</span>
+                <div>
+                  <h4>{s.title}</h4>
+                  <p>{s.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  {
+    gallery.length > 0 && (
+      <section class="section dark" id="work">
+        <div class="container">
+          <div class="section-head section-head--split reveal">
+            <div>
+              <p class="eyebrow">From our projects</p>
+              <h2>{rule!.label}</h2>
+            </div>
+            <p class="lead">Real {service.name.toLowerCase()} work from Axisys projects. Click any sheet to zoom in.</p>
+          </div>
+          <div class="work">
+            {gallery.map((w, i) => (
+              <figure class:list={['work__item reveal', { 'work__item--wide': i === 0 }]}>
+                <button
+                  type="button"
+                  data-open-image
+                  data-full={w.full.src}
+                  data-w={w.src.width}
+                  data-h={w.src.height}
+                  data-label={w.project.data.title.toUpperCase()}
+                  data-caption={w.caption}
+                  aria-label={`Open ${w.caption} full screen`}
+                >
+                  <Image src={w.src} alt={`${w.project.data.title} — ${w.caption}`} widths={[500, 900, 1400]} sizes={i === 0 ? '(min-width: 1000px) 66vw, 100vw' : '(min-width: 1000px) 33vw, 100vw'} />
+                  <span class="work__zoom" aria-hidden="true">
+                    <Icon name="Maximize2" size={16} />
+                  </span>
+                </button>
+                <figcaption>
+                  <span>{w.caption}</span>
+                  <a href={`/projects/${w.project.id}/`}>{w.project.data.title} →</a>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          {videoProject && (
+            <a class="video-link" href={`/projects/${videoProject.id}/#walkthrough`}>
+              <Icon name="Clapperboard" size={22} /> Watch the {videoProject.data.title} walkthrough animation <Icon name="ArrowRight" />
+            </a>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    related.length > 0 && (
+      <section class="section section--white">
+        <div class="container">
+          <div class="section-head reveal">
+            <p class="eyebrow">Related projects</p>
+            <h2>See it in context.</h2>
+          </div>
+          <div class="related">
+            {related.map((p) => (
+              <ProjectCard
+                href={`/projects/${p.id}/`}
+                title={p.data.title}
+                sector={p.data.sector}
+                meta={p.data.location?.replace(', USA', '')}
+                summary={p.data.summary}
+                disciplines={p.data.disciplines}
+                image={p.data.cover ?? p.data.renders[0]?.src}
+                badge={p.data.status}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--tint rule-top">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">{group.title}</p>
+        <h2>Works well with</h2>
+      </div>
+      <ul class="siblings">
+        {
+          siblings.map((s) => (
+            <li class="reveal">
+              <a href={`/services/${s.id}/`}>
+                <span class="siblings__icon">
+                  <Icon name={s.icon} size={22} />
+                </span>
+                <span class="siblings__text">
+                  <span class="mono">{s.code}</span>
+                  <strong>{s.name}</strong>
+                </span>
+                <Icon name="ArrowUpRight" size={20} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {gallery.length > 0 && <Lightbox />}
+  <CtaBand title={`Need ${service.name.toLowerCase()} for your project?`} />
+</Base>
+
+<style>
+  .svc-hero-img {
+    display: none;
+  }
+
+  @media (min-width: 1100px) {
+    .svc-hero-img {
+      display: block;
+      position: absolute;
+      right: var(--gutter);
+      top: 50%;
+      width: 38%;
+      margin: 0;
+      transform: translateY(-50%) rotate(-2deg);
+      background: #fff;
+      padding: 10px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+    }
+
+    .svc-hero-img :global(img) {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 360px;
+      object-fit: cover;
+      object-position: 50% 40%;
+    }
+  }
+
+  .detail {
+    display: grid;
+    gap: 48px;
+  }
+
+  @media (min-width: 1000px) {
+    .detail {
+      grid-template-columns: 1.3fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+  }
+
+  .detail__main {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+
+  .deliverables {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    border-top: 2px solid var(--ink);
+  }
+
+  .deliverables li {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    align-items: baseline;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+    font-weight: 620;
+    color: var(--ink);
+  }
+
+  .deliverables .mono {
+    font-size: 0.8rem;
+    color: var(--blue);
+    font-weight: 500;
+  }
+
+  .detail__tools {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .detail__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .detail__aside {
+    display: grid;
+    gap: 16px;
+    padding: clamp(24px, 3vw, 36px);
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--blue);
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+  }
+
+  .steps li {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 8px;
+  }
+
+  .steps .mono {
+    color: var(--blue);
+    font-size: 0.85rem;
+    padding-top: 2px;
+  }
+
+  .steps h4 {
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+
+  .steps p {
+    font-size: 0.93rem;
+  }
+
+  .work {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media (min-width: 700px) {
+    .work {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .work {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .work__item--wide {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  }
+
+  .work__item {
+    margin: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 10px;
+  }
+
+  .work__item button {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+    padding: 0;
+    border: 1px solid var(--line-dark);
+    background: #fff;
+    cursor: zoom-in;
+    overflow: hidden;
+  }
+
+  .work__item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: 50% 45%;
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .work__item--wide img {
+    aspect-ratio: auto;
+  }
+
+  .work__item button:hover img {
+    transform: scale(1.04);
+  }
+
+  .work__zoom {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .work__item figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 16px;
+    font-size: 0.92rem;
+  }
+
+  .work__item figcaption span {
+    color: var(--on-dark);
+    font-weight: 600;
+  }
+
+  .work__item figcaption a {
+    color: var(--blue-on-dark);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .video-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 32px;
+    padding: 14px 20px;
+    border: 1px solid var(--line-dark);
+    color: var(--on-dark);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .video-link:hover {
+    border-color: var(--blue-on-dark);
+  }
+
+  .related {
+    display: grid;
+    gap: 24px;
+  }
+
+  @media (min-width: 900px) {
+    .related {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .siblings {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+    gap: 12px;
+  }
+
+  .siblings a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 22px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .siblings a:hover {
+    border-color: var(--blue);
+  }
+
+  .siblings__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius);
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  .siblings__text {
+    display: grid;
+  }
+
+  .siblings__text .mono {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+</style>

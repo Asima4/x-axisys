@@ -1,0 +1,217 @@
+/* Drawing sheet styles (applied to generated SVG markup) */
+
+.sheet-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font);
+  user-select: none;
+}
+
+.sheet-svg text {
+  fill: #1b1e24;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+/* Paper & frame */
+.sheet-svg .k-paper { fill: #fdfdfb; }
+.sheet-svg .k-border-outer { fill: none; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-border { fill: none; stroke: #1b1e24; stroke-width: 2.5; }
+
+/* Title block */
+.sheet-svg .k-tb { fill: #fff; stroke: #1b1e24; stroke-width: 2.5; }
+.sheet-svg .k-tb-line { stroke: #1b1e24; stroke-width: 1.4; }
+.sheet-svg .k-tb-thin { stroke: #c9ccd2; stroke-width: 0.8; }
+.sheet-svg .t-tb-label { font-size: 8.5px; font-weight: 700; letter-spacing: 0.12em; fill: #6f747d; }
+.sheet-svg .t-tb-value { font-size: 15px; font-weight: 750; font-stretch: 108%; }
+.sheet-svg .t-tb-value-sm { font-size: 13px; font-weight: 650; }
+.sheet-svg .t-tb-sub { font-size: 9.5px; font-weight: 550; }
+.sheet-svg .t-tb-title { font-size: 20px; font-weight: 780; font-stretch: 110%; letter-spacing: 0.01em; }
+.sheet-svg .t-tb-number { font-size: 50px; font-weight: 820; font-stretch: 115%; letter-spacing: -0.01em; }
+.sheet-svg .k-stamp { fill: #fff5f5; stroke: #e8383a; stroke-width: 2; }
+.sheet-svg .t-stamp { font-size: 15px; font-weight: 800; fill: #d12c2e; letter-spacing: 0.08em; }
+.sheet-svg .t-stamp-sub { font-size: 9px; font-weight: 700; fill: #d12c2e; letter-spacing: 0.12em; }
+
+/* Generic linework */
+.sheet-svg .k-thin { stroke: #1b1e24; stroke-width: 1; fill: none; }
+.sheet-svg .k-solid { fill: #1b1e24; }
+.sheet-svg .k-knock { fill: #fdfdfb; }
+.sheet-svg .k-hidden { stroke: #6f747d; stroke-width: 0.8; stroke-dasharray: 6 4; fill: none; }
+.sheet-svg .k-grid { stroke: #9aa0a8; stroke-width: 0.8; stroke-dasharray: 22 4 3 4; }
+.sheet-svg .k-bubble { fill: #fff; stroke: #1b1e24; stroke-width: 1.2; }
+.sheet-svg .k-dim { stroke: #1b1e24; stroke-width: 0.7; }
+.sheet-svg .k-tick { stroke: #1b1e24; stroke-width: 1.8; }
+.sheet-svg .k-leader { stroke: #1b1e24; stroke-width: 0.9; fill: none; }
+.sheet-svg .k-divider { stroke: #d5d8dc; stroke-width: 1; stroke-dasharray: 4 4; }
+.sheet-svg .k-title-circle { fill: #1b1e24; }
+.sheet-svg .k-title-line { stroke: #1b1e24; stroke-width: 2; }
+.sheet-svg .k-table { fill: #fff; stroke: #1b1e24; stroke-width: 1.2; }
+.sheet-svg .k-table-head { fill: #eef0f3; stroke: #1b1e24; stroke-width: 1.2; }
+
+/* Text */
+.sheet-svg .t-sm { font-size: 10.5px; }
+.sheet-svg .t-xs { font-size: 10px; font-weight: 700; }
+.sheet-svg .t-xxs { font-size: 7.5px; font-weight: 600; }
+.sheet-svg .t-bold { font-size: 12px; font-weight: 750; letter-spacing: 0.08em; }
+.sheet-svg .t-head { font-size: 9.5px; font-weight: 750; letter-spacing: 0.08em; }
+.sheet-svg .t-bubble { font-size: 13px; font-weight: 700; }
+.sheet-svg .t-dim,
+.sheet-svg .t-area,
+.sheet-svg .t-beam,
+.sheet-svg .t-duct,
+.sheet-svg .t-duct-r { font-family: var(--mono); }
+.sheet-svg .t-dim { font-size: 10.5px; }
+.sheet-svg .t-room { font-size: 12px; font-weight: 700; letter-spacing: 0.07em; }
+.sheet-svg .t-room--sm { font-size: 9.5px; }
+.sheet-svg .t-room-light { font-size: 10.5px; font-weight: 650; letter-spacing: 0.07em; fill: #a3a8b0; }
+.sheet-svg .t-room-light--sm { font-size: 8.5px; }
+.sheet-svg .t-area { font-size: 10px; fill: #6f747d; }
+.sheet-svg .t-title { font-size: 21px; font-weight: 780; font-stretch: 110%; letter-spacing: 0.02em; }
+.sheet-svg .t-title-num { font-size: 15px; font-weight: 800; fill: #fff; }
+.sheet-svg .t-mark { font-size: 12px; font-weight: 750; fill: #1f4fd1; }
+
+/* Architecture */
+.sheet-svg .k-wall { fill: #23262c; }
+.sheet-svg .k-part { fill: #50545c; }
+.sheet-svg .k-leaf { stroke: #1b1e24; stroke-width: 1.5; }
+.sheet-svg .k-arc { stroke: #7a7f88; stroke-width: 0.8; stroke-dasharray: 3 3; fill: none; }
+.sheet-svg .k-col { fill: #1b1e24; }
+.sheet-svg .k-furn { stroke: #a0a5ad; stroke-width: 0.9; fill: none; }
+.sheet-svg .k-fixture { stroke: #1b1e24; stroke-width: 0.9; fill: #fff; }
+.sheet-svg .k-deck { fill: #f6efe2; stroke: #b08a5a; stroke-width: 0.9; }
+.sheet-svg .k-deck-line { stroke: #dccaa9; stroke-width: 0.6; }
+.sheet-svg .k-balcony { fill: #f2f2ef; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-rail { stroke: #1b1e24; stroke-width: 2.5; }
+.sheet-svg .k-outline-arch { fill: #fff; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-outline-under { fill: none; stroke: #c3c7cd; stroke-width: 0.8; }
+
+/* Underlay (structure / MEP sheets) */
+.sheet-svg .k-under-wall { fill: #cfd2d7; }
+.sheet-svg .k-under-part { fill: #dfe1e5; }
+.sheet-svg .k-under-line { stroke: #c9ccd2; stroke-width: 0.8; fill: none; }
+.sheet-svg .k-under-col { fill: #c3c7cd; }
+.sheet-svg .k-under-outline { fill: #f6f7f8; stroke: #c9ccd2; stroke-width: 3; }
+
+/* Elevations */
+.sheet-svg .k-ground { stroke: #1b1e24; stroke-width: 2.4; }
+.sheet-svg .k-earth { stroke: none; }
+.sheet-svg .k-plinth { fill: #dcd9d2; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-elev-wall { fill: #fbfaf7; stroke: #1b1e24; stroke-width: 1.5; }
+.sheet-svg .k-slab-edge { fill: #e2e0db; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-glass { fill: #d9e6ee; stroke: #1b1e24; stroke-width: 1.2; }
+.sheet-svg .k-mullion { stroke: #1b1e24; stroke-width: 1.5; }
+.sheet-svg .k-reflect { stroke: #fff; stroke-width: 2.5; opacity: 0.85; }
+.sheet-svg .k-fascia { fill: #2a2f38; }
+.sheet-svg .k-post { fill: #fff; stroke: #1b1e24; stroke-width: 1.1; }
+.sheet-svg .k-rail-elev { fill: #2a2f38; }
+.sheet-svg .k-baluster { stroke: #3a3f48; stroke-width: 0.6; }
+.sheet-svg .k-level { stroke: #8a8f98; stroke-width: 0.8; stroke-dasharray: 10 4; }
+.sheet-svg .k-joint { stroke: #d8d5ce; stroke-width: 0.9; }
+.sheet-svg .k-roof-elev { fill: #d1cec6; stroke: #1b1e24; stroke-width: 1.3; }
+.sheet-svg .k-equip-elev { fill: #e4e7eb; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-elev-line { fill: #fff; stroke: #1b1e24; stroke-width: 1; }
+
+/* Structure */
+.sheet-svg .k-footing-outline { fill: none; stroke: #1b1e24; stroke-width: 1; stroke-dasharray: 8 4; }
+.sheet-svg .k-pad { stroke: #1b1e24; stroke-width: 1.2; stroke-dasharray: 8 4; }
+.sheet-svg .k-pedestal { fill: #fff; stroke: #1b1e24; stroke-width: 1.2; }
+.sheet-svg .k-col-steel { fill: #1f4fd1; }
+.sheet-svg .k-col-hss { fill: #fff; stroke: #1f4fd1; stroke-width: 2.5; }
+.sheet-svg .k-beam { stroke: #1f4fd1; stroke-width: 4; stroke-dasharray: 26 5 4 5; }
+.sheet-svg .t-beam { font-size: 11px; font-weight: 700; fill: #1f4fd1; }
+.sheet-svg .k-joist { stroke: #e8913a; stroke-width: 1.2; stroke-dasharray: 9 5; }
+.sheet-svg .k-void { fill: rgba(27, 30, 36, 0.035); stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-span { stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .k-brace { stroke: #e8383a; stroke-width: 6; }
+.sheet-svg .t-brace { font-size: 12px; font-weight: 750; fill: #e8383a; }
+.sheet-svg .k-steel-web { fill: #e8edf8; }
+.sheet-svg .k-steel-cut { fill: #1f4fd1; }
+.sheet-svg .k-break { stroke: #1b1e24; stroke-width: 1; fill: none; }
+.sheet-svg .k-stiffener { fill: #c9d6f3; stroke: #1f4fd1; stroke-width: 1; stroke-dasharray: 5 3; }
+.sheet-svg .k-plate { stroke: #1f4fd1; stroke-width: 1.6; }
+.sheet-svg .k-plate-solid { fill: #1f4fd1; }
+.sheet-svg .k-bolt { fill: #fff; stroke: #1b1e24; stroke-width: 1.6; }
+.sheet-svg .k-concrete { stroke: #1b1e24; stroke-width: 1.4; }
+.sheet-svg .k-fill { fill: #efe7d6; stroke: none; }
+.sheet-svg .k-grout { fill: #d7d8da; stroke: #1b1e24; stroke-width: 0.8; }
+.sheet-svg .k-anchor { stroke: #1b1e24; stroke-width: 3; fill: none; }
+.sheet-svg .k-rebar { stroke: #e8383a; stroke-width: 2; fill: none; }
+
+/* MEP */
+.sheet-svg .k-duct-supply { fill: rgba(79, 195, 247, 0.3); stroke: #1580c0; stroke-width: 1.3; }
+.sheet-svg .k-duct-return { fill: rgba(155, 127, 224, 0.22); stroke: #6b4fc2; stroke-width: 1.3; stroke-dasharray: 6 3; }
+.sheet-svg .k-duct-cl { stroke: #1580c0; stroke-width: 0.6; stroke-dasharray: 10 3 2 3; }
+.sheet-svg .t-duct { font-size: 10px; font-weight: 700; fill: #1580c0; }
+.sheet-svg .t-duct-r { font-size: 10px; font-weight: 700; fill: #6b4fc2; }
+.sheet-svg .k-flow { fill: #1580c0; }
+.sheet-svg .k-diffuser { fill: #fff; stroke: #1580c0; stroke-width: 1.3; }
+.sheet-svg .k-diffuser-x { stroke: #1580c0; stroke-width: 0.8; fill: none; }
+.sheet-svg .k-grille { fill: #fff; stroke: #6b4fc2; stroke-width: 1.3; }
+.sheet-svg .k-grille-line { stroke: #6b4fc2; stroke-width: 0.8; }
+.sheet-svg .k-ahu { fill: rgba(79, 195, 247, 0.45); stroke: #1580c0; stroke-width: 1.6; }
+.sheet-svg .k-roof-equip { fill: none; stroke: #1b1e24; stroke-width: 1; stroke-dasharray: 6 4; }
+.sheet-svg .k-refrig { stroke: #b8792c; stroke-width: 1.8; stroke-dasharray: 8 3; fill: none; }
+.sheet-svg .k-riser-refrig { fill: #b8792c; }
+.sheet-svg .k-cold { stroke: #2f7cf6; stroke-width: 2.4; fill: none; }
+.sheet-svg .k-hot { stroke: #e53935; stroke-width: 2.2; stroke-dasharray: 10 4; fill: none; }
+.sheet-svg .k-waste { stroke: #5d6570; stroke-width: 3.4; fill: none; }
+.sheet-svg .k-below { stroke-dasharray: 14 5 3 5; }
+.sheet-svg .k-riser { stroke: #fff; stroke-width: 2; }
+.sheet-svg .k-riser-cold { fill: #2f7cf6; }
+.sheet-svg .k-riser-hot { fill: #e53935; }
+.sheet-svg .k-riser-waste { fill: #5d6570; }
+.sheet-svg .k-fixture-mep { fill: #fff; stroke: #1b1e24; stroke-width: 1; }
+.sheet-svg .t-cold { font-size: 10.5px; font-weight: 700; fill: #2f7cf6; }
+.sheet-svg .t-hot { font-size: 10.5px; font-weight: 700; fill: #e53935; }
+.sheet-svg .k-tray { fill: rgba(245, 183, 0, 0.28); stroke: #c99400; stroke-width: 1.2; }
+.sheet-svg .t-elec { font-size: 10.5px; font-weight: 700; fill: #9a7100; }
+.sheet-svg .k-db { fill: #1b1e24; }
+.sheet-svg .k-homerun { stroke: #c99400; stroke-width: 1.8; fill: none; }
+.sheet-svg .k-circuit { stroke: #c99400; stroke-width: 0.9; stroke-dasharray: 5 3; fill: none; }
+.sheet-svg .k-light { fill: #fff4c4; stroke: #1b1e24; stroke-width: 1.1; }
+.sheet-svg .k-light-x { stroke: #1b1e24; stroke-width: 0.8; fill: none; }
+.sheet-svg .k-socket { fill: #fff; stroke: #1b1e24; stroke-width: 1.1; }
+
+/* ---------- Draw-on animation ---------- */
+
+.sheet-svg .wipe {
+  transform-origin: 0 0;
+  transform-box: view-box;
+}
+
+html:not(.no-js) [data-sheet-anim]:not(.is-drawn) .wipe {
+  transform: scaleX(0);
+}
+
+html:not(.no-js) [data-sheet-anim]:not(.is-drawn) .l-grid,
+html:not(.no-js) [data-sheet-anim]:not(.is-drawn) .l-dims,
+html:not(.no-js) [data-sheet-anim]:not(.is-drawn) .l-text {
+  opacity: 0;
+}
+
+[data-sheet-anim] .wipe {
+  transition: transform 1.3s cubic-bezier(0.55, 0.1, 0.25, 1);
+}
+
+[data-sheet-anim] .wipe2 {
+  transition-delay: 0.35s;
+}
+
+[data-sheet-anim] .wipe3 {
+  transition-duration: 1.5s;
+  transition-delay: 0.7s;
+}
+
+[data-sheet-anim] .l-grid {
+  transition: opacity 0.6s ease;
+}
+
+[data-sheet-anim] .l-dims {
+  transition: opacity 0.7s ease 1.3s;
+}
+
+[data-sheet-anim] .l-text {
+  transition: opacity 0.7s ease 1.6s;
+}

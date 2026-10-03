@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+---
+
+<Base title="Page not found" noindex>
+  <PageHero eyebrow="Error 404" title="This page is off the grid." lead="The page you’re looking for doesn’t exist or has moved.">
+    <div class="btn-row">
+      <a class="btn" href="/">Back to home <Icon name="ArrowRight" /></a>
+      <a class="btn btn--outline" href="/contact/">Contact us</a>
+    </div>
+  </PageHero>
+</Base>

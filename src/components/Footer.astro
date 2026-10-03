@@ -1,0 +1,143 @@
+---
+import { Image } from 'astro:assets';
+import logoLight from '../assets/logo-light.png';
+import { nav, serviceGroups, site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer dark">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <a href="/" aria-label={`${site.name} — home`}>
+          <Image src={logoLight} alt="" height={40} width={Math.round((40 * logoLight.width) / logoLight.height)} densities={[1, 2]} />
+        </a>
+        <p>Integrated engineering across every axis — structure, architecture, MEP, BIM and beyond.</p>
+      </div>
+
+      <div>
+        <h2 class="site-footer__title">Company</h2>
+        <ul>
+          <li><a href="/">Home</a></li>
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="site-footer__title">Services</h2>
+        <ul>
+          {serviceGroups.map((g) => <li><a href={`/services/#${g.id}`}>{g.title}</a></li>)}
+          <li><a href="/services/">All 11 disciplines</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="site-footer__title">Start a project</h2>
+        <p>Tell us what you're planning and we'll come back with scope, approach and a quote.</p>
+        <a href="/contact/" class="text-link">Request a quote &rarr;</a>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>&copy; {year} {site.name}. All rights reserved.</p>
+      <ul>
+        <li><a href="/privacy-policy/">Privacy Policy</a></li>
+        <li><a href="/terms/">Terms of Use</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-top: clamp(56px, 8vw, 88px);
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: 40px;
+    grid-template-columns: 1fr;
+    padding-bottom: 56px;
+  }
+
+  @media (min-width: 640px) {
+    .site-footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .site-footer__grid {
+      grid-template-columns: 1.5fr 1fr 1fr 1.3fr;
+      gap: 56px;
+    }
+  }
+
+  .site-footer__brand img {
+    height: 38px;
+    width: auto;
+    margin-bottom: 20px;
+  }
+
+  .site-footer p {
+    font-size: 0.95rem;
+    max-width: 36ch;
+    margin-bottom: 14px;
+  }
+
+  .site-footer__title {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    margin-bottom: 18px;
+  }
+
+  .site-footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .site-footer ul a {
+    color: var(--on-dark);
+    text-decoration: none;
+    font-size: 0.97rem;
+  }
+
+  .site-footer ul a:hover {
+    color: var(--blue-on-dark);
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px 32px;
+    padding-block: 24px;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .site-footer__bottom p {
+    margin: 0;
+    max-width: none;
+    font-size: 0.87rem;
+  }
+
+  .site-footer__bottom ul {
+    display: flex;
+    gap: 24px;
+  }
+
+  .site-footer__bottom ul a {
+    font-size: 0.87rem;
+    color: var(--on-dark-2);
+  }
+</style>

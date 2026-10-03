@@ -1,0 +1,382 @@
+---
+// Full-bleed home hero: cross-fading renders from real projects, each linked to its project page.
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import type { ImageMetadata } from 'astro';
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+// Pick the strongest photoreal render from each project (by file name inside the project folder).
+const picks: { id: string; file: RegExp; position?: string }[] = [
+  { id: 'modular-tiny-home-village', file: /video-still\./, position: '60% 50%' },
+  { id: 'single-family-residence-florida', file: /render-front\./, position: '50% 40%' },
+  { id: 'container-food-court-yuma', file: /\/render\./, position: '55% 60%' },
+  { id: 'rail-maintenance-facility-los-angeles', file: /render-building\./, position: '60% 45%' },
+  { id: 'modular-tiny-home-village', file: /video-still-t5\./, position: '50% 60%' },
+];
+
+const projects = await getCollection('projects', ({ data }) => !data.draft);
+const byId = new Map(projects.map((p) => [p.id, p]));
+const slides = picks
+  .map((pick) => {
+    const p = byId.get(pick.id);
+    if (!p) return null;
+    const imgs: ImageMetadata[] = [p.data.cover, ...p.data.renders.map((r) => r.src)].filter(Boolean) as ImageMetadata[];
+    const img = imgs.find((i) => pick.file.test(i.src));
+    if (!img) return null;
+    return { img, position: pick.position ?? '50% 50%', id: p.id, title: p.data.title, place: (p.data.location ?? p.data.sector).replace(', USA', '') };
+  })
+  .filter((s): s is NonNullable<typeof s> => s !== null);
+
+const withCoords = projects.filter((p) => p.data.location);
+const states = new Set(withCoords.map((p) => p.data.location!.split(',').map((s) => s.trim()).filter((s) => s !== 'USA').pop()));
+---
+
+<section class="hero dark" data-hero>
+  <div class="hero__slides" aria-hidden="true">
+    {
+      slides.map((s, i) => (
+        <div class:list={['hero__slide', { 'is-active': i === 0 }]} data-slide>
+          <Image
+            src={s.img}
+            alt=""
+            widths={[800, 1280, 1920, 2400]}
+            sizes="100vw"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : 'low'}
+            style={`object-position:${s.position}`}
+          />
+        </div>
+      ))
+    }
+  </div>
+  <div class="hero__veil" aria-hidden="true"></div>
+
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow">{site.name}</p>
+      <h1>Beyond boundaries. Beyond blueprints.</h1>
+      <p class="lead">
+        Architecture, structural, MEP and BIM engineering — delivered as one coordinated package, from first concept to permit
+        and construction.
+      </p>
+      <div class="btn-row">
+        <a class="btn" href="/projects/">View our projects <Icon name="ArrowRight" /></a>
+        <a class="btn btn--outline" href="/contact/">Request a quote</a>
+      </div>
+      <dl class="hero__specs">
+        <div><dt>{projects.length}</dt><dd>Projects</dd></div>
+        <div><dt>{states.size}</dt><dd>US states</dd></div>
+        <div><dt>XI</dt><dd>Integrated disciplines</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero__now">
+      {
+        slides.map((s, i) => (
+          <a class:list={['hero__caption', { 'is-active': i === 0 }]} href={`/projects/${s.id}/`} data-caption tabindex={i === 0 ? 0 : -1}>
+            <span class="mono hero__caption-place">{s.place}</span>
+            <span class="hero__caption-title">
+              {s.title} <Icon name="ArrowUpRight" size={18} />
+            </span>
+          </a>
+        ))
+      }
+      <div class="hero__dots" role="tablist" aria-label="Featured renders">
+        {
+          slides.map((s, i) => (
+            <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} aria-label={`Show ${s.title}`} data-dot={i}>
+              <span />
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    min-height: min(92vh, 900px);
+    min-height: min(92svh, 900px);
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    padding-block: clamp(96px, 14vh, 160px) clamp(40px, 6vh, 64px);
+  }
+
+  .hero__slides,
+  .hero__slide,
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero__slides {
+    z-index: -2;
+    background: var(--steel);
+  }
+
+  .hero__slide {
+    opacity: 0;
+    transition: opacity 1.4s ease;
+  }
+
+  .hero__slide.is-active {
+    opacity: 1;
+  }
+
+  .hero__slide :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.02);
+  }
+
+  .hero__slide.is-active :global(img) {
+    animation: kenburns 9s ease-out forwards;
+  }
+
+  @keyframes kenburns {
+    from {
+      transform: scale(1.12);
+    }
+    to {
+      transform: scale(1.02);
+    }
+  }
+
+  .hero__veil {
+    z-index: -1;
+    background:
+      linear-gradient(90deg, rgba(13, 15, 19, 0.94) 0%, rgba(13, 15, 19, 0.78) 34%, rgba(13, 15, 19, 0.2) 68%, rgba(13, 15, 19, 0.05) 100%),
+      linear-gradient(0deg, rgba(13, 15, 19, 0.9) 0%, rgba(13, 15, 19, 0) 38%);
+  }
+
+  @media (max-width: 800px) {
+    .hero__veil {
+      background: linear-gradient(0deg, rgba(13, 15, 19, 0.96) 0%, rgba(13, 15, 19, 0.82) 52%, rgba(13, 15, 19, 0.35) 100%);
+    }
+  }
+
+  .hero__inner {
+    display: grid;
+    gap: 40px;
+    align-items: end;
+  }
+
+  @media (min-width: 1000px) {
+    .hero__inner {
+      grid-template-columns: 1fr auto;
+      gap: 64px;
+    }
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: 26px;
+    justify-items: start;
+    max-width: 680px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 6vw, 5.2rem);
+    text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .hero .lead {
+    color: #d3d7de;
+  }
+
+  .hero__specs {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 16px clamp(24px, 4vw, 48px);
+    margin: 8px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .hero__specs div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .hero__specs dt {
+    font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+    font-weight: 800;
+    font-stretch: 115%;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  .hero__specs dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #b8bec8;
+  }
+
+  .hero__now {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    min-width: min(100%, 320px);
+  }
+
+  .hero__caption {
+    grid-area: 1 / 1;
+    display: grid;
+    gap: 4px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--red);
+    background: rgba(13, 15, 19, 0.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    text-decoration: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity 0.6s ease, transform 0.6s ease, visibility 0.6s;
+  }
+
+  .hero__caption.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .hero__caption-place {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #b8bec8;
+  }
+
+  .hero__caption-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .hero__caption:hover .hero__caption-title {
+    color: var(--blue-on-dark);
+  }
+
+  .hero__dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .hero__dots button {
+    flex: 1;
+    height: 20px;
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .hero__dots span {
+    position: relative;
+    display: block;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+  }
+
+  .hero__dots span::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .hero__dots button[aria-selected='true'] span::after {
+    animation: dot-fill var(--hero-interval, 6.5s) linear forwards;
+  }
+
+  .hero:global(.is-paused) .hero__dots button[aria-selected='true'] span::after {
+    animation-play-state: paused;
+  }
+
+  @keyframes dot-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__slide.is-active :global(img) {
+      animation: none;
+    }
+
+    .hero__dots button[aria-selected='true'] span::after {
+      animation: none;
+      transform: scaleX(1);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-hero]').forEach((hero) => {
+    const slides = [...hero.querySelectorAll<HTMLElement>('[data-slide]')];
+    const captions = [...hero.querySelectorAll<HTMLElement>('[data-caption]')];
+    const dots = [...hero.querySelectorAll<HTMLButtonElement>('[data-dot]')];
+    if (slides.length < 2) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const interval = 6500;
+    let current = 0;
+    let timer: number | undefined;
+
+    const show = (i: number) => {
+      current = (i + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('is-active', k === current));
+      captions.forEach((c, k) => {
+        c.classList.toggle('is-active', k === current);
+        c.tabIndex = k === current ? 0 : -1;
+      });
+      dots.forEach((d, k) => {
+        d.setAttribute('aria-selected', String(k === current));
+        // restart the progress animation
+        const bar = d.querySelector('span')!;
+        bar.style.animation = 'none';
+        void bar.offsetWidth;
+        bar.style.animation = '';
+      });
+      // Load the next slide's image ahead of time
+      slides[(current + 1) % slides.length].querySelector('img')?.setAttribute('loading', 'eager');
+    };
+    const start = () => {
+      if (reduced) return;
+      window.clearInterval(timer);
+      timer = window.setInterval(() => show(current + 1), interval);
+    };
+    dots.forEach((d) =>
+      d.addEventListener('click', () => {
+        show(Number(d.dataset.dot));
+        start();
+      }),
+    );
+    hero.addEventListener('mouseenter', () => {
+      window.clearInterval(timer);
+      hero.classList.add('is-paused');
+    });
+    hero.addEventListener('mouseleave', () => {
+      hero.classList.remove('is-paused');
+      show(current);
+      start();
+    });
+    document.addEventListener('visibilitychange', () => (document.hidden ? window.clearInterval(timer) : start()));
+    start();
+  });
+</script>

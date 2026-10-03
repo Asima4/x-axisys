@@ -1,0 +1,198 @@
+---
+// Before/after slider: drag (or use arrow keys) to reveal the drawing vs the render.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  before: ImageMetadata;
+  after: ImageMetadata;
+  beforeLabel: string;
+  afterLabel: string;
+  caption?: string;
+  start?: number;
+  sizes?: string;
+}
+
+const { before, after, beforeLabel, afterLabel, caption, start = 50, sizes = '(min-width: 1280px) 1240px, 100vw' } = Astro.props;
+const id = `cmp-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<figure class="compare" data-compare style={`--pos:${start}%`}>
+  <div class="compare__frame" style={`aspect-ratio:${after.width} / ${after.height}`}>
+    <Image class="compare__img" src={after} alt={`${afterLabel}${caption ? ` — ${caption}` : ''}`} widths={[700, 1100, 1600, 2000]} sizes={sizes} />
+    <div class="compare__before" aria-hidden="true">
+      <Image class="compare__img" src={before} alt="" widths={[700, 1100, 1600, 2000]} sizes={sizes} />
+    </div>
+    <span class="compare__label compare__label--before mono">{beforeLabel}</span>
+    <span class="compare__label compare__label--after mono">{afterLabel}</span>
+    <span class="compare__handle" aria-hidden="true">
+      <span class="compare__knob">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          ><path d="m9 6-6 6 6 6"></path><path d="m15 6 6 6-6 6"></path></svg
+        >
+      </span>
+    </span>
+    <label class="visually-hidden" for={id}>Reveal {beforeLabel} or {afterLabel}</label>
+    <input class="compare__range" id={id} type="range" min="0" max="100" step="0.1" value={start} data-compare-range />
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .compare {
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+
+  .compare__frame {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+  }
+
+  :global(.dark) .compare__frame {
+    border-color: var(--line-dark);
+  }
+
+  .compare__frame :global(.compare__img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  .compare__before {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+    background: #fff;
+  }
+
+  .compare__handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: 2px;
+    margin-left: -1px;
+    background: var(--blue);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+  }
+
+  .compare__knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--blue);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+  }
+
+  .compare__frame:hover .compare__knob,
+  .compare__range:focus-visible ~ .compare__handle .compare__knob {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  .compare__range:focus-visible + .compare__handle,
+  .compare__frame:has(.compare__range:focus-visible) .compare__knob {
+    outline: 3px solid var(--blue-on-dark);
+    outline-offset: 3px;
+  }
+
+  .compare__range {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .compare__label {
+    position: absolute;
+    top: 14px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    background: rgba(13, 15, 19, 0.82);
+    color: #fff;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .compare__label--before {
+    left: 14px;
+  }
+
+  .compare__label--after {
+    right: 14px;
+    background: var(--blue);
+  }
+
+  .compare figcaption {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  :global(.dark) .compare figcaption {
+    color: var(--on-dark);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-compare]').forEach((root) => {
+    const range = root.querySelector<HTMLInputElement>('[data-compare-range]')!;
+    const set = (v: number) => root.style.setProperty('--pos', `${v}%`);
+    range.addEventListener('input', () => set(Number(range.value)));
+
+    // One gentle sweep the first time the slider is seen, to show it can be dragged.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let touched = false;
+    range.addEventListener('pointerdown', () => (touched = true), { once: true });
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        const start = Number(range.value);
+        const t0 = performance.now();
+        const keys = [start, start + 22, start - 18, start];
+        const step = (now: number) => {
+          if (touched) return;
+          const t = Math.min(1, (now - t0) / 2200);
+          const seg = Math.min(keys.length - 2, Math.floor(t * (keys.length - 1)));
+          const local = t * (keys.length - 1) - seg;
+          const e = local < 0.5 ? 2 * local * local : 1 - Math.pow(-2 * local + 2, 2) / 2;
+          const v = keys[seg] + (keys[seg + 1] - keys[seg]) * e;
+          range.value = String(v);
+          set(v);
+          if (t < 1) requestAnimationFrame(step);
+        };
+        setTimeout(() => requestAnimationFrame(step), 400);
+      },
+      { threshold: 0.6 },
+    );
+    io.observe(root);
+  });
+</script>

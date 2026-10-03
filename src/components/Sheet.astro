@@ -1,0 +1,118 @@
+---
+import type { SheetData } from '../lib/sheets';
+import { building } from '../lib/building';
+
+interface Props {
+  sheet: SheetData;
+  project?: string;
+}
+
+const { sheet, project = 'Sample Residence' } = Astro.props;
+const id = sheet.id;
+
+// Wrap the sheet title onto two lines for the title block.
+const words = sheet.title.toUpperCase().split(' ');
+const lines: string[] = [''];
+for (const w of words) {
+  const cur = lines[lines.length - 1];
+  if ((cur + ' ' + w).trim().length > 12 && cur) lines.push(w);
+  else lines[lines.length - 1] = (cur + ' ' + w).trim();
+}
+---
+
+<svg class="sheet-svg" viewBox="0 0 1400 990" role="img" aria-labelledby={`title-${id}`} data-sheet-svg>
+  <title id={`title-${id}`}>{`${sheet.number} ${sheet.title} — ${building.name} (sample drawing)`}</title>
+  <defs>
+    <mask id={`wipe1-${id}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1400" height="990">
+      <rect class="wipe wipe1" width="1400" height="990" fill="#fff"></rect>
+    </mask>
+    <mask id={`wipe2-${id}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1400" height="990">
+      <rect class="wipe wipe2" width="1400" height="990" fill="#fff"></rect>
+    </mask>
+    <mask id={`wipe3-${id}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1400" height="990">
+      <rect class="wipe wipe3" width="1400" height="990" fill="#fff"></rect>
+    </mask>
+    <pattern id={`hatch-${id}`} width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="12" height="12" fill="#f3f2ee"></rect>
+      <line x1="0" y1="0" x2="0" y2="12" stroke="#9a9ea6" stroke-width="0.8"></line>
+      <circle cx="6" cy="6" r="0.9" fill="#9a9ea6"></circle>
+    </pattern>
+    <pattern id={`hatch2-${id}`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#e3e9f8"></rect>
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#1f4fd1" stroke-width="0.7"></line>
+    </pattern>
+  </defs>
+
+  <!-- Paper & borders -->
+  <rect width="1400" height="990" class="k-paper"></rect>
+  <rect x="14" y="14" width="1372" height="962" class="k-border-outer"></rect>
+  <rect x="28" y="28" width="1344" height="934" class="k-border"></rect>
+
+  <!-- Drawing -->
+  <g class="sheet-drawing" set:html={sheet.body} />
+
+  <!-- Title block -->
+  <g class="l l-titleblock">
+    <rect x="1168" y="28" width="204" height="934" class="k-tb"></rect>
+    <image href="/brand/axisys-logo-dark.png" x="1180" y="46" width="180" height="31"></image>
+
+    <line x1="1168" y1="100" x2="1372" y2="100" class="k-tb-line"></line>
+    <text x="1180" y="120" class="t-tb-label">PROJECT</text>
+    <text x="1180" y="142" class="t-tb-value">{project.toUpperCase()}</text>
+    <text x="1180" y="160" class="t-tb-sub">{building.name.toUpperCase()}</text>
+
+    <line x1="1168" y1="176" x2="1372" y2="176" class="k-tb-line"></line>
+    <text x="1180" y="196" class="t-tb-label">CLIENT</text>
+    <text x="1180" y="216" class="t-tb-sub">DEMONSTRATION PROJECT</text>
+
+    <line x1="1168" y1="232" x2="1372" y2="232" class="k-tb-line"></line>
+    <rect x="1182" y="248" width="176" height="62" class="k-stamp"></rect>
+    <text x="1270" y="274" text-anchor="middle" class="t-stamp">SAMPLE DRAWING</text>
+    <text x="1270" y="294" text-anchor="middle" class="t-stamp-sub">NOT FOR CONSTRUCTION</text>
+
+    <line x1="1168" y1="326" x2="1372" y2="326" class="k-tb-line"></line>
+    <text x="1180" y="346" class="t-tb-label">REV</text>
+    <text x="1214" y="346" class="t-tb-label">DESCRIPTION</text>
+    <text x="1360" y="346" text-anchor="end" class="t-tb-label">DATE</text>
+    {
+      [
+        ['B', 'ISSUED FOR REVIEW', '09/26'],
+        ['A', 'CONCEPT DESIGN', '07/26'],
+      ].map(([r, d, dt], i) => (
+        <>
+          <line x1="1168" y1={356 + i * 24} x2="1372" y2={356 + i * 24} class="k-tb-thin" />
+          <text x="1180" y={373 + i * 24} class="t-tb-sub">{r}</text>
+          <text x="1214" y={373 + i * 24} class="t-tb-sub">{d}</text>
+          <text x="1360" y={373 + i * 24} text-anchor="end" class="t-tb-sub">{dt}</text>
+        </>
+      ))
+    }
+    {Array.from({ length: 6 }, (_, i) => <line x1="1168" y1={404 + i * 24} x2="1372" y2={404 + i * 24} class="k-tb-thin" />)}
+
+    <line x1="1168" y1="560" x2="1372" y2="560" class="k-tb-line"></line>
+    <text x="1180" y="580" class="t-tb-label">{sheet.disciplineName.toUpperCase()}</text>
+    {
+      lines.map((l, i) => (
+        <text x="1180" y={612 + i * 26} class="t-tb-title">
+          {l}
+        </text>
+      ))
+    }
+
+    <line x1="1168" y1="690" x2="1372" y2="690" class="k-tb-line"></line>
+    <line x1="1270" y1="690" x2="1270" y2="818" class="k-tb-line"></line>
+    <line x1="1168" y1="754" x2="1372" y2="754" class="k-tb-thin"></line>
+    <line x1="1168" y1="818" x2="1372" y2="818" class="k-tb-line"></line>
+    <text x="1180" y="710" class="t-tb-label">SCALE</text>
+    <text x="1180" y="734" class="t-tb-value-sm">{sheet.scale}</text>
+    <text x="1282" y="710" class="t-tb-label">DATE</text>
+    <text x="1282" y="734" class="t-tb-value-sm">SEP 2026</text>
+    <text x="1180" y="774" class="t-tb-label">DRAWN</text>
+    <text x="1180" y="798" class="t-tb-value-sm">AXS</text>
+    <text x="1282" y="774" class="t-tb-label">CHECKED</text>
+    <text x="1282" y="798" class="t-tb-value-sm">AXS</text>
+
+    <text x="1180" y="840" class="t-tb-label">SHEET NO.</text>
+    <text x="1270" y="918" text-anchor="middle" class="t-tb-number">{sheet.number}</text>
+  </g>
+</svg>

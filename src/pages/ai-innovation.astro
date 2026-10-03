@@ -1,0 +1,242 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+
+const capabilities = [
+  {
+    icon: 'BrainCircuit',
+    title: 'AI-assisted design',
+    text: 'Automation and machine learning that generate and compare design options, and check models against codes and project rules.',
+    items: ['Generative option studies', 'Rule-based model checking', 'Automated documentation', 'Design scripting'],
+  },
+  {
+    icon: 'Mic',
+    title: 'Voice-driven 3D modelling',
+    text: 'Research into natural-language commands that create and edit models — making design tools faster and more accessible.',
+    items: ['Natural language commands', 'Real-time model edits', 'Hands-free operation'],
+  },
+  {
+    icon: 'ScanLine',
+    title: 'Reality capture & digital twins',
+    text: 'Drone surveys and laser scanning turned into accurate as-built models that stay useful through operation.',
+    items: ['Point clouds to BIM', 'Progress monitoring', 'Digital twin foundations'],
+  },
+  {
+    icon: 'Leaf',
+    title: 'Performance analytics',
+    text: 'Energy, daylight and carbon simulations run early and often, so sustainability shapes the design rather than following it.',
+    items: ['Energy modelling', 'Embodied carbon analysis', 'Daylight & comfort studies'],
+  },
+];
+
+const struxFeatures = [
+  { icon: 'Layers', title: 'Unified AI interface', text: 'One workspace for design tools across structure, architecture and MEP.' },
+  { icon: 'Users', title: 'Real-time collaboration', text: 'Shared models and comments for distributed teams and clients.' },
+  { icon: 'Cloud', title: 'Cloud processing', text: 'Heavy analysis and automation run in the cloud, not on your laptop.' },
+  { icon: 'ShieldCheck', title: 'Automated checking', text: 'Continuous model QA against standards and project requirements.' },
+  { icon: 'ChartColumn', title: 'Advanced analytics', text: 'Quantities, cost and performance insights straight from the model.' },
+  { icon: 'Puzzle', title: 'Open integration', text: 'Built to connect with the BIM and CAD tools teams already use.' },
+];
+---
+
+<Base
+  title="AI & Innovation"
+  description="How Axisys Global Engineering uses AI-assisted design, reality capture and performance analytics — and StruxNova, our AI engineering platform in development."
+>
+  <PageHero
+    eyebrow="AI & Innovation"
+    title="Engineering, accelerated by intelligence."
+    lead="We use AI and automation to explore more options, catch issues earlier and deliver faster — while qualified engineers stay responsible for every decision."
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Capabilities</p>
+        <h2>Where technology changes the outcome.</h2>
+      </div>
+      <div class="caps">
+        {
+          capabilities.map((c) => (
+            <article class="cap reveal">
+              <span class="cap__icon">
+                <Icon name={c.icon} size={26} />
+              </span>
+              <div class="cap__body">
+                <h3>{c.title}</h3>
+                <p>{c.text}</p>
+                <ul class="tags">
+                  {c.items.map((i) => (
+                    <li>{i}</li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark strux" id="struxnova">
+    <div class="container">
+      <div class="section-head section-head--split reveal">
+        <div>
+          <p class="eyebrow">In development</p>
+          <h2>StruxNova — the AI engineering platform.</h2>
+        </div>
+        <div class="strux__aside">
+          <p class="lead">
+            StruxNova brings our AI tools into a single platform for engineers, designers and project teams. We’re building it with
+            early partners.
+          </p>
+          <a class="btn" href="/contact/">Register your interest <Icon name="ArrowRight" /></a>
+        </div>
+      </div>
+
+      <ul class="strux__grid">
+        {
+          struxFeatures.map((f) => (
+            <li class="reveal">
+              <Icon name={f.icon} size={24} />
+              <h3>{f.title}</h3>
+              <p>{f.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--white">
+    <div class="container"><div class="principle reveal">
+      <p class="eyebrow">Our principle</p>
+      <blockquote>
+        <p>AI speeds up the work. <span>Engineers stay accountable for it.</span></p>
+      </blockquote>
+      <p class="lead">
+        Every AI-assisted output is reviewed, verified and signed off by qualified professionals, following the codes and standards
+        that apply to your project.
+      </p>
+    </div></div>
+  </section>
+
+  <CtaBand title="Want to bring AI into your next project?" text="Tell us where you lose the most time — coordination, documentation, checking or surveying — and we’ll show you what can be automated." />
+</Base>
+
+<style>
+  .caps {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  @media (min-width: 860px) {
+    .caps {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .cap {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 22px;
+    padding: clamp(26px, 3.5vw, 44px);
+    background: var(--paper);
+  }
+
+  .cap__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius);
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .cap__body {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+  }
+
+  .cap .tags {
+    margin-top: 6px;
+  }
+
+  .strux__aside {
+    display: grid;
+    gap: 24px;
+    justify-items: start;
+  }
+
+  .strux__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    background: var(--line-dark);
+    border: 1px solid var(--line-dark);
+  }
+
+  @media (min-width: 640px) {
+    .strux__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .strux__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .strux__grid li {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    padding: 32px;
+    background: var(--steel);
+  }
+
+  .strux__grid li :global(svg) {
+    color: var(--blue-on-dark);
+    margin-bottom: 6px;
+  }
+
+  .strux__grid h3 {
+    font-size: 1.15rem;
+  }
+
+  .strux__grid p {
+    font-size: 0.97rem;
+  }
+
+  .principle {
+    display: grid;
+    gap: 28px;
+    max-width: 980px;
+  }
+
+  .principle blockquote {
+    margin: 0;
+  }
+
+  .principle blockquote p {
+    font-size: clamp(2rem, 4.6vw, 3.6rem);
+    font-weight: 780;
+    font-stretch: 110%;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .principle blockquote span {
+    color: var(--blue);
+  }
+</style>
