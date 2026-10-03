@@ -66,5 +66,5 @@ The site is hosted free on **Netlify**, connected to this GitHub repo. Every `gi
 ### Forms
 
 The quote form (`/contact/`) and job application form (`/careers/`, with CV upload) use **Netlify Forms**.
-Submissions appear in Netlify → Site → Forms, and email notifications to `info@axisysglobal.com` are set under Forms → Form notifications.
+Submissions appear in Netlify → Site → Forms, and email notifications go to `aasim@axisysglobal.com` (set under Forms → Submission notifications).
 Spam protection: hidden honeypot field plus Netlify's built-in spam filter.
