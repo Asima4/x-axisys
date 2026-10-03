@@ -2,7 +2,7 @@
 
 Official website for **Axisys Global Engineering** — *Beyond Boundaries, Beyond Blueprints*.
 
-Built with [Astro](https://astro.build) as a fast static site, with a small PHP form handler for Hostinger shared hosting.
+Built with [Astro](https://astro.build) as a fast static site, hosted on Netlify.
 
 ## Pages
 
@@ -54,26 +54,17 @@ npm run dev      # http://localhost:4321
 npm run build    # outputs the site to dist/
 ```
 
-> Forms can't send email locally — `api/contact.php` only runs on a PHP host (Hostinger).
+> Forms only send on the live Netlify site, not on `npm run dev`.
 
-## Deploy to Hostinger
+## Hosting (Netlify)
 
-1. `npm run build`
-2. In **hPanel → Websites → axisysglobal.com → File Manager**, open `public_html`.
-3. Upload **the contents of `dist/`** (not the folder itself), including the hidden `.htaccess` file.
-   Easiest: upload `axisys-website-upload.zip` and use *Extract* inside `public_html`.
-4. Make sure the domain's DNS has an **A record** for `@` pointing to your hosting IP (hPanel → Domains → DNS).
-5. Enable the free SSL certificate in **hPanel → Security → SSL**.
+The site is hosted free on **Netlify**, connected to this GitHub repo. Every `git push` to `main` rebuilds and publishes the site automatically (settings in `netlify.toml`).
 
-### Form email setup
+- Domain: `axisysglobal.com` is registered at Hostinger. DNS there points the site to Netlify (A record `@` and CNAME `www`); the MX/TXT records for Hostinger email stay unchanged.
+- HTTPS certificate: issued automatically by Netlify.
 
-Forms post to `public/api/contact.php`. Edit the two addresses at the top of that file:
+### Forms
 
-```php
-const RECIPIENT = 'info@axisysglobal.com';   // where submissions arrive
-const FROM_ADDRESS = 'info@axisysglobal.com'; // must be a real mailbox on the domain
-```
-
-Create that mailbox first in **hPanel → Emails**. After deploying, send a test enquiry from `/contact/` and a test application from `/careers/`.
-
-Spam protection: hidden honeypot field, minimum fill time, and a limit of 5 submissions per hour per IP.
+The quote form (`/contact/`) and job application form (`/careers/`, with CV upload) use **Netlify Forms**.
+Submissions appear in Netlify → Site → Forms, and email notifications to `info@axisysglobal.com` are set under Forms → Form notifications.
+Spam protection: hidden honeypot field plus Netlify's built-in spam filter.

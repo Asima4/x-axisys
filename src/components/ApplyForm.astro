@@ -10,7 +10,8 @@ const { roles } = Astro.props;
 const experience = ['0–2 years', '3–5 years', '6–10 years', '10+ years'];
 ---
 
-<form class="form" action="/api/contact.php" method="post" enctype="multipart/form-data" data-ajax-form novalidate>
+<form class="form" name="application" action="/thank-you/" method="post" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="website" data-ajax-form novalidate>
+  <input type="hidden" name="form-name" value="application" />
   <input type="hidden" name="form_type" value="application" />
   <input type="hidden" name="started" value="" data-started />
   <div class="form__hp" aria-hidden="true">

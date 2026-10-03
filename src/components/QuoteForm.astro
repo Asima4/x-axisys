@@ -6,7 +6,8 @@ import { quoteServiceOptions } from '../data/site';
 const timelines = ['As soon as possible', 'Within 1–3 months', 'Within 3–6 months', '6 months or more', 'Just exploring'];
 ---
 
-<form class="form" action="/api/contact.php" method="post" data-ajax-form novalidate>
+<form class="form" name="quote" action="/thank-you/" method="post" data-netlify="true" netlify-honeypot="website" data-ajax-form novalidate>
+  <input type="hidden" name="form-name" value="quote" />
   <input type="hidden" name="form_type" value="quote" />
   <input type="hidden" name="started" value="" data-started />
   <div class="form__hp" aria-hidden="true">

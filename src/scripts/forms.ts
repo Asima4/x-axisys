@@ -1,5 +1,5 @@
-// Progressive enhancement for forms posting to /api/contact.php.
-// Without JavaScript the form still posts normally and the PHP handler redirects.
+// Progressive enhancement for Netlify Forms.
+// Without JavaScript the form still posts normally and Netlify redirects to /thank-you/.
 
 const successIcon =
   '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -73,18 +73,10 @@ document.querySelectorAll<HTMLFormElement>('form[data-ajax-form]').forEach((form
     button.disabled = true;
     label.textContent = 'Sending…';
 
-    let serverError = '';
     try {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { Accept: 'application/json' },
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.ok) {
-        serverError = typeof data?.error === 'string' ? data.error : '';
-        throw new Error('send-failed');
-      }
+      // Netlify Forms accepts the submission at the site root; multipart keeps CV uploads intact.
+      const res = await fetch('/', { method: 'POST', body: new FormData(form) });
+      if (!res.ok) throw new Error('send-failed');
 
       const isApplication = form.querySelector<HTMLInputElement>('[name="form_type"]')?.value === 'application';
       const wrap = document.createElement('div');
@@ -101,7 +93,7 @@ document.querySelectorAll<HTMLFormElement>('form[data-ajax-form]').forEach((form
       form.replaceWith(wrap);
       wrap.focus();
     } catch {
-      status.textContent = serverError || 'Sorry, your message could not be sent right now. Please try again in a few minutes.';
+      status.textContent = 'Sorry, your message could not be sent right now. Please try again in a few minutes.';
       button.disabled = false;
       label.textContent = idleLabel;
     }
