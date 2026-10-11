@@ -73,11 +73,39 @@ scope:
   - Lighting, power, water supply and drainage design
   - Rendered walkthrough animation
 tools:
-  - AutoCAD
-  - SketchUp
-  - Illustrator
+  - Adobe Illustrator
 brief: "Modular tiny homes, shared bathroom pods and a community center, designed for prefabrication."
 challenge: "Every cabin had to be broken down into modules — each wall panel, bathroom pod and steel chassis detailed for factory fabrication and on-site assembly."
+engineering:
+  system: "Factory-built modules on galvanised steel tube chassis, with panelised aluminium-framed walls, bathroom pods and site-cast foundation pads."
+  codes: []
+  criteria: []
+  loads: []
+  materials:
+    - label: "Chassis"
+      value: "Galvanised steel tube"
+    - label: "Wall framing"
+      value: "Aluminium alloy profiles"
+    - label: "Glazing"
+      value: "Low-E insulated glass"
+    - label: "Sheet metal"
+      value: "3 mm galvanised, bent parts"
+  members:
+    - "100×50 galvanised tube"
+    - "50×100 galvanised tube"
+    - "50×50 galvanised tube"
+    - "Angle-iron bracing"
+  software:
+    - "Adobe Illustrator"
+  highlights:
+    - value: "4"
+      label: "Cabin types"
+    - value: "1"
+      label: "Community center"
+    - value: "25"
+      label: "Drawings & views"
+    - value: "71 s"
+      label: "Walkthrough film"
 featured: true
 order: 4
 draft: false

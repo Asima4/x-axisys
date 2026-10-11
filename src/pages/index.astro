@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import HeroShowcase from '../components/HeroShowcase.astro';
+import CodesStrip from '../components/CodesStrip.astro';
 import ScrollBuild from '../components/ScrollBuild.astro';
 import CompareSlider from '../components/CompareSlider.astro';
 import ProjectMap from '../components/ProjectMap.astro';
@@ -43,6 +44,7 @@ const pillars = [
 
 <Base>
   <HeroShowcase />
+  <CodesStrip />
 
   <!-- Featured projects -->
   {
@@ -55,7 +57,7 @@ const pillars = [
               <h2>Projects we’ve engineered.</h2>
             </div>
             <div class="services-head__aside">
-              <p class="lead">From mountain homes and tiny home villages to food courts and rail facilities — see the drawings and models behind each one.</p>
+              <p class="lead">From mountain homes and tiny home villages to food courts, steel pavilions and multi-family buildings — see the drawings and models behind each one.</p>
               <a class="text-link" href="/projects/">
                 View all {projectCount} projects <Icon name="ArrowRight" />
               </a>

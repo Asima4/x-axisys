@@ -8,6 +8,7 @@ import Lightbox from '../../components/Lightbox.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
 import CompareSlider from '../../components/CompareSlider.astro';
+import EngineeringSheet from '../../components/EngineeringSheet.astro';
 
 export async function getStaticPaths() {
   const projects = (await getCollection('projects', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order);
@@ -57,6 +58,8 @@ const facts = [
   { label: 'Status', value: p.status },
 ].filter((f) => f.value);
 const cover = p.cover ?? p.renders[0]?.src;
+const eng = p.engineering;
+const hasEng = !!eng && eng.codes.length + eng.criteria.length + eng.loads.length + eng.materials.length + eng.members.length > 0;
 const totalImages = galleries.reduce((n, g) => n + g.items.length, 0);
 const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600, format: 'webp' }) : undefined;
 ---
@@ -76,39 +79,63 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
           <p class="lead">{p.summary}</p>
           <ul class="chips">{p.disciplines.map((d) => <li>{labels[d]}</li>)}</ul>
         </div>
-        <dl class="facts">
-          {
-            facts.map((f) => (
-              <div>
-                <dt class="mono">{f.label}</dt>
-                <dd>{f.value}</dd>
+        {
+          cover && (
+            <figure class="hero-sheet">
+              <div class="hero-sheet__frame">
+                <Image src={cover} alt={p.title} widths={[700, 1100, 1600]} sizes="(min-width: 1000px) 50vw, 100vw" loading="eager" />
               </div>
-            ))
-          }
-          <div>
-            <dt class="mono">Deliverables shown</dt>
-            <dd>{totalImages} drawings & views</dd>
-          </div>
-        </dl>
+              <figcaption class="mono">
+                <span>{p.status ?? 'Project'}</span>
+                <span>{p.year ?? ''}</span>
+              </figcaption>
+            </figure>
+          )
+        }
       </div>
     </div>
   </section>
 
   {
-    cover && (
-      <div class="cover dark">
-        <div class="container">
-          <Image src={cover} alt={p.title} widths={[800, 1400, 2000]} sizes="(min-width: 1280px) 1240px, 100vw" loading="eager" />
+    eng?.highlights?.length ? (
+      <section class="figures dark" aria-label="Key figures">
+        <div class="container figures__grid">
+          {eng.highlights.map((h) => (
+            <div class="figures__item reveal">
+              <span class="figures__value">{h.value}</span>
+              <span class="figures__label mono">{h.label}</span>
+            </div>
+          ))}
         </div>
-      </div>
-    )
+      </section>
+    ) : null
   }
+
+  <section class="facts-band">
+    <div class="container">
+      <dl class="facts">
+        {
+          facts.map((f) => (
+            <div>
+              <dt class="mono">{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+        <div>
+          <dt class="mono">Deliverables shown</dt>
+          <dd>{totalImages} drawings & views</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
 
   {
     galleries.length > 1 && (
       <nav class="jump" aria-label="Project sections">
         <div class="container jump__inner">
           <a href="#case-study">Case study</a>
+          {hasEng && <a href="#engineering">Engineering data</a>}
           {p.compare.length > 0 && <a href="#compare">Drawing ↔ 3D</a>}
           {p.video && <a href="#walkthrough">Walkthrough</a>}
           {p.model && <a href="#model">3D model</a>}
@@ -176,6 +203,25 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
       </div>
     </div>
   </section>
+
+  {
+    hasEng && eng && (
+      <section class="section dark" id="engineering">
+        <div class="container">
+          <EngineeringSheet
+            title={p.title}
+            system={eng.system}
+            codes={eng.codes}
+            criteria={eng.criteria}
+            loads={eng.loads}
+            materials={eng.materials}
+            members={eng.members}
+            software={eng.software}
+          />
+        </div>
+      </section>
+    )
+  }
 
   {
     p.compare.length > 0 && (
@@ -318,9 +364,9 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
 
   @media (min-width: 1000px) {
     .project-hero__grid {
-      grid-template-columns: 1.2fr 1fr;
-      gap: 72px;
-      align-items: end;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 64px;
+      align-items: center;
     }
   }
 
@@ -352,42 +398,138 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
     color: var(--on-dark);
   }
 
+  .hero-sheet {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+    perspective: 1400px;
+  }
+
+  .hero-sheet__frame {
+    padding: 10px;
+    background: #fdfdfb;
+    box-shadow:
+      0 2px 0 rgba(255, 255, 255, 0.06),
+      0 40px 80px -30px rgba(0, 0, 0, 0.75);
+    transform: rotateY(-7deg) rotateX(3deg);
+    transform-origin: left center;
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .hero-sheet:hover .hero-sheet__frame {
+    transform: none;
+  }
+
+  .hero-sheet__frame :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+
+  .hero-sheet figcaption {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-sheet__frame {
+      transform: none;
+    }
+  }
+
+  .figures {
+    border-top: 1px solid var(--line-dark);
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .figures__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 900px) {
+    .figures__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .figures__item {
+    display: grid;
+    gap: 6px;
+    padding: clamp(22px, 3vw, 34px) clamp(14px, 2vw, 28px);
+    border-left: 1px solid var(--line-dark);
+  }
+
+  .figures__item:first-child,
+  .figures__item:nth-child(3) {
+    border-left: 0;
+  }
+
+  @media (min-width: 900px) {
+    .figures__item:nth-child(3) {
+      border-left: 1px solid var(--line-dark);
+    }
+  }
+
+  .figures__value {
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    font-weight: 820;
+    font-stretch: 112%;
+    line-height: 1;
+    color: var(--on-dark);
+    letter-spacing: -0.01em;
+  }
+
+  .figures__item:first-child .figures__value {
+    color: var(--blue-on-dark);
+  }
+
+  .figures__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .facts-band {
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+  }
+
   .facts {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     margin: 0;
-    border-top: 1px solid var(--line-dark);
+  }
+
+  @media (min-width: 900px) {
+    .facts {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
   }
 
   .facts div {
-    padding: 16px 16px 16px 0;
-    border-bottom: 1px solid var(--line-dark);
+    padding: 18px 16px 18px 0;
   }
 
   .facts dt {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-bottom: 4px;
+    color: var(--muted);
   }
 
   .facts dd {
     margin: 0;
-    color: var(--on-dark);
-    font-weight: 600;
-  }
-
-  .cover {
-    padding-bottom: clamp(40px, 6vw, 72px);
-  }
-
-  .cover img {
-    display: block;
-    width: 100%;
-    height: auto;
-    max-height: 80vh;
-    object-fit: contain;
-    background: #fff;
+    color: var(--ink);
+    font-weight: 650;
   }
 
   .jump {
@@ -555,6 +697,7 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
   .gallery-section,
   #case-study,
   #compare,
+  #engineering,
   #walkthrough,
   #model {
     scroll-margin-top: 130px;

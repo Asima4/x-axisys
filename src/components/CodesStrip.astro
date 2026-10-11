@@ -1,0 +1,111 @@
+---
+// Slow-moving band of the design codes used across Axisys projects (from project engineering data).
+import { getCollection } from 'astro:content';
+
+const projects = await getCollection('projects', ({ data }) => !data.draft && !!data.engineering);
+const order = (c: string) => (/^IBC|^IRC/.test(c) ? 0 : /^ASCE/.test(c) ? 1 : /^ACI|^TMS/.test(c) ? 2 : /^AISC|^AISI/.test(c) ? 3 : 4);
+const codes = [...new Set(projects.flatMap((p) => p.data.engineering!.codes))].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
+---
+
+{
+  codes.length > 0 && (
+    <section class="codes dark" aria-label="Design codes we work to">
+      <div class="codes__label mono">Designed to</div>
+      <div class="codes__track">
+        <ul class="codes__list">
+          {codes.map((c) => (
+            <li>{c}</li>
+          ))}
+        </ul>
+        <ul class="codes__list" aria-hidden="true">
+          {codes.map((c) => (
+            <li>{c}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .codes {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+    border-top: 1px solid var(--line-dark);
+    border-bottom: 1px solid var(--line-dark);
+    background: var(--steel-2);
+  }
+
+  .codes__label {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(16px, 3vw, 32px);
+    background: var(--blue);
+    color: #fff;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .codes__track {
+    display: flex;
+    width: max-content;
+    animation: codes-scroll 38s linear infinite;
+  }
+
+  .codes:hover .codes__track {
+    animation-play-state: paused;
+  }
+
+  .codes__list {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .codes__list li {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 18px 0 18px 28px;
+    font-size: clamp(1rem, 1.6vw, 1.25rem);
+    font-weight: 760;
+    font-stretch: 110%;
+    letter-spacing: 0.01em;
+    color: var(--on-dark);
+    white-space: nowrap;
+  }
+
+  .codes__list li::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    background: var(--red);
+    transform: rotate(45deg);
+  }
+
+  @keyframes codes-scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .codes__track {
+      animation: none;
+      flex-wrap: wrap;
+    }
+
+    .codes__list[aria-hidden] {
+      display: none;
+    }
+  }
+</style>

@@ -9,6 +9,7 @@ import ProjectCard from '../../components/ProjectCard.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
+import StructuralData from '../../components/StructuralData.astro';
 import { allServices, processSteps, serviceGroups, type Service } from '../../data/site';
 
 type Category = 'renders' | 'plans' | 'elevations' | 'sections' | 'structural' | 'mep';
@@ -157,6 +158,8 @@ const siblings = group.services.filter((s) => s.id !== service.id);
       </section>
     )
   }
+
+  {service.id === 'structural-engineering' && <StructuralData />}
 
   {
     related.length > 0 && (

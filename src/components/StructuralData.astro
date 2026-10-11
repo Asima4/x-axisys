@@ -1,0 +1,233 @@
+---
+// Structural standards + design-data table, aggregated from every project's engineering data.
+import { getCollection } from 'astro:content';
+import Icon from './Icon.astro';
+
+const projects = (await getCollection('projects', ({ data }) => !data.draft && !!data.engineering)).sort((a, b) => a.data.order - b.data.order);
+
+const find = (rows: { label: string; value: string }[], re: RegExp) => rows.find((r) => re.test(r.label))?.value;
+
+const rows = projects
+  .map((p) => {
+    const e = p.data.engineering!;
+    return {
+      id: p.id,
+      title: p.data.title,
+      place: (p.data.location ?? '').replace(', USA', ''),
+      system: e.system?.split(/[—,–]/)[0].trim(),
+      wind: find(e.criteria, /wind speed/i),
+      seismic: find(e.criteria, /seismic design category/i)
+        ? `SDC ${find(e.criteria, /seismic design category/i)}`
+        : find(e.criteria, /design spectral/i)?.split('·')[0].trim(),
+      codes: e.codes.slice(0, 3).join(' · '),
+    };
+  })
+  .filter((r) => r.wind || r.seismic || r.codes);
+
+// Standards grouped by what they govern
+const allCodes = [...new Set(projects.flatMap((p) => p.data.engineering!.codes))];
+const groups = [
+  { title: 'Building codes', match: /^(IBC|IRC)/ },
+  { title: 'Loads — wind, seismic, snow', match: /^ASCE/ },
+  { title: 'Concrete & masonry', match: /^(ACI|TMS)/ },
+  { title: 'Steel & cold-formed steel', match: /^(AISC|AISI)/ },
+  { title: 'Timber', match: /^(NDS|AWC)/ },
+]
+  .map((g) => ({ ...g, codes: allCodes.filter((c) => g.match.test(c)).sort() }))
+  .filter((g) => g.codes.length);
+---
+
+<section class="section section--white rule-top" id="standards">
+  <div class="container">
+    <div class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">Design standards</p>
+        <h2>The codes our structures are designed to.</h2>
+      </div>
+      <p class="lead">Every Axisys structural design states its basis of design: the governing code, load standard and material standards — taken here directly from our project drawings and calculation reports.</p>
+    </div>
+    <div class="std">
+      {
+        groups.map((g) => (
+          <div class="std__group reveal">
+            <h3 class="std__title mono">{g.title}</h3>
+            <ul>
+              {g.codes.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<section class="section dark" id="design-data">
+  <div class="container">
+    <div class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">Design data</p>
+        <h2>Real criteria from real projects.</h2>
+      </div>
+      <p class="lead">Wind, seismic and code basis for a selection of Axisys structural designs. Open a project for the full engineering data sheet.</p>
+    </div>
+    <div class="ddt reveal" role="region" aria-label="Design data table" tabindex="0">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Project</th>
+            <th scope="col">Structural system</th>
+            <th scope="col">Design wind</th>
+            <th scope="col">Seismic</th>
+            <th scope="col">Basis of design</th>
+            <th scope="col"><span class="visually-hidden">Link</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((r) => (
+              <tr>
+                <th scope="row">
+                  <a href={`/projects/${r.id}/#engineering`}>{r.title}</a>
+                  <span class="ddt__place mono">{r.place}</span>
+                </th>
+                <td>{r.system ?? '—'}</td>
+                <td class="mono">{r.wind ?? '—'}</td>
+                <td class="mono">{r.seismic ?? '—'}</td>
+                <td class="mono">{r.codes || '—'}</td>
+                <td>
+                  <a class="ddt__go" href={`/projects/${r.id}/#engineering`} aria-label={`Engineering data for ${r.title}`}>
+                    <Icon name="ArrowUpRight" size={18} />
+                  </a>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+  .std {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  @media (min-width: 700px) {
+    .std {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+  }
+
+  .std__group {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding: 26px 24px;
+    background: var(--paper);
+  }
+
+  .std__title {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .std ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .std li {
+    padding: 7px 12px;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--blue);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .ddt {
+    overflow-x: auto;
+    border: 1px solid var(--line-dark);
+  }
+
+  .ddt table {
+    width: 100%;
+    min-width: 860px;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+  }
+
+  .ddt th,
+  .ddt td {
+    padding: 16px 18px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .ddt thead th {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    background: var(--steel-2);
+  }
+
+  .ddt tbody th {
+    font-weight: 700;
+  }
+
+  .ddt__place {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .ddt tbody th a {
+    color: var(--on-dark);
+    text-decoration: none;
+  }
+
+  .ddt tbody th a:hover {
+    color: var(--blue-on-dark);
+  }
+
+  .ddt tbody th .mono {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--on-dark-2);
+  }
+
+  .ddt td {
+    color: var(--on-dark-2);
+  }
+
+  .ddt td.mono {
+    color: var(--on-dark);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .ddt tbody tr:hover {
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .ddt__go {
+    color: var(--blue-on-dark);
+  }
+</style>

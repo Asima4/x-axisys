@@ -1,0 +1,327 @@
+---
+// "Engineering data" panel for a project — laid out like a drawing title block.
+// All values come from the project's own drawings / calculation reports (project.md → engineering).
+import Icon from './Icon.astro';
+
+type Pair = { label: string; value: string };
+interface Props {
+  title: string;
+  system?: string;
+  codes: string[];
+  criteria: Pair[];
+  loads: Pair[];
+  materials: Pair[];
+  members: string[];
+  software: string[];
+}
+
+const { title, system, codes, criteria, loads, materials, members, software } = Astro.props;
+const tables = [
+  { id: 'criteria', title: 'Design criteria', icon: 'Wind', rows: criteria },
+  { id: 'loads', title: 'Design loads', icon: 'ArrowDownToLine', rows: loads },
+  { id: 'materials', title: 'Materials', icon: 'Layers', rows: materials },
+].filter((t) => t.rows.length > 0);
+---
+
+<div class="eng">
+  <header class="eng__head">
+    <div class="eng__head-title">
+      <span class="eng__badge mono">ENG</span>
+      <div>
+        <p class="eng__kicker mono">Engineering data</p>
+        <h2 class="eng__title">{title}</h2>
+      </div>
+    </div>
+    <p class="eng__source mono"><Icon name="FileCheck2" size={15} /> From the project drawings &amp; calculations</p>
+  </header>
+
+  {
+    system && (
+      <div class="eng__system reveal">
+        <span class="eng__label mono">Structural system</span>
+        <p>{system}</p>
+      </div>
+    )
+  }
+
+  {
+    codes.length > 0 && (
+      <div class="eng__row reveal">
+        <span class="eng__label mono">Design codes &amp; standards</span>
+        <ul class="eng__codes">
+          {codes.map((c) => (
+            <li>{c}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    tables.length > 0 && (
+      <div class:list={['eng__tables', `eng__tables--${tables.length}`]}>
+        {tables.map((t) => (
+          <section class="eng__table reveal" aria-labelledby={`eng-${t.id}`}>
+            <h3 id={`eng-${t.id}`} class="eng__table-title">
+              <Icon name={t.icon} size={16} /> {t.title}
+            </h3>
+            <dl>
+              {t.rows.map((r) => (
+                <div>
+                  <dt>{r.label}</dt>
+                  <dd class="mono">{r.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    (members.length > 0 || software.length > 0) && (
+      <div class="eng__foot">
+        {members.length > 0 && (
+          <div class="eng__row reveal">
+            <span class="eng__label mono">Key members &amp; sections</span>
+            <ul class="eng__members">
+              {members.map((m) => (
+                <li class="mono">{m}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {software.length > 0 && (
+          <div class="eng__row eng__row--narrow reveal">
+            <span class="eng__label mono">Software</span>
+            <ul class="eng__members">
+              {software.map((m) => (
+                <li class="mono">{m}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .eng {
+    position: relative;
+    border: 2px solid var(--on-dark);
+    background:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px) 0 0 / 24px 24px,
+      var(--steel-2);
+    color: var(--on-dark-2);
+  }
+
+  .eng::before {
+    /* drawing-border inset line */
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid var(--line-dark);
+    pointer-events: none;
+  }
+
+  .eng__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding: 22px clamp(20px, 3vw, 32px);
+    border-bottom: 2px solid var(--on-dark);
+  }
+
+  .eng__head-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .eng__badge {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--on-dark);
+    color: var(--on-dark);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  .eng__kicker {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue-on-dark);
+  }
+
+  .eng__title {
+    font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+    color: var(--on-dark);
+  }
+
+  .eng__source {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--on-dark-2);
+  }
+
+  .eng__system,
+  .eng__row {
+    display: grid;
+    gap: 10px;
+    padding: 20px clamp(20px, 3vw, 32px);
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  @media (min-width: 900px) {
+    .eng__system,
+    .eng__row {
+      grid-template-columns: 220px 1fr;
+      gap: 24px;
+      align-items: baseline;
+    }
+  }
+
+  .eng__system p {
+    font-size: 1.08rem;
+    line-height: 1.6;
+    color: var(--on-dark);
+    max-width: 75ch;
+  }
+
+  .eng__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .eng__codes,
+  .eng__members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .eng__codes li {
+    padding: 6px 12px;
+    border: 1px solid var(--blue-on-dark);
+    background: rgba(91, 155, 230, 0.1);
+    color: var(--on-dark);
+    font-weight: 650;
+    font-size: 0.92rem;
+  }
+
+  .eng__members li {
+    padding: 5px 10px;
+    border: 1px solid var(--line-dark);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--on-dark);
+    font-size: 0.8rem;
+  }
+
+  .eng__tables {
+    display: grid;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  @media (min-width: 900px) {
+    .eng__tables--2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .eng__tables--3 {
+      grid-template-columns: 1.25fr 1fr 1fr;
+    }
+
+    .eng__table + .eng__table {
+      border-left: 1px solid var(--line-dark);
+    }
+  }
+
+  .eng__table {
+    padding: 20px clamp(20px, 3vw, 28px) 24px;
+  }
+
+  @media (max-width: 899px) {
+    .eng__table + .eng__table {
+      border-top: 1px solid var(--line-dark);
+    }
+  }
+
+  .eng__table-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-on-dark);
+    font-family: var(--mono);
+  }
+
+  .eng__table dl {
+    margin: 0;
+    display: grid;
+  }
+
+  .eng__table dl > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--line-dark);
+  }
+
+  .eng__table dt {
+    font-size: 0.9rem;
+  }
+
+  .eng__table dd {
+    margin: 0;
+    color: var(--on-dark);
+    font-size: 0.86rem;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .eng__foot {
+    display: grid;
+  }
+
+  @media (min-width: 1100px) {
+    .eng__foot {
+      grid-template-columns: 1fr auto;
+    }
+
+    .eng__foot .eng__row {
+      border-bottom: 0;
+    }
+
+    .eng__row--narrow {
+      border-left: 1px solid var(--line-dark);
+      grid-template-columns: auto auto;
+    }
+  }
+
+  .eng__foot .eng__row:last-child {
+    border-bottom: 0;
+  }
+</style>

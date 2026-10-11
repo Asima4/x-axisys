@@ -56,6 +56,18 @@ const projects = defineCollection({
           }),
         )
         .default([]),
+      engineering: z
+        .object({
+          system: z.string().optional(),
+          codes: z.array(z.string()).default([]),
+          criteria: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+          loads: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+          materials: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+          members: z.array(z.string()).default([]),
+          software: z.array(z.string()).default([]),
+          highlights: z.array(z.object({ value: z.string(), label: z.string() })).default([]),
+        })
+        .optional(),
       order: z.number().default(100),
       draft: z.boolean().default(false),
     }),

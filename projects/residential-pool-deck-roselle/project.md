@@ -32,12 +32,45 @@ scope:
   - Guardrail design and detailing
   - Typical connection sections
 tools:
-  - AutoCAD
-  - SketchUp
+  - AutoCAD LT
 coords: [41.985, -88.08]
 brief: "Structural design of an elevated timber deck around an above-ground pool."
 challenge: "A new elevated deck wrapping an above-ground pool and tying into an existing deck."
 outcome: "Structural drawing set issued for building permit application."
+engineering:
+  system: "Elevated timber deck — Douglas Fir-Larch joists and beams on concrete piers — tied into the existing deck and detailed to IRC R507."
+  codes:
+    - "IBC 2024"
+    - "IRC R507"
+    - "ACI 318"
+    - "ACI 301"
+  criteria: []
+  loads: []
+  materials:
+    - label: "Concrete"
+      value: "2,500 psi normal weight"
+    - label: "Reinforcing steel"
+      value: "ASTM A615 Gr 60"
+    - label: "Lumber"
+      value: "Grade-marked Douglas Fir-Larch"
+    - label: "Sill plates"
+      value: "Pressure-treated"
+    - label: "Anchorage"
+      value: "5/8″ Ø anchor bolts @ 4′-0″ o.c."
+  members:
+    - "Timber joists & beams"
+    - "Concrete piers"
+    - "Guardrail posts & pickets"
+    - "Simpson connectors"
+  software:
+    - "AutoCAD LT"
+  highlights:
+    - value: "IBC 2024"
+      label: "Design code"
+    - value: "IRC R507"
+      label: "Deck provisions"
+    - value: "5"
+      label: "Sheets shown"
 featured: false
 order: 9
 draft: false

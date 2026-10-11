@@ -42,7 +42,6 @@ scope:
   - 314-page structural calculation report
 tools:
   - RISA-3D
-  - ASCE 7-16
 coords: [40.736, -74.172]
 brief: "Structural analysis and design of a mid-rise multi-family apartment building."
 challenge: "A multi-storey building combining concrete and cold-formed steel, analysed as one complete 3D model for seismic and wind loading."
@@ -53,6 +52,53 @@ compare:
     beforeLabel: Analysis model
     afterLabel: Materials & sections
     caption: "The same 3D analysis model, showing member materials and section sets"
+engineering:
+  system: "Multi-storey building modelled in full 3D: concrete and masonry lower levels with cold-formed steel wall panels above, steel framing at transfers, analysed for wind and seismic per ASCE 7-22."
+  codes:
+    - "ASCE 7-22"
+    - "ACI 318-19"
+    - "AISI S100"
+    - "NDS"
+    - "TMS 402"
+  criteria:
+    - label: "Design wind speed"
+      value: "115 mph"
+    - label: "Exposure category"
+      value: "B"
+    - label: "Risk category"
+      value: "II"
+    - label: "Design spectral acceleration"
+      value: "SDS 0.292g · SD1 0.071g"
+    - label: "Response modification factor"
+      value: "R = 4"
+  loads: []
+  materials:
+    - label: "Cold-formed steel panels"
+      value: "ASTM A653 SS Gr 33"
+    - label: "Concrete"
+      value: "3,000 psi normal weight"
+    - label: "Steel tube (HSS)"
+      value: "ASTM A500"
+    - label: "Structural steel"
+      value: "ASTM A992 / A572"
+    - label: "Reinforcing steel"
+      value: "ASTM A615 Gr 60"
+  members:
+    - "HSS 8×6 columns"
+    - "W10×33"
+    - "W8×10"
+    - "16×18 in concrete beams"
+  software:
+    - "RISA-3D"
+  highlights:
+    - value: "314"
+      label: "Page calc report"
+    - value: "ASCE 7-22"
+      label: "Load standard"
+    - value: "115 mph"
+      label: "Design wind"
+    - value: "RISA-3D"
+      label: "Analysis model"
 featured: false
 order: 6
 draft: false
