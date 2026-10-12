@@ -1,5 +1,6 @@
 // Member catalogue for the sample light-frame (wood) house explorer.
 // Sizes are typical prescriptive light-frame practice for an illustrative model, not a design.
+// Connectors are modelled on Simpson Strong-Tie products typically specified for light-frame construction.
 
 export type MemberGroup = 'Foundation' | 'Walls' | 'Floor' | 'Roof' | 'Connectors';
 
@@ -10,10 +11,13 @@ export type Member = {
   size: string;
   role: string;
   kind?: 'wood' | 'osb' | 'concrete' | 'steel' | 'treated' | 'lvl';
+  /** Section detail number on the sample sheet (see frameDetails.ts). */
+  detail: number;
 };
 
 export const MEMBERS = {
   slab: {
+    detail: 1,
     name: 'Concrete slab-on-grade',
     group: 'Foundation',
     color: '#a9a59c',
@@ -22,14 +26,16 @@ export const MEMBERS = {
     role: 'Carries every load path down to the soil. Thickened edges act as the footing under the walls.',
   },
   anchor: {
-    name: 'Anchor bolts',
+    detail: 1,
+    name: 'Anchor bolts + BP5/8-3',
     group: 'Foundation',
     color: '#8d969f',
     kind: 'steel',
-    size: '5/8" Ø @ 4\'-0" o.c., 12" from plate ends',
-    role: 'Cast into the concrete and bolted through the sill plate to stop the walls sliding or lifting.',
+    size: '5/8" Ø @ 48" o.c. with Simpson BP5/8-3 plate washers',
+    role: 'Cast into the concrete and bolted through the sill plate to stop the walls sliding or lifting off the foundation.',
   },
   sill: {
+    detail: 1,
     name: 'Sill plate (treated)',
     group: 'Foundation',
     color: '#9fae7c',
@@ -38,6 +44,7 @@ export const MEMBERS = {
     role: 'The first piece on the concrete. Preservative-treated lumber that the walls are built from and anchored through.',
   },
   stud: {
+    detail: 3,
     name: 'Studs',
     group: 'Walls',
     color: '#dcb47a',
@@ -45,6 +52,7 @@ export const MEMBERS = {
     role: 'The vertical members of the wall. They carry floor and roof loads down and back up the sheathing and finishes.',
   },
   king: {
+    detail: 3,
     name: 'King studs',
     group: 'Walls',
     color: '#e2bd85',
@@ -52,6 +60,7 @@ export const MEMBERS = {
     role: 'Run full height beside every opening, tying the header into the plates and taking wind load around the opening.',
   },
   trimmer: {
+    detail: 3,
     name: 'Trimmer (jack) studs',
     group: 'Walls',
     color: '#d3a86c',
@@ -59,6 +68,7 @@ export const MEMBERS = {
     role: 'Short studs fastened to the king studs. They carry the header load down to the plate.',
   },
   header: {
+    detail: 3,
     name: 'Headers',
     group: 'Walls',
     color: '#c38f55',
@@ -67,6 +77,7 @@ export const MEMBERS = {
     role: 'Beams over doors and windows that span the opening and carry the load above out to the trimmers.',
   },
   cripple: {
+    detail: 3,
     name: 'Cripple studs',
     group: 'Walls',
     color: '#e6c48f',
@@ -74,6 +85,7 @@ export const MEMBERS = {
     role: 'Short studs above headers and below window sills. They keep the stud layout continuous for sheathing and finishes.',
   },
   roughSill: {
+    detail: 3,
     name: 'Rough sills',
     group: 'Walls',
     color: '#cfa064',
@@ -81,6 +93,7 @@ export const MEMBERS = {
     role: 'The framed bottom of a window opening. It supports the window, with cripple studs below.',
   },
   blocking: {
+    detail: 3,
     name: 'Wall blocking',
     group: 'Walls',
     color: '#c99a5e',
@@ -88,6 +101,7 @@ export const MEMBERS = {
     role: 'Fire-blocking, stud bracing and backing for fixtures and cabinets.',
   },
   topPlate: {
+    detail: 3,
     name: 'Double top plate',
     group: 'Walls',
     color: '#d1a467',
@@ -95,6 +109,7 @@ export const MEMBERS = {
     role: 'Caps the wall, ties walls together at corners and spreads joist and rafter loads into the studs.',
   },
   bottomPlate: {
+    detail: 4,
     name: 'Bottom (sole) plate',
     group: 'Walls',
     color: '#d6ab6f',
@@ -102,6 +117,7 @@ export const MEMBERS = {
     role: 'The base of the upper-floor walls, nailed through the subfloor into the joists and rim board.',
   },
   sheathing: {
+    detail: 2,
     name: 'Shear wall sheathing',
     group: 'Walls',
     color: '#d9bd8c',
@@ -110,6 +126,7 @@ export const MEMBERS = {
     role: 'Wood structural panels nailed to the framing turn a wall into a shear wall that resists wind and earthquake loads.',
   },
   rim: {
+    detail: 4,
     name: 'Rim board',
     group: 'Floor',
     color: '#c8975a',
@@ -118,6 +135,7 @@ export const MEMBERS = {
     role: 'Closes the ends of the floor joists, carries the wall above and ties the floor diaphragm together.',
   },
   joist: {
+    detail: 4,
     name: 'Floor joists',
     group: 'Floor',
     color: '#dfb87e',
@@ -125,6 +143,7 @@ export const MEMBERS = {
     role: 'Span between bearing walls to carry the second floor. Lapped over the centre bearing wall.',
   },
   joistBlock: {
+    detail: 5,
     name: 'Joist blocking',
     group: 'Floor',
     color: '#c5965b',
@@ -132,6 +151,7 @@ export const MEMBERS = {
     role: 'Braces the joists against rolling and passes floor shear down into the bearing walls.',
   },
   subfloor: {
+    detail: 4,
     name: 'Subfloor',
     group: 'Floor',
     color: '#dcc08f',
@@ -140,6 +160,7 @@ export const MEMBERS = {
     role: 'The floor deck. It also acts as the horizontal diaphragm that delivers lateral load to the shear walls.',
   },
   ceilingJoist: {
+    detail: 7,
     name: 'Ceiling joists',
     group: 'Roof',
     color: '#e0ba82',
@@ -147,6 +168,7 @@ export const MEMBERS = {
     role: 'Carry the ceiling and tie the walls together at plate level to resist rafter thrust.',
   },
   rafter: {
+    detail: 7,
     name: 'Rafters',
     group: 'Roof',
     color: '#d8ad70',
@@ -154,6 +176,7 @@ export const MEMBERS = {
     role: 'Sloped members that carry roof dead, snow and wind loads down to the walls.',
   },
   ridge: {
+    detail: 8,
     name: 'Ridge board',
     group: 'Roof',
     color: '#c38f55',
@@ -161,6 +184,7 @@ export const MEMBERS = {
     role: 'The member at the peak that the rafters frame against from both sides.',
   },
   collar: {
+    detail: 8,
     name: 'Collar ties',
     group: 'Roof',
     color: '#cda064',
@@ -168,6 +192,7 @@ export const MEMBERS = {
     role: 'Horizontal ties in the upper third of the roof that hold rafter pairs together under wind uplift.',
   },
   gableStud: {
+    detail: 9,
     name: 'Gable studs',
     group: 'Roof',
     color: '#e4c08a',
@@ -175,6 +200,7 @@ export const MEMBERS = {
     role: 'Fill the triangular gable ends between the top plate and the end rafter or truss.',
   },
   fascia: {
+    detail: 7,
     name: 'Sub-fascia',
     group: 'Roof',
     color: '#c99a5e',
@@ -182,6 +208,7 @@ export const MEMBERS = {
     role: 'Ties the rafter tails together and supports the gutter and fascia trim.',
   },
   truss: {
+    detail: 10,
     name: 'Roof trusses',
     group: 'Roof',
     color: '#dab070',
@@ -189,6 +216,7 @@ export const MEMBERS = {
     role: 'Engineered triangulated frames (top chord, bottom chord and webs) that span the garage with no interior support.',
   },
   ledger: {
+    detail: 11,
     name: 'Ledger',
     group: 'Roof',
     color: '#9fae7c',
@@ -197,35 +225,93 @@ export const MEMBERS = {
     role: 'Supports the garage trusses where they meet the two-storey house wall.',
   },
   holdown: {
-    name: 'Hold-downs',
+    detail: 2,
+    name: 'HDU5 hold-downs',
     group: 'Connectors',
     color: '#9aa4ae',
     kind: 'steel',
-    size: 'Steel bracket + anchor rod at shear-wall ends',
-    role: 'Anchor the end posts of each shear wall into the foundation so the wall cannot overturn.',
+    size: 'Simpson HDU5-SDS2.5 on (2) 2x6 end post, SSTB24 anchor',
+    role: 'Anchor the end posts of each shear wall into the foundation so the wall cannot overturn under wind or seismic load.',
   },
   strap: {
-    name: 'Floor-to-floor straps',
+    detail: 4,
+    name: 'MSTC48B3 straps',
     group: 'Connectors',
     color: '#9aa4ae',
     kind: 'steel',
-    size: 'Steel strap ties across the floor framing',
-    role: 'Connect the upper shear-wall ends to the wall below, continuing the uplift load path through the floor.',
+    size: 'Simpson MSTC48B3 at upper shear-wall ends',
+    role: 'Tie the upper shear-wall end post to the wall below, carrying overturning uplift through the floor framing.',
+  },
+  ltp4: {
+    detail: 4,
+    name: 'LTP4 lateral ties',
+    group: 'Connectors',
+    color: '#9aa4ae',
+    kind: 'steel',
+    size: 'Simpson LTP4 @ 48" o.c., rim board to top plate',
+    role: 'Transfer floor-diaphragm shear from the rim board into the wall top plate below.',
+  },
+  a35: {
+    detail: 5,
+    name: 'A35 framing angles',
+    group: 'Connectors',
+    color: '#9aa4ae',
+    kind: 'steel',
+    size: 'Simpson A35 at joist blocking and ceiling joists',
+    role: 'Clip the joist blocking and ceiling joists to the bearing-wall top plate to transfer shear.',
+  },
+  hanger: {
+    detail: 6,
+    name: 'LUS210 joist hangers',
+    group: 'Connectors',
+    color: '#9aa4ae',
+    kind: 'steel',
+    size: 'Simpson LUS210 (tail joists) · LUS210-2 (double headers)',
+    role: 'Face-mount hangers that carry the joists framing into the stair-opening headers, and the headers into the trimmers.',
   },
   hurricane: {
-    name: 'Hurricane ties',
+    detail: 7,
+    name: 'H2.5A hurricane ties',
     group: 'Connectors',
     color: '#9aa4ae',
     kind: 'steel',
-    size: 'At every rafter and truss',
-    role: 'Clip each rafter or truss to the top plate to resist wind uplift.',
+    size: 'Simpson H2.5A at every rafter and truss',
+    role: 'Tie each rafter or truss down to the wall top plate to resist wind uplift and sliding.',
+  },
+  lssu: {
+    detail: 8,
+    name: 'LSSU210 rafter hangers',
+    group: 'Connectors',
+    color: '#9aa4ae',
+    kind: 'steel',
+    size: 'Simpson LSSU210, sloped to 6:12',
+    role: 'Slope-adjustable hangers that seat each rafter against the ridge board.',
+  },
+  lsta: {
+    detail: 8,
+    name: 'LSTA21 ridge straps',
+    group: 'Connectors',
+    color: '#9aa4ae',
+    kind: 'steel',
+    size: 'Simpson LSTA21 across the ridge',
+    role: 'Strap opposing rafters together over the ridge so the roof acts as one unit under uplift.',
+  },
+  sdws: {
+    detail: 11,
+    name: 'SDWS ledger screws',
+    group: 'Connectors',
+    color: '#8a939c',
+    kind: 'steel',
+    size: 'Simpson Strong-Drive SDWS Timber screws, staggered @ 16" o.c.',
+    role: 'Fasten the garage ledger through the house sheathing into the wall framing.',
   },
   trussPlate: {
+    detail: 10,
     name: 'Truss plates',
     group: 'Connectors',
     color: '#aab3bc',
     kind: 'steel',
-    size: 'Galvanized toothed steel plates',
+    size: 'Toothed steel plates by the truss fabricator',
     role: 'Pressed into both faces of every truss joint to connect the chords and webs.',
   },
 } satisfies Record<string, Member>;

@@ -30,7 +30,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
           <button type="button" class="wf__icon-btn" data-wf-zoom="1" aria-label="Zoom in"><Icon name="Plus" size={16} /></button>
           <button type="button" class="wf__icon-btn" data-wf-zoom="-1" aria-label="Zoom out"><Icon name="Minus" size={16} /></button>
         </div>
-        <p class="wf__hint mono" aria-hidden="true">Drag to rotate · click a member</p>
+        <p class="wf__hint mono" aria-hidden="true">Scroll to zoom · drag to rotate · right-drag to pan · click any member</p>
       </div>
 
       <aside class="wf__panel" aria-label="Framing members">
@@ -42,6 +42,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
             <div><dt class="mono">Pieces</dt><dd data-wf-total>—</dd></div>
             <div><dt class="mono">Member types</dt><dd>{entries.length}</dd></div>
           </dl>
+          <button type="button" class="wf__detail-btn" data-wf-open="1"><Icon name="FileText" size={16} /> Browse the 11 section details</button>
         </div>
         <div class="wf__legend">
           {
@@ -67,8 +68,29 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
         <button type="button" class="wf__reset" data-wf-reset hidden><Icon name="Eye" size={16} /> Show all members</button>
       </aside>
     </div>
-    <p class="wf__note mono">Illustrative sample using typical light-frame details. Member sizes are typical, not a design for any specific building.</p>
+    <p class="wf__note mono">
+      Illustrative sample using typical light-frame details. Connectors are modelled on Simpson Strong-Tie® products commonly specified for light-frame construction. Member sizes are typical, not a design for any specific building.
+    </p>
   </div>
+
+  <dialog class="wfd" data-wfd aria-labelledby="wfd-title">
+    <div class="wfd__head">
+      <div>
+        <p class="wfd__kicker mono" data-wfd-kicker>Sheet S-501</p>
+        <h3 id="wfd-title" data-wfd-title>Section detail</h3>
+      </div>
+      <button type="button" class="wfd__close" data-wfd-close aria-label="Close detail"><Icon name="X" size={20} /></button>
+    </div>
+    <div class="wfd__sheet" data-wfd-sheet></div>
+    <div class="wfd__foot">
+      <p class="wfd__member" data-wfd-member></p>
+      <nav class="wfd__nav" aria-label="Section details">
+        <button type="button" data-wfd-step="-1" aria-label="Previous detail"><Icon name="ChevronLeft" size={18} /></button>
+        <ol data-wfd-list></ol>
+        <button type="button" data-wfd-step="1" aria-label="Next detail"><Icon name="ChevronRight" size={18} /></button>
+      </nav>
+    </div>
+  </dialog>
 </section>
 
 <style>
@@ -381,6 +403,384 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     justify-content: center;
   }
 
+  .wf__card :global(.wf__detail-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--blue-on-dark);
+    background: transparent;
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .wf__card :global(.wf__detail-btn:hover) {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  /* ----- section detail sheet ----- */
+  .wfd {
+    width: min(1180px, 96vw);
+    max-width: 96vw;
+    max-height: 94vh;
+    padding: 0;
+    border: 0;
+    background: #fbfaf6;
+    color: var(--ink);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  }
+
+  .wfd::backdrop {
+    background: rgba(8, 10, 13, 0.72);
+    backdrop-filter: blur(3px);
+  }
+
+  .wfd[open] {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    animation: wfd-in 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  @keyframes wfd-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.985);
+    }
+  }
+
+  .wfd__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 16px;
+    padding: 16px 20px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .wfd__kicker {
+    margin: 0 0 2px;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  .wfd__head h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+
+  .wfd__close {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .wfd__close:hover {
+    border-color: var(--ink);
+  }
+
+  .wfd__sheet {
+    min-height: 0;
+    overflow: auto;
+    padding: 10px 14px;
+  }
+
+  .wfd__sheet :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: calc(94vh - 170px);
+    margin: 0 auto;
+  }
+
+  .wfd__foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px 16px;
+    padding: 10px 20px 14px;
+    border-top: 1px solid var(--line);
+  }
+
+  .wfd__member {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--ink-2);
+  }
+
+  .wfd__member :global(b) {
+    color: var(--blue);
+  }
+
+  .wfd__nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .wfd__nav > button,
+  .wfd__nav :global(ol button) {
+    display: grid;
+    place-items: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    border: 1px solid var(--line);
+    background: var(--white);
+    color: var(--ink);
+    font: 600 0.8rem var(--mono);
+    cursor: pointer;
+  }
+
+  .wfd__nav ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .wfd__nav :global(ol button[aria-current='true']) {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+  }
+
+  /* drawing conventions */
+  .wfd :global(.det) {
+    background: #fff;
+  }
+
+  .wfd :global(.det .frame) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 1.6;
+  }
+
+  .wfd :global(.det .frame2) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 0.5;
+  }
+
+  .wfd :global(.det .o) {
+    fill: #fff;
+    stroke: #1d2025;
+    stroke-width: 1.05;
+    stroke-linejoin: round;
+  }
+
+  .wfd :global(.det .cut) {
+    stroke-width: 1.7;
+  }
+
+  .wfd :global(.det .xh),
+  .wfd :global(.det .thin) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 0.55;
+  }
+
+  .wfd :global(.det .ply) {
+    fill: url(#d-ply);
+    stroke: #1d2025;
+    stroke-width: 0.9;
+  }
+
+  .wfd :global(.det .st) {
+    fill: #7f8892;
+    stroke: #1d2025;
+    stroke-width: 0.9;
+  }
+
+  .wfd :global(.det .st2) {
+    fill: rgba(127, 136, 146, 0.5);
+    stroke: #1d2025;
+    stroke-width: 0.9;
+  }
+
+  .wfd :global(.det .stl) {
+    fill: none;
+    stroke: #59616a;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wfd :global(.det .hid) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 0.8;
+    stroke-dasharray: 6 3;
+  }
+
+  .wfd :global(.det .conc) {
+    fill: url(#d-conc);
+    stroke: #1d2025;
+    stroke-width: 1.5;
+  }
+
+  .wfd :global(.det .earth) {
+    fill: url(#d-earth);
+  }
+
+  .wfd :global(.det .grade) {
+    stroke: #1d2025;
+    stroke-width: 1.8;
+  }
+
+  .wfd :global(.det .roof) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 2.2;
+  }
+
+  .wfd :global(.det .brk) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 0.8;
+  }
+
+  .wfd :global(.det .ld) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 0.7;
+  }
+
+  .wfd :global(.det .dot) {
+    fill: #1d2025;
+  }
+
+  .wfd :global(.det .tx) {
+    font: 500 10.5px 'IBM Plex Mono', ui-monospace, monospace;
+    fill: #1d2025;
+    letter-spacing: 0.02em;
+  }
+
+  .wfd :global(.det .bg) {
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 5px;
+  }
+
+  .wfd :global(.det .nail) {
+    font: 700 16px sans-serif;
+    fill: #1d2025;
+  }
+
+  .wfd :global(.det .dim line) {
+    stroke: #1d2025;
+    stroke-width: 0.6;
+  }
+
+  .wfd :global(.det .dim .tk) {
+    stroke-width: 1.3;
+  }
+
+  .wfd :global(.det .bub) {
+    fill: #fff;
+    stroke: #1d2025;
+    stroke-width: 1.5;
+  }
+
+  .wfd :global(.det .bubl) {
+    stroke: #1d2025;
+    stroke-width: 1;
+  }
+
+  .wfd :global(.det .bubn) {
+    font: 700 15px 'IBM Plex Mono', ui-monospace, monospace;
+    fill: #1d2025;
+  }
+
+  .wfd :global(.det .bubs) {
+    font: 500 9px 'IBM Plex Mono', ui-monospace, monospace;
+    fill: #1d2025;
+  }
+
+  .wfd :global(.det .ttl) {
+    font: 700 15px 'IBM Plex Mono', ui-monospace, monospace;
+    fill: #1d2025;
+    letter-spacing: 0.03em;
+  }
+
+  .wfd :global(.det .ttll) {
+    stroke: #1d2025;
+    stroke-width: 1.4;
+  }
+
+  /* selected member, highlighted in the drawing */
+  .wfd :global(.det .hl:not(.note):not(g)),
+  .wfd :global(.det g.hl:not(.note) polygon) {
+    fill: #d5e5f7;
+    stroke: #004e92;
+    stroke-width: 2;
+  }
+
+  .wfd :global(.det .hl.st),
+  .wfd :global(.det .hl.st2) {
+    fill: #2f76c8;
+  }
+
+  .wfd :global(.det .hl.stl) {
+    fill: none;
+    stroke: #2f76c8;
+  }
+
+  .wfd :global(.det .hl.hid),
+  .wfd :global(.det .hl.thin) {
+    fill: none;
+  }
+
+  .wfd :global(.det .hl.ply) {
+    fill: #9cc2ea;
+  }
+
+  .wfd :global(.det .note.hl .tx) {
+    fill: #004e92;
+    font-weight: 700;
+  }
+
+  .wfd :global(.det .note.hl .ld) {
+    stroke: #004e92;
+    stroke-width: 1.2;
+  }
+
+  .wfd :global(.det .note.hl .dot) {
+    fill: #004e92;
+  }
+
+  @media (max-width: 640px) {
+    .wfd {
+      width: 100vw;
+      max-width: 100vw;
+      max-height: 100dvh;
+      height: 100dvh;
+    }
+
+    .wfd__sheet :global(svg) {
+      width: 900px;
+      max-width: none;
+      max-height: none;
+    }
+  }
+
+
   .wf__note {
     margin: 14px 0 0;
     font-size: 0.7rem;
@@ -406,6 +806,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
 
 <script>
   import { MEMBERS, type MemberId } from '../data/woodFrame';
+  import { getDetails } from '../scripts/frameDetails';
 
   document.querySelectorAll<HTMLElement>('[data-wf]').forEach((section) => {
     const stage = section.querySelector<HTMLElement>('[data-wf-stage]')!;
@@ -416,6 +817,49 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     const explodeBtn = section.querySelector<HTMLButtonElement>('[data-wf-explode]')!;
     const bar = section.querySelector<HTMLElement>('[data-wf-bar]')!;
     let api: import('../scripts/woodFrame').FrameApi | null = null;
+
+    // ----- section detail sheet -----
+    const dlg = section.querySelector<HTMLDialogElement>('[data-wfd]')!;
+    const sheet = dlg.querySelector<HTMLElement>('[data-wfd-sheet]')!;
+    const list = dlg.querySelector<HTMLOListElement>('[data-wfd-list]')!;
+    const details = getDetails();
+    let current = 1;
+    let focusMember: MemberId | null = null;
+    list.innerHTML = details.map((d) => `<li><button type="button" data-wfd-go="${d.no}" title="${d.title}">${d.no}</button></li>`).join('');
+    const renderDetail = (no: number) => {
+      const d = details.find((x) => x.no === no) ?? details[0];
+      current = d.no;
+      sheet.innerHTML = d.svg;
+      dlg.querySelector('[data-wfd-kicker]')!.textContent = `Sheet S-501 · Detail ${d.no} of ${details.length}`;
+      dlg.querySelector('[data-wfd-title]')!.textContent = d.title;
+      list.querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.wfdGo) === d.no)));
+      const m = focusMember && d.members.includes(focusMember) ? focusMember : null;
+      if (m) sheet.querySelectorAll(`[data-m~="${m}"]`).forEach((el) => el.classList.add('hl'));
+      const shown = d.members.filter((id) => id in MEMBERS).map((id) => MEMBERS[id as MemberId].name);
+      dlg.querySelector('[data-wfd-member]')!.innerHTML = m
+        ? `Highlighted: <b>${esc(MEMBERS[m].name)}</b> — ${esc(MEMBERS[m].size)}`
+        : `Shows: ${esc(shown.slice(0, 6).join(', '))}${shown.length > 6 ? '…' : ''}`;
+    };
+    const openDetail = (no: number, m: MemberId | null) => {
+      focusMember = m;
+      renderDetail(no);
+      if (!dlg.open) dlg.showModal();
+    };
+    dlg.querySelector('[data-wfd-close]')!.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) dlg.close();
+    });
+    dlg.querySelectorAll<HTMLButtonElement>('[data-wfd-step]').forEach((b) =>
+      b.addEventListener('click', () => renderDetail(((current - 1 + Number(b.dataset.wfdStep) + details.length) % details.length) + 1)),
+    );
+    list.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-wfd-go]');
+      if (b) renderDetail(Number(b.dataset.wfdGo));
+    });
+    card.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-wf-open]');
+      if (b) openDetail(Number(b.dataset.wfOpen), (b.dataset.wfMember as MemberId) || null);
+    });
 
     const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
     const show = (c: MemberId | null) => {
@@ -429,7 +873,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
       }
       const m = MEMBERS[c];
       const n = api?.counts[c] ?? 0;
-      card.innerHTML = `<p class="wf__card-group mono">${esc(m.group)}</p><h3>${esc(m.name)}</h3><p>${esc(m.role)}</p><dl><div><dt class="mono">Typical size</dt><dd>${esc(m.size)}</dd></div><div><dt class="mono">In this model</dt><dd>${n.toLocaleString()} ${n === 1 ? 'piece' : 'pieces'}</dd></div></dl>`;
+      card.innerHTML = `<p class="wf__card-group mono">${esc(m.group)}</p><h3>${esc(m.name)}</h3><p>${esc(m.role)}</p><dl><div><dt class="mono">Typical size</dt><dd>${esc(m.size)}</dd></div><div><dt class="mono">In this model</dt><dd>${n.toLocaleString()} ${n === 1 ? 'piece' : 'pieces'}</dd></div></dl><button type="button" class="wf__detail-btn" data-wf-open="${m.detail}" data-wf-member="${c}">View section detail ${m.detail}</button>`;
     };
 
     buttons.forEach((b) =>
@@ -456,7 +900,10 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
           api = mountWoodFrame(stage, {
             tip: section.querySelector<HTMLElement>('[data-wf-tip]')!,
             pin: section.querySelector<HTMLElement>('[data-wf-pin]')!,
-            onSelect: show,
+            onSelect: (c) => {
+              show(c);
+              if (c) openDetail(MEMBERS[c].detail, c);
+            },
             onProgress: (p) => (bar.style.transform = `scaleX(${p})`),
           });
           stage.classList.add('is-ready');

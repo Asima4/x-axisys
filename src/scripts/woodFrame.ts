@@ -6,7 +6,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MEMBERS, type MemberId } from '../data/woodFrame';
 
 type Shape = 'box' | 'cyl';
-type Piece = { c: MemberId; lvl: number; shape: Shape; pos: THREE.Vector3; size: THREE.Vector3; quat: THREE.Quaternion; t: number };
+// k groups the plates of one physical connector (an H2.5A is three plates) so counts are per connector.
+type Piece = { c: MemberId; lvl: number; shape: Shape; pos: THREE.Vector3; size: THREE.Vector3; quat: THREE.Quaternion; t: number; k?: string };
 type Opening = { at: number; w: number; type: 'door' | 'window' | 'garage' };
 type WallOpts = {
   x0: number;
@@ -56,6 +57,15 @@ const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 
 
 function buildPieces(): Piece[] {
   const pieces: Piece[] = [];
+  let K: string | undefined;
+  let nextUnit = 0;
+  const unit = (fn: () => void) => unitK(`u${nextUnit++}`, fn);
+  function unitK(key: string, fn: () => void) {
+    const prev = K;
+    K = key;
+    fn();
+    K = prev;
+  }
   const box = (c: MemberId, lvl: number, x0: number, y0: number, z0: number, x1: number, y1: number, z1: number) => {
     pieces.push({
       c,
@@ -65,10 +75,15 @@ function buildPieces(): Piece[] {
       size: new V3(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)),
       quat: new THREE.Quaternion(),
       t: 0,
+      k: K,
     });
   };
   const cyl = (c: MemberId, lvl: number, x: number, z: number, y0: number, y1: number, r: number) => {
-    pieces.push({ c, lvl, shape: 'cyl', pos: new V3(x, (y0 + y1) / 2, z), size: new V3(r * 2, y1 - y0, r * 2), quat: new THREE.Quaternion(), t: 0 });
+    pieces.push({ c, lvl, shape: 'cyl', pos: new V3(x, (y0 + y1) / 2, z), size: new V3(r * 2, y1 - y0, r * 2), quat: new THREE.Quaternion(), t: 0, k: K });
+  };
+  const ALONG_X = new THREE.Quaternion().setFromAxisAngle(new V3(0, 0, 1), Math.PI / 2);
+  const screwX = (c: MemberId, lvl: number, x0: number, x1: number, y: number, z: number, r: number) => {
+    pieces.push({ c, lvl, shape: 'cyl', pos: new V3((x0 + x1) / 2, y, z), size: new V3(r * 2, Math.abs(x1 - x0), r * 2), quat: ALONG_X.clone(), t: 0, k: K });
   };
   // A member along a line in a vertical plane. `edge` = the line is the member's bottom edge, else its centreline.
   const beam = (c: MemberId, lvl: number, a: THREE.Vector3, b: THREE.Vector3, depth: number, thick: number, plane: 'xy' | 'zy', edge = true) => {
@@ -82,7 +97,7 @@ function buildPieces(): Piece[] {
     const center = a.clone().add(b).multiplyScalar(0.5);
     if (edge) center.addScaledVector(n, depth / 2);
     const quat = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(dir, n, z));
-    pieces.push({ c, lvl, shape: 'box', pos: center, size: new V3(len, depth, thick), quat, t: 0 });
+    pieces.push({ c, lvl, shape: 'box', pos: center, size: new V3(len, depth, thick), quat, t: 0, k: K });
   };
 
   // ----- framed wall -----
@@ -172,12 +187,15 @@ function buildPieces(): Piece[] {
       }
       for (const [e, side] of [[s0, 1], [s1, -1]] as const) {
         const face = side > 0 ? (e <= 0 ? 2 * T : e + T / 2) : e >= o.len ? o.len - 2 * T : e - T / 2;
-        if (o.lvl === 1) {
-          map('holdown', face, face + side * 0.03, PL, PL + 1.15, o.depth * 0.22, o.depth * 0.78);
-          map('holdown', face, face + side * 0.3, PL, PL + 0.05, o.depth * 0.22, o.depth * 0.78);
+        if (o.lvl === 1) unit(() => {
+          map('holdown', face, face + side * 0.03, PL, PL + 0.72, o.depth * 0.24, o.depth * 0.76);
+          map('holdown', face, face + side * 0.3, PL + 0.1, PL + 0.14, o.depth * 0.24, o.depth * 0.76);
+          map('holdown', face + side * 0.03, face + side * 0.3, PL + 0.14, PL + 0.62, o.depth * 0.24, o.depth * 0.26);
+          map('holdown', face + side * 0.03, face + side * 0.3, PL + 0.14, PL + 0.62, o.depth * 0.74, o.depth * 0.76);
           const p = world(face + side * 0.17, o.depth / 2);
           cyl('holdown', 1, p.x, p.z, o.y0 - 0.45, o.y0 + PL + 0.3, 0.032);
-        } else {
+        });
+        else {
           const c = face + side * 0.25;
           map('strap', c - 0.1, c + 0.1, -(D10 + SUB) - 2.2, 2.2, -ow - 0.03, -ow - 0.012, 2);
         }
@@ -192,8 +210,11 @@ function buildPieces(): Piece[] {
       for (const a of at) {
         if (cuts.some(([c0, c1]) => a > c0 - 0.3 && a < c1 + 0.3)) continue;
         const p = world(a, o.depth / 2);
+        unit(() => {
         cyl('anchor', 0, p.x, p.z, o.y0 - 0.45, o.y0 + PL + 0.16, 0.026);
-        map('anchor', a - 0.1, a + 0.1, PL, PL + 0.025, o.depth / 2 - 0.1, o.depth / 2 + 0.1, 0);
+        map('anchor', a - 0.125, a + 0.125, PL, PL + 0.021, o.depth / 2 - 0.125, o.depth / 2 + 0.125, 0);
+        map('anchor', a - 0.045, a + 0.045, PL + 0.021, PL + 0.07, o.depth / 2 - 0.045, o.depth / 2 + 0.045, 0);
+        });
       }
     }
   };
@@ -222,25 +243,95 @@ function buildPieces(): Piece[] {
   box('rim', 2, 0, yb, DP - T, W, yt, DP);
   box('rim', 2, 0, yb, T, T, yt, DP - T);
   box('rim', 2, W - T, yb, T, W, yt, DP - T);
+  // stair opening between the doubled joists at x = 20' and 24', from z = 2' to 10.5'
+  const SO = { x0: 20 + T, x1: 24 - 2 * T, z0: 2, z1: 10.5 };
+  const inSO = (x: number) => x > SO.x0 - 0.01 && x < SO.x1 + 0.01;
+  // face-mount U hanger for a member ending against a face at z = zf (member runs towards dirZ)
+  const hangerOnZFace = (xa: number, xb: number, zf: number, dirZ: 1 | -1) => unit(() => {
+    const L = 0.16;
+    box('hanger', 2, xa - 0.012, yb + 0.05, zf, xa, yb + 0.68, zf + dirZ * L);
+    box('hanger', 2, xb, yb + 0.05, zf, xb + 0.012, yb + 0.68, zf + dirZ * L);
+    box('hanger', 2, xa - 0.012, yb + 0.03, zf, xb + 0.012, yb + 0.05, zf + dirZ * L);
+    box('hanger', 2, xa - 0.12, yb + 0.05, zf, xa - 0.012, yb + 0.68, zf + dirZ * 0.012);
+    box('hanger', 2, xb + 0.012, yb + 0.05, zf, xb + 0.12, yb + 0.68, zf + dirZ * 0.012);
+  });
+  // same, for a member ending against a face at x = xf (double header into trimmer)
+  const hangerOnXFace = (za: number, zb: number, xf: number, dirX: 1 | -1) => unit(() => {
+    const L = 0.16;
+    box('hanger', 2, xf, yb + 0.05, za - 0.012, xf + dirX * L, yb + 0.68, za);
+    box('hanger', 2, xf, yb + 0.05, zb, xf + dirX * L, yb + 0.68, zb + 0.012);
+    box('hanger', 2, xf, yb + 0.03, za - 0.012, xf + dirX * L, yb + 0.05, zb + 0.012);
+    box('hanger', 2, xf, yb + 0.05, za - 0.12, xf + dirX * 0.012, yb + 0.68, za - 0.012);
+    box('hanger', 2, xf, yb + 0.05, zb + 0.012, xf + dirX * 0.012, yb + 0.68, zb + 0.12);
+  });
   const joistX: number[] = [];
   for (let k = 1; k * OC < W - 0.3; k++) {
     const x = k * OC;
     joistX.push(x);
-    box('joist', 2, x - T, yb, T, x, yt, 12 + 0.6);
+    if (inSO(x - T / 2)) {
+      // tail joists hung from the stair headers
+      box('joist', 2, x - T, yb, T, x, yt, SO.z0 - 2 * T);
+      box('joist', 2, x - T, yb, SO.z1 + 2 * T, x, yt, 12 + 0.6);
+      hangerOnZFace(x - T, x, SO.z0 - 2 * T, -1);
+      hangerOnZFace(x - T, x, SO.z1 + 2 * T, 1);
+    } else box('joist', 2, x - T, yb, T, x, yt, 12 + 0.6);
     box('joist', 2, x, yb, 12 - 0.6, x + T, yt, DP - T);
   }
+  // doubled trimmer joists and doubled headers
+  box('joist', 2, 20, yb, T, 20 + T, yt, 12 + 0.6);
+  box('joist', 2, 24 - 2 * T, yb, T, 24 - T, yt, 12 + 0.6);
+  for (const [z0, z1] of [[SO.z0 - 2 * T, SO.z0], [SO.z1, SO.z1 + 2 * T]] as const) {
+    box('joist', 2, SO.x0, yb, z0, SO.x1, yt, z0 + T);
+    box('joist', 2, SO.x0, yb, z0 + T, SO.x1, yt, z1);
+    hangerOnXFace(z0, z1, SO.x0, 1);
+    hangerOnXFace(z0, z1, SO.x1, -1);
+  }
+  // mid-span blocking rows
   for (const [zr, front] of [[6, true], [18, false]] as const) {
     const edges: [number, number][] = [[0, T], ...joistX.map((x) => (front ? [x - T, x] : [x, x + T]) as [number, number]), [W - T, W]];
     for (let i = 0; i < edges.length - 1; i++) {
+      if (front && edges[i][1] > SO.x0 - 0.5 && edges[i + 1][0] < SO.x1 + 0.5) continue;
       const z0 = zr + (i % 2 ? 0 : -T);
       box('joistBlock', 2, edges[i][1], yb, z0, edges[i + 1][0], yt, z0 + T);
     }
   }
+  // solid blocking over the centre bearing wall, clipped to its top plate with A35 angles
+  for (let i = 0; i < joistX.length - 1; i++) {
+    const a = joistX[i] + T;
+    const b2 = joistX[i + 1] - T;
+    if (b2 - a < 0.1) continue;
+    box('joistBlock', 2, a, yb, 12 - T / 2, b2, yt, 12 + T / 2);
+    const m = (a + b2) / 2;
+    unit(() => {
+      box('a35', 2, m - 0.1, yb, 12 + T / 2, m + 0.1, yb + 0.375, 12 + T / 2 + 0.01);
+      box('a35', 2, m - 0.1, yb - 0.01, 12 + T / 2, m + 0.1, yb, 12 + T / 2 + 0.12);
+    });
+  }
+  // LTP4 lateral ties, rim board to top plate, on the outside face
+  for (let x = 2; x < W - 1; x += 4) {
+    box('ltp4', 2, x - 0.125, yb - 0.3, -0.012, x + 0.125, yb + 0.3, 0);
+    box('ltp4', 2, x - 0.125, yb - 0.3, DP, x + 0.125, yb + 0.3, DP + 0.012);
+  }
+  for (let z = 2; z < DP - 1; z += 4) {
+    box('ltp4', 2, W, yb - 0.3, z - 0.125, W + 0.012, yb + 0.3, z + 0.125);
+    if (z < 4) box('ltp4', 2, -0.012, yb - 0.3, z - 0.125, 0, yb + 0.3, z + 0.125);
+  }
+  // subfloor sheets, cut around the stair opening
+  const holeMinus = (x0: number, z0: number, x1: number, z1: number): [number, number, number, number][] => {
+    if (x1 <= SO.x0 || x0 >= SO.x1 || z1 <= SO.z0 || z0 >= SO.z1) return [[x0, z0, x1, z1]];
+    const out: [number, number, number, number][] = [];
+    if (z0 < SO.z0) out.push([x0, z0, x1, SO.z0]);
+    if (z1 > SO.z1) out.push([x0, SO.z1, x1, z1]);
+    const za = Math.max(z0, SO.z0);
+    const zb = Math.min(z1, SO.z1);
+    if (x0 < SO.x0) out.push([x0, za, SO.x0, zb]);
+    if (x1 > SO.x1) out.push([SO.x1, za, x1, zb]);
+    return out;
+  };
   for (let j = 0; j < 6; j++) {
     for (let x = j % 2 ? -4 : 0; x < W; x += 8) {
-      const x0 = Math.max(0, x) + 0.005;
-      const x1 = Math.min(W, x + 8) - 0.005;
-      box('subfloor', 2, x0, yt, j * 4 + 0.005, x1, yt + SUB, j * 4 + 4 - 0.005);
+      for (const [x0, z0, x1, z1] of holeMinus(Math.max(0, x), j * 4, Math.min(W, x + 8), j * 4 + 4))
+        box('subfloor', 2, x0 + 0.005, yt, z0 + 0.005, x1 - 0.005, yt + SUB, z1 - 0.005);
     }
   }
 
@@ -256,6 +347,7 @@ function buildPieces(): Piece[] {
   const under = (z: number) => RB + ((z <= 12 ? z : DP - z) - D6) * PITCH; // rafter bottom line
   const zTail = -1.5;
   const zRidge = 12 - T / 2;
+  const yR = under(zRidge);
   for (let i = 0; i <= 16; i++) {
     const xc = Math.min(W - T / 2, Math.max(T / 2, i * 2));
     beam('rafter', 4, new V3(xc, under(zTail), zTail), new V3(xc, under(zRidge), zRidge), D10, T, 'zy');
@@ -268,12 +360,36 @@ function buildPieces(): Piece[] {
       const yc = RB + 4;
       box('collar', 4, xc - 1.5 * T, yc, 7.7, xc - T / 2, yc + D6, DP - 7.7);
     }
-    if (i > 0 && i < 16) {
-      box('hurricane', 4, xc - T / 2 - 0.014, RB - 0.32, D6 * 0.2, xc - T / 2, RB + 0.36, D6 * 0.85);
-      box('hurricane', 4, xc - T / 2 - 0.014, RB - 0.32, DP - D6 * 0.85, xc - T / 2, RB + 0.36, DP - D6 * 0.2);
+    for (const zf of [1, -1] as const) {
+      const zz = (z: number) => (zf > 0 ? z : DP - z);
+      const hx = i === 0 ? xc + T / 2 : xc - T / 2;
+      const hs = i === 0 ? 1 : -1;
+      // H2.5A: upper leg on the rafter, twist, lower leg on the inside face of the top plate
+      unit(() => {
+        box('hurricane', 4, hx, RB + 0.04, zz(0.16), hx + hs * 0.012, RB + 0.42, zz(0.3));
+        box('hurricane', 4, hx, RB - 0.02, zz(0.16), hx + hs * 0.012, RB + 0.04, zz(D6));
+        box('hurricane', 4, hx, RB - 0.3, zz(D6), hx + hs * 0.13, RB - 0.02, zz(D6) + zf * 0.012);
+      });
+      // LSSU210 rafter hanger against the ridge board
+      const zr = zz(zRidge);
+      const zo = zz(zRidge - 0.17);
+      unit(() => {
+        box('lssu', 4, xc - T / 2 - 0.012, yR + 0.04, zr, xc - T / 2, yR + 0.7, zo);
+        box('lssu', 4, xc + T / 2, yR + 0.04, zr, xc + T / 2 + 0.012, yR + 0.7, zo);
+        box('lssu', 4, xc - T / 2 - 0.012, yR - 0.06, zr, xc + T / 2 + 0.012, yR - 0.03, zo);
+        if (i > 0) box('lssu', 4, xc - T / 2 - 0.13, yR + 0.04, zr, xc - T / 2 - 0.012, yR + 0.7, zz(zRidge - 0.012));
+        if (i < 16) box('lssu', 4, xc + T / 2 + 0.012, yR + 0.04, zr, xc + T / 2 + 0.13, yR + 0.7, zz(zRidge - 0.012));
+      });
+      // LSTA21 strap on the rafter top edges, every other rafter pair
+      if (i % 2 === 1) unitK(`lsta${i}`, () => beam('lsta', 4, new V3(xc, under(zz(10.9)) + PLUMB, zz(10.9)), new V3(xc, under(zr) + PLUMB, zr), 0.012, 0.104, 'zy'));
     }
+    if (i % 2 === 1) unitK(`lsta${i}`, () => box('lsta', 4, xc - 0.052, yR + PLUMB, 12 - T / 2, xc + 0.052, yR + PLUMB + 0.012, 12 + T / 2));
+    // A35 clipping the lapped ceiling joists to the centre bearing wall
+    unit(() => {
+      box('a35', 4, cx0 - s * 0.01, RB, 11.85, cx0, RB + 0.375, 12.15);
+      box('a35', 4, cx0 - s * 0.12, RB - 0.01, 11.85, cx0, RB, 12.15);
+    });
   }
-  const yR = under(zRidge);
   box('ridge', 4, 0, yR - 0.04, 12 - T / 2, W, yR - 0.04 + D12, 12 + T / 2);
   const yTail = under(zTail);
   box('fascia', 4, 0, yTail - 0.12, zTail - T, W, yTail - 0.12 + D10, zTail);
@@ -289,8 +405,15 @@ function buildPieces(): Piece[] {
 
   // ===== garage roof: ledger, trusses (chords, webs, plates), gable trusses =====
   box('ledger', 4, -T, WALL_H - D10, 4 + D6, 0, WALL_H, DP - D6);
+  for (let z = 5, n = 0; z < DP - D6 - 0.3; z += OC, n++) {
+    const y = WALL_H - D10 + (n % 2 ? 0.22 : 0.55);
+    unit(() => {
+      screwX('sdws', 4, -T - 0.02, 0.3, y, z, 0.012);
+      box('sdws', 4, -T - 0.03, y - 0.03, z - 0.03, -T, y + 0.03, z + 0.03);
+    });
+  }
   const xL = -16;
-  const xR = -T;
+  const xR = -0.01;
   const xm = (xL + xR) / 2;
   const B = WALL_H;
   const topLine = (x: number) => B + 0.45 + (x <= xm ? x - xL : xR - x) * PITCH;
@@ -306,7 +429,15 @@ function buildPieces(): Piece[] {
     plate(xL + 0.35, B + 0.3, zc);
     plate(xR - 0.35, B + 0.3, zc);
     plate(xm, topLine(xm) + 0.15, zc);
-    box('hurricane', 4, xL + 0.1, B - 0.3, zc + T / 2, xL + D6 - 0.1, B + 0.36, zc + T / 2 + 0.014);
+    unit(() => {
+      box('hurricane', 4, xL + 0.16, B + 0.04, zc + T / 2, xL + 0.3, B + 0.42, zc + T / 2 + 0.012);
+      box('hurricane', 4, xL + 0.16, B - 0.02, zc + T / 2, xL + D6, B + 0.04, zc + T / 2 + 0.012);
+      box('hurricane', 4, xL + D6, B - 0.3, zc + T / 2, xL + D6 + 0.012, B - 0.02, zc + T / 2 + 0.13);
+    });
+    unit(() => {
+      box('hurricane', 4, -T - 0.012, B - 0.3, zc + T / 2, -T, B - 0.02, zc + T / 2 + 0.13);
+      box('hurricane', 4, -T - 0.012, B - 0.02, zc + T / 2, -T + 0.12, B + 0.4, zc + T / 2 + 0.012);
+    });
     if (gable) {
       for (let j = 1; xL + j * OC < xR - 0.2; j++) {
         const x = xL + j * OC;
@@ -340,6 +471,8 @@ function buildPieces(): Piece[] {
       if (c === 'joist') return [0.37, 0.44];
       if (c === 'joistBlock') return [0.43, 0.46];
       if (c === 'subfloor') return [0.45, 0.52];
+      if (c === 'hanger' || c === 'a35') return [0.44, 0.47];
+      if (c === 'ltp4') return [0.46, 0.49];
       return [0.71, 0.74];
     }
     if (lvl === 3) {
@@ -360,6 +493,10 @@ function buildPieces(): Piece[] {
       fascia: [0.88, 0.91],
       trussPlate: [0.9, 0.94],
       hurricane: [0.92, 0.965],
+      lssu: [0.83, 0.87],
+      lsta: [0.93, 0.965],
+      a35: [0.76, 0.79],
+      sdws: [0.745, 0.77],
     };
     return roof[c] ?? [0.9, 0.95];
   };
@@ -476,10 +613,13 @@ export function mountWoodFrame(
   controls.target.copy(center);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.enablePan = false;
-  controls.enableZoom = false;
-  controls.minDistance = 28;
-  controls.maxDistance = 140;
+  controls.enablePan = true;
+  controls.screenSpacePanning = true;
+  controls.enableZoom = true;
+  controls.zoomToCursor = true;
+  controls.zoomSpeed = 1.1;
+  controls.minDistance = 2.5;
+  controls.maxDistance = 200;
   controls.maxPolarAngle = Math.PI * 0.495;
   controls.autoRotate = !reduced;
   controls.autoRotateSpeed = 0.45;
@@ -531,7 +671,7 @@ export function mountWoodFrame(
       metalness: kind === 'steel' ? 0.75 : 0,
       map: kind === 'osb' ? osb : null,
     });
-    if (kind !== 'steel' && kind !== 'concrete') edgeShade(mat, kind === 'osb' ? 0.3 : 0.4);
+    if (kind !== 'concrete') edgeShade(mat, kind === 'osb' ? 0.3 : kind === 'steel' ? 0.3 : 0.4);
     mats.set(id, mat);
     for (const shape of ['box', 'cyl'] as Shape[]) {
       const idx = pieces.map((p, i) => (p.c === id && p.shape === shape ? i : -1)).filter((i) => i >= 0);
@@ -552,7 +692,7 @@ export function mountWoodFrame(
     }
     const all = pieces.map((p, i) => (p.c === id ? i : -1)).filter((i) => i >= 0);
     byCat.set(id, all);
-    counts[id] = all.length;
+    counts[id] = new Set(all.map((i) => pieces[i].k ?? `p${i}`)).size;
   }
 
   // ----- animation state -----
@@ -589,13 +729,16 @@ export function mountWoodFrame(
     }
   };
 
+  let idleTimer = 0;
+  let intro = reduced ? 1 : 0;
   // ----- selection / ghosting -----
   let selected: MemberId | null = null;
   const applySelection = () => {
     for (const [id, mat] of mats) {
       const ghost = selected !== null && id !== selected;
       mat.transparent = ghost;
-      mat.opacity = ghost ? 0.07 : 1;
+      mat.opacity = ghost ? 0.06 : 1;
+      mat.color.set(ghost ? '#7b8592' : '#ffffff');
       mat.depthWrite = !ghost;
       mat.emissive.set(id === selected ? MEMBERS[id].color : '#000000');
       mat.emissiveIntensity = id === selected ? 0.45 : 0;
@@ -605,9 +748,34 @@ export function mountWoodFrame(
     if (ui.pin) ui.pin.hidden = selected === null;
     if (ui.pin && selected) ui.pin.querySelector('span')!.textContent = MEMBERS[selected].name;
   };
+  // camera flight: connectors are small, so fly in close to the nearest one; clearing flies back out
+  let fly: { t: number; fromT: THREE.Vector3; toT: THREE.Vector3; fromP: THREE.Vector3; toP: THREE.Vector3 } | null = null;
+  const flyTo = (target: THREE.Vector3, dist: number) => {
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    fly = { t: 0, fromT: controls.target.clone(), toT: target.clone(), fromP: camera.position.clone(), toP: target.clone().addScaledVector(dir, dist) };
+    intro = 1;
+  };
   const select = (c: MemberId | null) => {
+    const was = selected;
     selected = c;
     applySelection();
+    if (c) {
+      controls.autoRotate = false;
+      window.clearTimeout(idleTimer);
+      if (MEMBERS[c].group === 'Connectors') {
+        let best = -1;
+        let bestD = Infinity;
+        const tmpV = new V3();
+        for (const i of byCat.get(c)!) {
+          const d = pieceWorld(pieces[i], tmpV).distanceToSquared(camera.position);
+          if (d < bestD) {
+            bestD = d;
+            best = i;
+          }
+        }
+        if (best >= 0) flyTo(pieceWorld(pieces[best], new V3()), 7.5);
+      }
+    } else if (was && MEMBERS[was].group === 'Connectors') flyTo(center.clone().setY(center.y + 6.5 * ease(explode)), homeDist);
     ui.onSelect?.(c);
   };
 
@@ -655,8 +823,8 @@ export function mountWoodFrame(
   renderer.domElement.addEventListener('pointerup', onUp);
   renderer.domElement.addEventListener('pointerleave', onLeave);
 
-  let idleTimer = 0;
   controls.addEventListener('start', () => {
+    fly = null;
     controls.autoRotate = false;
     window.clearTimeout(idleTimer);
   });
@@ -671,7 +839,7 @@ export function mountWoodFrame(
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     homeDist = 96 / Math.min(1, camera.aspect / 1.45) ** 0.6;
-    controls.maxDistance = homeDist * 1.8;
+    controls.maxDistance = homeDist * 2;
     camera.updateProjectionMatrix();
   };
   const ro = new ResizeObserver(resize);
@@ -682,7 +850,6 @@ export function mountWoodFrame(
   let visible = false;
   let raf = 0;
   let last = performance.now();
-  let intro = reduced ? 1 : 0;
   const introFrom = camera.position.clone();
   const tmp = new V3();
   const frame = (now: number) => {
@@ -711,6 +878,13 @@ export function mountWoodFrame(
     if (dirty) {
       updateMatrices();
       dirty = false;
+    }
+    if (fly) {
+      fly.t = Math.min(1, fly.t + dt / 1.1);
+      const k = ease(fly.t);
+      controls.target.lerpVectors(fly.fromT, fly.toT, k);
+      camera.position.lerpVectors(fly.fromP, fly.toP, k);
+      if (fly.t >= 1) fly = null;
     }
     if (intro < 1) {
       intro = Math.min(1, intro + dt / 3.2);
@@ -769,7 +943,7 @@ export function mountWoodFrame(
       intro = 1;
     },
     counts,
-    total: pieces.length,
+    total: new Set(pieces.map((p, i) => p.k ?? `p${i}`)).size,
     dispose() {
       cancelAnimationFrame(raf);
       io.disconnect();
