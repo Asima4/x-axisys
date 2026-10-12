@@ -1,0 +1,819 @@
+---
+// Project scope builder: a five-step brief with a live massing model and the drawing set a project like it typically needs.
+// Submits to the Netlify form "scope".
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/forms.css';
+
+const types = [
+  { v: 'single-family', label: 'Single-family home', icon: 'House' },
+  { v: 'multifamily', label: 'Multi-family / apartments', icon: 'Building2' },
+  { v: 'commercial', label: 'Commercial / retail', icon: 'Store' },
+  { v: 'industrial', label: 'Industrial / warehouse', icon: 'Warehouse' },
+  { v: 'modular', label: 'Modular / container', icon: 'Container' },
+  { v: 'adu', label: 'ADU / tiny home', icon: 'Tent' },
+  { v: 'addition', label: 'Addition / renovation', icon: 'Hammer' },
+  { v: 'other', label: 'Something else', icon: 'Shapes' },
+];
+const services = [
+  { v: 'architectural', label: 'Architectural design' },
+  { v: 'structural', label: 'Structural engineering' },
+  { v: 'mep', label: 'MEP engineering' },
+  { v: 'bim', label: '3D model / BIM' },
+  { v: 'permit', label: 'Permit drawing set' },
+  { v: 'calcs', label: 'Structural calculations only' },
+];
+const systems = [
+  { v: 'wood', label: 'Wood frame' },
+  { v: 'cfs', label: 'Cold-formed steel' },
+  { v: 'steel', label: 'Structural steel' },
+  { v: 'concrete', label: 'Concrete' },
+  { v: 'masonry', label: 'Masonry (CMU)' },
+  { v: 'unsure', label: 'Not sure yet' },
+];
+const stages = ['Idea / concept', 'Design in progress', 'Ready for permit', 'Under construction / retrofit'];
+const timelines = ['As soon as possible', 'Within 1–3 months', 'Within 3–6 months', '6 months or more', 'Just exploring'];
+const steps = ['Building', 'Services', 'Size & structure', 'Site & timing', 'Your details'];
+---
+
+<Base title="Project Scope Builder" description="Answer five quick questions and see the drawing set, deliverables and inputs a project like yours typically needs — then send the brief to Axisys for a quote.">
+  <section class="est dark">
+    <div class="container">
+      <div class="est__head">
+        <p class="eyebrow">Instant scope</p>
+        <h1>Build your project scope in two minutes.</h1>
+        <p class="lead">Answer five quick questions. You'll see the drawing set and deliverables a project like yours typically needs — and our team receives a complete brief to quote from.</p>
+      </div>
+
+      <div class="est__grid">
+        <form class="est__form" name="scope" method="post" action="/thank-you/" data-netlify="true" netlify-honeypot="website" novalidate data-scope>
+          <input type="hidden" name="form-name" value="scope" />
+          <input type="hidden" name="services_list" value="" data-out="services" />
+          <input type="hidden" name="complexity" value="" data-out="complexity" />
+          <input type="hidden" name="scope_summary" value="" data-out="summary" />
+          <div class="form__hp" aria-hidden="true">
+            <label for="s-website">Leave this field empty</label>
+            <input id="s-website" type="text" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <ol class="est__progress" aria-label="Steps">
+            {
+              steps.map((s, i) => (
+                <li data-progress={i} class:list={{ 'is-active': i === 0 }}>
+                  <span class="mono">0{i + 1}</span> {s}
+                </li>
+              ))
+            }
+          </ol>
+
+          <fieldset class="est__step" data-step="0">
+            <legend>What are you building?</legend>
+            <div class="est__cards">
+              {
+                types.map((t) => (
+                  <label class="est__card">
+                    <input type="radio" name="building_type" value={t.v} data-label={t.label} required />
+                    <Icon name={t.icon} size={26} />
+                    <span>{t.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="est__step" data-step="1" hidden>
+            <legend>Which services do you need?</legend>
+            <p class="est__hint">Choose all that apply.</p>
+            <div class="est__cards est__cards--list">
+              {
+                services.map((s) => (
+                  <label class="est__card est__card--check">
+                    <input type="checkbox" name="service" value={s.v} data-label={s.label} />
+                    <span class="est__tick" aria-hidden="true"><Icon name="Check" size={14} /></span>
+                    <span>{s.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="est__step" data-step="2" hidden>
+            <legend>Size and structure</legend>
+            <div class="field">
+              <label for="s-area">Total floor area <output class="mono" data-area-out>2,400 sq ft</output></label>
+              <input id="s-area-range" type="range" min="0" max="1000" value="460" data-area-range aria-label="Total floor area" />
+              <input id="s-area" name="area_sqft" type="number" min="100" max="500000" value="2400" inputmode="numeric" required />
+            </div>
+            <div class="field">
+              <span class="est__label">Storeys above grade</span>
+              <div class="est__seg">
+                {
+                  [1, 2, 3, 4, 5, 6].map((n) => (
+                    <label>
+                      <input type="radio" name="stories" value={n} checked={n === 2} />
+                      <span>{n === 6 ? '6+' : n}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+            <div class="field">
+              <span class="est__label">Structural system</span>
+              <div class="est__seg est__seg--wrap">
+                {
+                  systems.map((s, i) => (
+                    <label>
+                      <input type="radio" name="structural_system" value={s.v} data-label={s.label} checked={i === 0} />
+                      <span>{s.label}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="est__step" data-step="3" hidden>
+            <legend>Site and timing</legend>
+            <div class="field">
+              <label for="s-location">Project location</label>
+              <input id="s-location" name="location" type="text" placeholder="City, state" maxlength="160" autocomplete="address-level2" />
+            </div>
+            <div class="field">
+              <span class="est__label">Where is the project today?</span>
+              <div class="est__seg est__seg--wrap">
+                {
+                  stages.map((s, i) => (
+                    <label>
+                      <input type="radio" name="stage" value={s} checked={i === 0} />
+                      <span>{s}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
+            <div class="field">
+              <label for="s-timeline">Timeline</label>
+              <select id="s-timeline" name="timeline">
+                {timelines.map((t) => <option value={t}>{t}</option>)}
+              </select>
+            </div>
+          </fieldset>
+
+          <fieldset class="est__step" data-step="4" hidden>
+            <legend>Where should we send your quote?</legend>
+            <div class="form__grid">
+              <div class="field">
+                <label for="s-name">Full name <span aria-hidden="true">*</span></label>
+                <input id="s-name" name="name" type="text" autocomplete="name" required maxlength="120" />
+              </div>
+              <div class="field">
+                <label for="s-email">Email <span aria-hidden="true">*</span></label>
+                <input id="s-email" name="email" type="email" autocomplete="email" required maxlength="160" />
+              </div>
+              <div class="field">
+                <label for="s-phone">Phone / WhatsApp</label>
+                <input id="s-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" />
+              </div>
+              <div class="field">
+                <label for="s-company">Company</label>
+                <input id="s-company" name="company" type="text" autocomplete="organization" maxlength="160" />
+              </div>
+              <div class="field field--full">
+                <label for="s-notes">Anything else we should know?</label>
+                <textarea id="s-notes" name="notes" rows="4" maxlength="3000" placeholder="Existing drawings, special requirements, deadlines…"></textarea>
+              </div>
+            </div>
+          </fieldset>
+
+          <p class="est__error" role="alert" data-error></p>
+          <div class="est__nav">
+            <button type="button" class="btn btn--outline" data-back hidden><Icon name="ArrowLeft" /> Back</button>
+            <button type="button" class="btn" data-next>Next <Icon name="ArrowRight" /></button>
+            <button type="submit" class="btn" data-submit hidden><span data-label>Send my scope</span> <Icon name="Send" /></button>
+          </div>
+        </form>
+
+        <aside class="est__side" aria-label="Your scope">
+          <div class="est__massing" data-massing>
+            <p class="est__massing-label mono" data-massing-label></p>
+          </div>
+          <div class="est__sheet" aria-live="polite">
+            <div class="est__sheet-head">
+              <p class="mono">Scope sheet</p>
+              <span class="est__complexity mono" data-complexity>—</span>
+            </div>
+            <h2 data-sum-title>Choose a building type</h2>
+            <p class="est__sum mono" data-sum-line></p>
+            <div class="est__meter" aria-hidden="true"><span data-meter></span></div>
+            <h3 class="mono">Typical drawing set</h3>
+            <ul class="est__sheets" data-sheets><li class="est__empty">Select services to see the sheets.</li></ul>
+            <h3 class="mono">Helpful to have ready</h3>
+            <ul class="est__needs" data-needs></ul>
+            <p class="est__fine">A typical scope for this kind of project — your actual scope is confirmed in our proposal.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .est {
+    padding: clamp(100px, 11vw, 128px) 0 var(--section);
+    background:
+      radial-gradient(ellipse at 80% 0%, rgba(91, 155, 230, 0.12), transparent 55%),
+      var(--steel);
+  }
+
+  .est__head {
+    max-width: 760px;
+    margin-bottom: 28px;
+  }
+
+  .est__head h1 {
+    margin: 10px 0 12px;
+    font-size: clamp(1.9rem, 3.8vw, 2.9rem);
+    line-height: 1.04;
+  }
+
+  .est__grid {
+    display: grid;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (min-width: 1000px) {
+    .est__grid {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 32px;
+    }
+
+    .est__side {
+      position: sticky;
+      top: 96px;
+    }
+  }
+
+  .est__form {
+    padding: clamp(18px, 3vw, 32px);
+    border: 1px solid var(--line-dark);
+    background: var(--steel-2);
+  }
+
+  .est__progress {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin: 0 0 28px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .est__progress li {
+    padding-top: 10px;
+    border-top: 3px solid var(--line-dark);
+    font-size: 0.78rem;
+    color: var(--on-dark-2);
+    transition: border-color 0.3s;
+  }
+
+  .est__progress li.is-active {
+    border-color: var(--blue-on-dark);
+    color: var(--on-dark);
+  }
+
+  .est__progress li.is-done {
+    border-color: var(--blue);
+  }
+
+  .est__progress .mono {
+    display: block;
+    font-size: 0.66rem;
+    color: var(--blue-on-dark);
+  }
+
+  @media (max-width: 640px) {
+    .est__progress li {
+      font-size: 0;
+    }
+
+    .est__progress .mono {
+      font-size: 0.66rem;
+    }
+  }
+
+  .est__step {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    animation: est-in 0.35s ease;
+  }
+
+  @keyframes est-in {
+    from {
+      opacity: 0;
+      transform: translateX(12px);
+    }
+  }
+
+  .est__step legend {
+    margin-bottom: 16px;
+    font-size: 1.35rem;
+    font-weight: 750;
+    color: var(--on-dark);
+  }
+
+  .est__hint {
+    margin: -8px 0 14px;
+    color: var(--on-dark-2);
+    font-size: 0.9rem;
+  }
+
+  .est__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+
+  .est__cards--list {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .est__card {
+    position: relative;
+    display: grid;
+    gap: 10px;
+    align-content: start;
+    min-height: 104px;
+    padding: 16px;
+    border: 1px solid var(--line-dark);
+    background: var(--steel);
+    color: var(--on-dark);
+    font-weight: 600;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition:
+      border-color 0.2s,
+      background 0.2s,
+      transform 0.2s;
+  }
+
+  .est__card--check {
+    display: flex;
+    align-items: center;
+    min-height: 0;
+  }
+
+  .est__card:hover {
+    border-color: var(--on-dark-2);
+    transform: translateY(-2px);
+  }
+
+  .est__card :global(svg) {
+    color: var(--blue-on-dark);
+  }
+
+  .est__card input,
+  .est__seg input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .est__card:has(input:checked) {
+    border-color: var(--blue-on-dark);
+    background: rgba(0, 78, 146, 0.35);
+  }
+
+  .est__card:has(input:focus-visible),
+  .est__seg label:has(input:focus-visible) {
+    outline: 2px solid var(--blue-on-dark);
+    outline-offset: 2px;
+  }
+
+  .est__tick {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--on-dark-2);
+    color: transparent;
+  }
+
+  .est__card:has(input:checked) .est__tick {
+    border-color: var(--blue-on-dark);
+    background: var(--blue-on-dark);
+    color: var(--steel);
+  }
+
+  .est__card--check .est__tick :global(svg) {
+    color: inherit;
+  }
+
+  .est .field {
+    margin-bottom: 18px;
+  }
+
+  .est .field label,
+  .est__label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--on-dark);
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+
+  .est input[type='text'],
+  .est input[type='email'],
+  .est input[type='tel'],
+  .est input[type='number'],
+  .est select,
+  .est textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--line-dark);
+    background: var(--steel);
+    color: var(--on-dark);
+    font: inherit;
+  }
+
+  .est input[type='number'] {
+    margin-top: 10px;
+    max-width: 200px;
+  }
+
+  .est input[type='range'] {
+    width: 100%;
+    accent-color: var(--blue-on-dark);
+  }
+
+  .est output {
+    color: var(--blue-on-dark);
+    font-size: 0.85rem;
+  }
+
+  .est__seg {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+
+  .est__seg--wrap {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .est__seg label {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--line-dark);
+    background: var(--steel);
+    color: var(--on-dark);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+
+  .est .est__seg label span {
+    color: inherit;
+  }
+
+  .est__seg label:has(input:checked) {
+    border-color: var(--blue-on-dark);
+    background: rgba(0, 78, 146, 0.4);
+  }
+
+  .est__error {
+    min-height: 1.4em;
+    margin: 14px 0 0;
+    color: #ff8a7a;
+    font-size: 0.9rem;
+  }
+
+  .est__nav {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .est__nav [data-next],
+  .est__nav [data-submit] {
+    margin-left: auto;
+  }
+
+  .est__nav [hidden] {
+    display: none;
+  }
+
+  .est__side {
+    display: grid;
+    gap: 14px;
+  }
+
+  .est__massing {
+    position: relative;
+    height: 260px;
+    border: 1px solid var(--line-dark);
+    background:
+      linear-gradient(rgba(91, 155, 230, 0.05) 1px, transparent 1px) 0 0 / 22px 22px,
+      linear-gradient(90deg, rgba(91, 155, 230, 0.05) 1px, transparent 1px) 0 0 / 22px 22px,
+      var(--steel);
+    overflow: hidden;
+  }
+
+  .est__massing-label {
+    position: absolute;
+    left: 12px;
+    bottom: 10px;
+    z-index: 1;
+    margin: 0;
+    font-size: 0.72rem;
+    color: var(--on-dark-2);
+  }
+
+  .est__sheet {
+    padding: 20px;
+    border: 1px solid var(--line-dark);
+    border-top: 3px solid var(--blue-on-dark);
+    background: var(--steel-2);
+  }
+
+  .est__sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .est__sheet-head p {
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-on-dark);
+  }
+
+  .est__complexity {
+    padding: 4px 8px;
+    border: 1px solid var(--line-dark);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--on-dark);
+  }
+
+  .est__sheet h2 {
+    margin: 10px 0 4px;
+    font-size: 1.3rem;
+    color: var(--on-dark);
+  }
+
+  .est__sum {
+    margin: 0 0 12px;
+    font-size: 0.75rem;
+    color: var(--on-dark-2);
+  }
+
+  .est__meter {
+    height: 4px;
+    margin-bottom: 18px;
+    background: var(--line-dark);
+  }
+
+  .est__meter span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--blue-on-dark), #ffb347, var(--red));
+    transition: width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .est__sheet h3 {
+    margin: 0 0 8px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .est__sheets,
+  .est__needs {
+    display: grid;
+    gap: 4px;
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .est__sheets :global(li) {
+    display: grid;
+    grid-template-columns: 62px 1fr;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line-dark);
+    font-size: 0.86rem;
+    color: var(--on-dark);
+    animation: est-in 0.3s ease;
+  }
+
+  .est__sheets :global(b) {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.78rem;
+    color: var(--blue-on-dark);
+  }
+
+  .est__sheets :global(.est__empty) {
+    display: block;
+    color: var(--on-dark-2);
+  }
+
+  .est__needs :global(li) {
+    display: flex;
+    gap: 8px;
+    font-size: 0.86rem;
+    color: var(--on-dark-2);
+  }
+
+  .est__needs :global(li)::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    margin-top: 0.5em;
+    background: var(--blue-on-dark);
+  }
+
+  .est__fine {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--on-dark-2);
+  }
+
+  .est :global(.form-success) {
+    color: var(--on-dark);
+  }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('form[data-scope]')!;
+  const steps = [...form.querySelectorAll<HTMLFieldSetElement>('[data-step]')];
+  const prog = [...form.querySelectorAll<HTMLElement>('[data-progress]')];
+  const back = form.querySelector<HTMLButtonElement>('[data-back]')!;
+  const next = form.querySelector<HTMLButtonElement>('[data-next]')!;
+  const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+  const error = form.querySelector<HTMLElement>('[data-error]')!;
+  const range = form.querySelector<HTMLInputElement>('[data-area-range]')!;
+  const area = form.querySelector<HTMLInputElement>('#s-area')!;
+  const areaOut = form.querySelector<HTMLElement>('[data-area-out]')!;
+  let step = 0;
+
+  // area slider is logarithmic: 200 – 200,000 sq ft
+  const fromRange = (v: number) => Math.round((200 * Math.pow(1000, v / 1000)) / 50) * 50;
+  const toRange = (a: number) => Math.round((Math.log(Math.max(200, a) / 200) / Math.log(1000)) * 1000);
+  range.addEventListener('input', () => {
+    area.value = String(fromRange(Number(range.value)));
+    refresh();
+  });
+  area.addEventListener('input', () => {
+    range.value = String(toRange(Number(area.value) || 0));
+  });
+
+  const val = (name: string) => form.querySelector<HTMLInputElement>(`[name="${name}"]:checked`);
+  const checked = (name: string) => [...form.querySelectorAll<HTMLInputElement>(`[name="${name}"]:checked`)];
+
+  const SHEETS: Record<string, [string, string][]> = {
+    architectural: [['A-001', 'Cover sheet & code summary'], ['A-101', 'Floor plans'], ['A-201', 'Exterior elevations'], ['A-301', 'Building sections'], ['A-601', 'Door & window schedules']],
+    structural: [['S-001', 'General structural notes'], ['S-101', 'Foundation plan'], ['S-201', 'Floor & roof framing plans'], ['S-501', 'Typical structural details']],
+    mep: [['M-101', 'Mechanical / HVAC plans'], ['E-101', 'Power & lighting plans'], ['P-101', 'Plumbing plans & riser']],
+    bim: [['3D', 'Coordinated 3D / BIM model'], ['3D', 'Exterior & interior views']],
+    calcs: [['CALC', 'Structural calculation package']],
+  };
+
+  const refresh = () => {
+    const type = val('building_type');
+    const svc = checked('service').map((i) => i.value);
+    const stories = Number(val('stories')?.value ?? 2);
+    const sys = val('structural_system');
+    const a = Number(area.value) || 0;
+    areaOut.textContent = `${a.toLocaleString()} sq ft`;
+
+    // drawing set
+    const list: [string, string][] = [];
+    for (const s of svc) if (SHEETS[s]) list.push(...SHEETS[s]);
+    if (svc.includes('structural')) {
+      if (stories >= 2 || sys?.value !== 'wood') list.splice(list.findIndex(([n]) => n === 'S-501'), 0, ['S-301', 'Lateral system / shear wall plan']);
+      if (sys?.value === 'steel') list.push(['S-601', 'Steel connection details']);
+      if (sys?.value === 'concrete' || sys?.value === 'masonry') list.push(['S-601', 'Reinforcing details & schedules']);
+      if (!svc.includes('calcs')) list.push(['CALC', 'Structural calculation package']);
+    }
+    if (svc.includes('bim') && svc.includes('mep') && svc.includes('structural')) list.push(['3D', 'Clash detection report']);
+    if (svc.includes('permit') && !svc.includes('architectural') && !svc.includes('structural')) list.push(['SET', 'Permit drawing set (scope confirmed in proposal)']);
+    const sheets = form.ownerDocument.querySelector<HTMLElement>('[data-sheets]')!;
+    sheets.innerHTML = list.length ? list.map(([n, t]) => `<li><b>${n}</b><span>${t}</span></li>`).join('') : '<li class="est__empty">Select services to see the sheets.</li>';
+
+    // inputs that help
+    const needs = ['Site address and any survey or plot plan'];
+    if (type?.value === 'addition') needs.push('Existing drawings or photos of the building');
+    if (stories >= 3 || sys?.value === 'steel' || sys?.value === 'concrete' || a > 10000) needs.push('Geotechnical (soils) report');
+    if (svc.includes('structural') && !svc.includes('architectural')) needs.push('Architectural plans to engineer from');
+    if (svc.includes('mep')) needs.push('Equipment and fixture preferences');
+    needs.push('Local jurisdiction / permit office');
+    form.ownerDocument.querySelector('[data-needs]')!.innerHTML = needs.map((n) => `<li>${n}</li>`).join('');
+
+    // complexity indicator (relative, not a fee)
+    const sysScore: Record<string, number> = { wood: 0, cfs: 1, masonry: 1, steel: 2, concrete: 2, unsure: 1 };
+    const typeScore: Record<string, number> = { adu: -1, 'single-family': 0, addition: 0.5, modular: 0.5, multifamily: 1.5, commercial: 1.5, industrial: 1, other: 1 };
+    const score = Math.log10(Math.max(200, a)) * 1.2 + stories * 0.6 + (sysScore[sys?.value ?? 'wood'] ?? 0) + (typeScore[type?.value ?? 'single-family'] ?? 0) + svc.length * 0.35;
+    const pct = Math.max(8, Math.min(100, ((score - 3.5) / 11) * 100));
+    const level = pct < 30 ? 'Standard' : pct < 55 ? 'Moderate' : pct < 80 ? 'Complex' : 'Highly complex';
+    form.ownerDocument.querySelector<HTMLElement>('[data-meter]')!.style.width = `${pct}%`;
+    form.ownerDocument.querySelector('[data-complexity]')!.textContent = `${level} scope`;
+
+    const title = type ? type.dataset.label! : 'Choose a building type';
+    form.ownerDocument.querySelector('[data-sum-title]')!.textContent = title;
+    form.ownerDocument.querySelector('[data-sum-line]')!.textContent = type ? `${a.toLocaleString()} sq ft · ${stories === 6 ? '6+' : stories} storey${stories > 1 ? 's' : ''} · ${sys?.dataset.label ?? ''}` : '';
+
+    massing?.update({ type: type?.value ?? 'single-family', area: a, stories, system: sys?.value ?? 'wood' });
+
+    // hidden fields for the submission
+    (form.querySelector('[data-out="services"]') as HTMLInputElement).value = checked('service')
+      .map((i) => i.dataset.label)
+      .join(', ');
+    (form.querySelector('[data-out="complexity"]') as HTMLInputElement).value = level;
+    (form.querySelector('[data-out="summary"]') as HTMLInputElement).value = list.map(([n, t]) => `${n} ${t}`).join(' | ');
+  };
+
+  const validStep = (i: number) => {
+    error.textContent = '';
+    if (i === 0 && !val('building_type')) return (error.textContent = 'Choose the type of building.'), false;
+    if (i === 1 && !checked('service').length) return (error.textContent = 'Choose at least one service.'), false;
+    if (i === 2 && !(Number(area.value) >= 100)) return (error.textContent = 'Enter the total floor area (100 sq ft or more).'), false;
+    if (i === 4) {
+      const name = form.querySelector<HTMLInputElement>('#s-name')!;
+      const email = form.querySelector<HTMLInputElement>('#s-email')!;
+      if (!name.value.trim()) return (error.textContent = 'Please add your name.'), name.focus(), false;
+      if (!email.validity.valid || !email.value) return (error.textContent = 'Please add a valid email address.'), email.focus(), false;
+    }
+    return true;
+  };
+
+  const go = (i: number) => {
+    step = i;
+    steps.forEach((s, k) => (s.hidden = k !== i));
+    prog.forEach((p, k) => {
+      p.classList.toggle('is-active', k === i);
+      p.classList.toggle('is-done', k < i);
+    });
+    back.hidden = i === 0;
+    next.hidden = i === steps.length - 1;
+    submit.hidden = i !== steps.length - 1;
+    steps[i].querySelector<HTMLElement>('input:not([type=hidden]), select, textarea')?.focus({ preventScroll: true });
+  };
+
+  next.addEventListener('click', () => validStep(step) && go(step + 1));
+  back.addEventListener('click', () => go(step - 1));
+  form.addEventListener('change', (e) => {
+    refresh();
+    // picking a building type moves straight on
+    if ((e.target as HTMLInputElement).name === 'building_type' && step === 0) setTimeout(() => go(1), 220);
+  });
+  form.addEventListener('input', refresh);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validStep(4)) return;
+    refresh();
+    const label = submit.querySelector<HTMLElement>('[data-label]')!;
+    submit.disabled = true;
+    label.textContent = 'Sending…';
+    try {
+      const res = await fetch('/', { method: 'POST', body: new FormData(form) });
+      if (!res.ok) throw new Error('send-failed');
+      const wrap = document.createElement('div');
+      wrap.className = 'form-success';
+      wrap.tabIndex = -1;
+      wrap.innerHTML = '<h3>Your scope is on its way</h3><p>Thanks — our engineering team will review your brief and come back to you with a proposal.</p>';
+      form.replaceWith(wrap);
+      wrap.focus();
+    } catch {
+      error.textContent = 'Sorry, your scope could not be sent right now. Please try again in a few minutes.';
+      submit.disabled = false;
+      label.textContent = 'Send my scope';
+    }
+  });
+
+  let massing: { update: (m: import('../scripts/massing').Massing) => void } | null = null;
+  import('../scripts/massing')
+    .then(({ mountMassing }) => {
+      massing = mountMassing(document.querySelector<HTMLElement>('[data-massing]')!, document.querySelector<HTMLElement>('[data-massing-label]')!);
+      refresh();
+    })
+    .catch(() => {});
+  refresh();
+</script>
