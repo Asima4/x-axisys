@@ -10,6 +10,7 @@ import Lightbox from '../../components/Lightbox.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
 import StructuralData from '../../components/StructuralData.astro';
+import FrameExplorer from '../../components/FrameExplorer.astro';
 import { allServices, processSteps, serviceGroups, type Service } from '../../data/site';
 
 type Category = 'renders' | 'plans' | 'elevations' | 'sections' | 'structural' | 'mep';
@@ -159,6 +160,7 @@ const siblings = group.services.filter((s) => s.id !== service.id);
     )
   }
 
+  {service.id === 'structural-engineering' && <FrameExplorer />}
   {service.id === 'structural-engineering' && <StructuralData />}
 
   {

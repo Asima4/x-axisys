@@ -1,0 +1,473 @@
+---
+// Interactive light-frame anatomy: a sample two-storey wood house built member by member (src/scripts/woodFrame.ts).
+import Icon from './Icon.astro';
+import { GROUPS, MEMBERS, type MemberId } from '../data/woodFrame';
+
+const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]][];
+---
+
+<section class="section wf dark" data-wf aria-labelledby="wf-title">
+  <div class="container">
+    <div class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">Light-frame anatomy</p>
+        <h2 id="wf-title">Every member of a wood-frame house.</h2>
+      </div>
+      <p class="lead">
+        A sample two-storey home with an attached garage, framed piece by piece the way we detail it — from anchor bolts to hurricane ties. Select any member to isolate it and see what it does.
+      </p>
+    </div>
+
+    <div class="wf__layout">
+      <div class="wf__stage" data-wf-stage>
+        <div class="wf__loading mono" data-wf-loading>Framing the model…</div>
+        <div class="wf__tip mono" data-wf-tip hidden></div>
+        <div class="wf__pin" data-wf-pin hidden><span></span></div>
+        <div class="wf__progress" aria-hidden="true"><span data-wf-bar></span></div>
+        <div class="wf__controls">
+          <button type="button" data-wf-replay><Icon name="RotateCcw" size={16} /> <span>Replay build</span></button>
+          <button type="button" data-wf-explode aria-pressed="false"><Icon name="Layers" size={16} /> <span>Exploded view</span></button>
+          <button type="button" class="wf__icon-btn" data-wf-zoom="1" aria-label="Zoom in"><Icon name="Plus" size={16} /></button>
+          <button type="button" class="wf__icon-btn" data-wf-zoom="-1" aria-label="Zoom out"><Icon name="Minus" size={16} /></button>
+        </div>
+        <p class="wf__hint mono" aria-hidden="true">Drag to rotate · click a member</p>
+      </div>
+
+      <aside class="wf__panel" aria-label="Framing members">
+        <div class="wf__card" data-wf-card aria-live="polite">
+          <p class="wf__card-group mono">Sample model</p>
+          <h3>Two-storey wood frame + garage</h3>
+          <p>Slab-on-grade, 2x6 exterior walls at 16" centres, 2x10 floor joists, a stick-framed 6:12 main roof and a trussed garage roof — with the connectors that complete the load path.</p>
+          <dl>
+            <div><dt class="mono">Pieces</dt><dd data-wf-total>—</dd></div>
+            <div><dt class="mono">Member types</dt><dd>{entries.length}</dd></div>
+          </dl>
+        </div>
+        <div class="wf__legend">
+          {
+            GROUPS.map((g) => (
+              <div class="wf__group">
+                <h3 class="mono">{g}</h3>
+                <ul>
+                  {entries
+                    .filter(([, m]) => m.group === g)
+                    .map(([id, m]) => (
+                      <li>
+                        <button type="button" data-wf-member={id} aria-pressed="false">
+                          <span class="wf__sw" style={`--c:${m.color}`} />
+                          {m.name}
+                        </button>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+        <button type="button" class="wf__reset" data-wf-reset hidden><Icon name="Eye" size={16} /> Show all members</button>
+      </aside>
+    </div>
+    <p class="wf__note mono">Illustrative sample using typical light-frame details. Member sizes are typical, not a design for any specific building.</p>
+  </div>
+</section>
+
+<style>
+  .wf__layout {
+    display: grid;
+    gap: 16px;
+  }
+
+  @media (min-width: 1000px) {
+    .wf__layout {
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 20px;
+    }
+  }
+
+  .wf__stage {
+    position: relative;
+    height: clamp(420px, 62vw, 680px);
+    overflow: hidden;
+    border: 1px solid var(--line-dark);
+    background:
+      radial-gradient(ellipse at 50% 35%, rgba(91, 155, 230, 0.09), transparent 60%),
+      var(--steel);
+  }
+
+  .wf__stage :global(.wf__canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+
+  .wf__stage :global(.wf__canvas:active) {
+    cursor: grabbing;
+  }
+
+  .wf__loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    transition: opacity 0.4s;
+  }
+
+  .wf__stage.is-ready .wf__loading {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .wf__tip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    padding: 6px 10px;
+    background: rgba(13, 15, 19, 0.92);
+    border: 1px solid var(--line-dark);
+    color: var(--on-dark);
+    font-size: 0.74rem;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .wf__pin {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .wf__pin::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--blue-on-dark);
+    box-shadow: 0 0 0 5px rgba(91, 155, 230, 0.28);
+    animation: wf-pulse 1.8s ease-out infinite;
+  }
+
+  .wf__pin span {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    padding: 6px 10px;
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  @keyframes wf-pulse {
+    70% {
+      box-shadow: 0 0 0 14px rgba(91, 155, 230, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(91, 155, 230, 0);
+    }
+  }
+
+  .wf__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 3px;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .wf__progress span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue-on-dark), var(--red));
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .wf__controls {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .wf__controls button,
+  .wf__reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--line-dark);
+    background: rgba(13, 15, 19, 0.82);
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+
+  .wf__controls button:hover,
+  .wf__reset:hover {
+    border-color: var(--blue-on-dark);
+  }
+
+  .wf__controls button[aria-pressed='true'] {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .wf__controls .wf__icon-btn {
+    width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .wf__hint {
+    position: absolute;
+    right: 14px;
+    top: 16px;
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--on-dark-2);
+    pointer-events: none;
+  }
+
+  .wf__panel {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+
+  @media (min-width: 1000px) {
+    .wf__panel {
+      max-height: clamp(420px, 62vw, 680px);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+    }
+  }
+
+  .wf__card {
+    padding: 20px;
+    border: 1px solid var(--line-dark);
+    border-top: 3px solid var(--blue-on-dark);
+    background: var(--steel-2);
+  }
+
+  .wf__card :global(.wf__card-group) {
+    margin: 0 0 6px;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-on-dark);
+  }
+
+  .wf__card :global(h3) {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    color: var(--on-dark);
+  }
+
+  .wf__card :global(p:not(.wf__card-group)) {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--on-dark-2);
+  }
+
+  .wf__card :global(dl) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--line-dark);
+  }
+
+  .wf__card :global(dt) {
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .wf__card :global(dd) {
+    margin: 4px 0 0;
+    font-weight: 700;
+    color: var(--on-dark);
+  }
+
+  .wf__legend {
+    display: grid;
+    gap: 14px;
+    overflow: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+  }
+
+  .wf__group h3 {
+    margin: 0 0 6px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .wf__group ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .wf__group button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--line-dark);
+    background: transparent;
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      border-color 0.2s;
+  }
+
+  .wf__group button:hover {
+    border-color: var(--on-dark-2);
+  }
+
+  .wf__group button[aria-pressed='true'] {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+  }
+
+  .wf__sw {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    background: var(--c);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+  }
+
+  .wf__reset {
+    justify-content: center;
+  }
+
+  .wf__note {
+    margin: 14px 0 0;
+    font-size: 0.7rem;
+    color: var(--on-dark-2);
+  }
+
+  @media (max-width: 640px) {
+    .wf__controls button span {
+      display: none;
+    }
+
+    .wf__controls button {
+      width: 40px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .wf__hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { MEMBERS, type MemberId } from '../data/woodFrame';
+
+  document.querySelectorAll<HTMLElement>('[data-wf]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('[data-wf-stage]')!;
+    const card = section.querySelector<HTMLElement>('[data-wf-card]')!;
+    const defaultCard = card.innerHTML;
+    const buttons = [...section.querySelectorAll<HTMLButtonElement>('[data-wf-member]')];
+    const reset = section.querySelector<HTMLButtonElement>('[data-wf-reset]')!;
+    const explodeBtn = section.querySelector<HTMLButtonElement>('[data-wf-explode]')!;
+    const bar = section.querySelector<HTMLElement>('[data-wf-bar]')!;
+    let api: import('../scripts/woodFrame').FrameApi | null = null;
+
+    const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+    const show = (c: MemberId | null) => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wfMember === c)));
+      reset.hidden = c === null;
+      if (!c) {
+        card.innerHTML = defaultCard;
+        const total = card.querySelector('[data-wf-total]');
+        if (total && api) total.textContent = api.total.toLocaleString();
+        return;
+      }
+      const m = MEMBERS[c];
+      const n = api?.counts[c] ?? 0;
+      card.innerHTML = `<p class="wf__card-group mono">${esc(m.group)}</p><h3>${esc(m.name)}</h3><p>${esc(m.role)}</p><dl><div><dt class="mono">Typical size</dt><dd>${esc(m.size)}</dd></div><div><dt class="mono">In this model</dt><dd>${n.toLocaleString()} ${n === 1 ? 'piece' : 'pieces'}</dd></div></dl>`;
+    };
+
+    buttons.forEach((b) =>
+      b.addEventListener('click', () => {
+        const c = b.dataset.wfMember as MemberId;
+        api?.select(b.getAttribute('aria-pressed') === 'true' ? null : c);
+      }),
+    );
+    reset.addEventListener('click', () => api?.select(null));
+    explodeBtn.addEventListener('click', () => {
+      const on = explodeBtn.getAttribute('aria-pressed') !== 'true';
+      explodeBtn.setAttribute('aria-pressed', String(on));
+      api?.setExplode(on);
+    });
+    section.querySelector('[data-wf-replay]')!.addEventListener('click', () => api?.replay());
+    section.querySelectorAll<HTMLButtonElement>('[data-wf-zoom]').forEach((b) => b.addEventListener('click', () => api?.zoom(Number(b.dataset.wfZoom) as 1 | -1)));
+
+    const io = new IntersectionObserver(
+      async (entries) => {
+        if (!entries[0].isIntersecting || api) return;
+        io.disconnect();
+        try {
+          const { mountWoodFrame } = await import('../scripts/woodFrame');
+          api = mountWoodFrame(stage, {
+            tip: section.querySelector<HTMLElement>('[data-wf-tip]')!,
+            pin: section.querySelector<HTMLElement>('[data-wf-pin]')!,
+            onSelect: show,
+            onProgress: (p) => (bar.style.transform = `scaleX(${p})`),
+          });
+          stage.classList.add('is-ready');
+          show(null);
+        } catch (err) {
+          console.error(err);
+          section.querySelector('[data-wf-loading]')!.textContent = '3D view unavailable on this device';
+        }
+      },
+      { rootMargin: '400px 0px' },
+    );
+    io.observe(section);
+  });
+</script>
