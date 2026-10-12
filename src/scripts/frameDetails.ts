@@ -8,7 +8,7 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 type Note = { p: P; text: string; m?: string; side?: 'l' | 'r' };
 
-class Sheet {
+export class Sheet {
   o: string[] = [];
   notes: Note[] = [];
   ox: number;
@@ -164,7 +164,7 @@ class Sheet {
   }
 }
 
-export type Detail = { no: number; title: string; members: string[]; svg: string };
+export type Detail = { no: number; title: string; members: string[]; svg: string; sheet?: string };
 
 const DEFS = `<defs>
 <pattern id="d-conc" width="22" height="22" patternUnits="userSpaceOnUse"><rect width="22" height="22" fill="#ecebe6"/><circle cx="4" cy="5" r="0.9" fill="#55585e"/><circle cx="15" cy="9" r="0.7" fill="#55585e"/><circle cx="9" cy="17" r="0.8" fill="#55585e"/><circle cx="19" cy="19" r="0.6" fill="#55585e"/><path d="M12 3l2.4 3.6h-4.8z M3 13l2 3h-4z M17 14l1.8 2.6h-3.6z" fill="none" stroke="#55585e" stroke-width="0.6"/></pattern>
@@ -172,15 +172,15 @@ const DEFS = `<defs>
 <pattern id="d-ply" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#efe2c4"/><line x1="0" y1="0" x2="0" y2="6" stroke="#7c6a48" stroke-width="0.7"/></pattern>
 </defs>`;
 
-function wrap(no: number, title: string, d: Sheet, members: string[]): Detail {
+export function wrap(no: number, title: string, d: Sheet, members: string[], sheet = 'S-501'): Detail {
   d.layout();
   const t = esc(title.toUpperCase());
   const svg = `<svg class="det" viewBox="0 0 900 600" role="img" aria-label="Detail ${no}: ${t}" xmlns="http://www.w3.org/2000/svg">${DEFS}
 <rect class="frame" x="8" y="8" width="884" height="584"/><rect class="frame2" x="13" y="13" width="874" height="574"/>
 ${d.o.join('\n')}
-<g class="tb"><circle cx="56" cy="548" r="24" class="bub"/><line x1="32" y1="548" x2="80" y2="548" class="bubl"/><text x="56" y="542" text-anchor="middle" class="bubn">${no}</text><text x="56" y="564" text-anchor="middle" class="bubs">S-501</text>
+<g class="tb"><circle cx="56" cy="548" r="24" class="bub"/><line x1="32" y1="548" x2="80" y2="548" class="bubl"/><text x="56" y="542" text-anchor="middle" class="bubn">${no}</text><text x="56" y="564" text-anchor="middle" class="bubs">${sheet}</text>
 <text x="94" y="546" class="ttl">${t}</text><line x1="94" y1="552" x2="${94 + t.length * 9.2}" y2="552" class="ttll"/><text x="94" y="569" class="tx">SCALE: N.T.S.</text></g></svg>`;
-  return { no, title, members, svg };
+  return { no, title, members, svg, sheet };
 }
 
 // ---------- 1 · sill anchorage at slab edge ----------

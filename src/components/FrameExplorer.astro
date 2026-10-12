@@ -1,27 +1,61 @@
 ---
-// Interactive light-frame anatomy: a sample two-storey wood house built member by member (src/scripts/woodFrame.ts).
+// Interactive framing anatomy, built member by member: a two-storey wood house (src/scripts/woodFrame.ts)
+// or a two-storey structural steel building (src/scripts/steelFrame.ts).
 import Icon from './Icon.astro';
 import ArView from './ArView.astro';
-import { GROUPS, MEMBERS, type MemberId } from '../data/woodFrame';
+import { GROUPS, MEMBERS, type Member } from '../data/woodFrame';
+import { STEEL_GROUPS, STEEL_MEMBERS } from '../data/steelFrame';
 
-const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]][];
+interface Props {
+  kind?: 'wood' | 'steel';
+}
+const { kind = 'wood' } = Astro.props;
+const CFG = {
+  wood: {
+    members: MEMBERS as Record<string, Member>,
+    groups: GROUPS as string[],
+    eyebrow: 'Light-frame anatomy',
+    title: 'Every member of a wood-frame house.',
+    lead: 'A sample two-storey home with an attached garage, framed piece by piece the way we detail it — from anchor bolts to hurricane ties. Select any member to isolate it and see what it does.',
+    loading: 'Framing the model…',
+    cardTitle: 'Two-storey wood frame + garage',
+    cardText: 'Slab-on-grade, 2x6 exterior walls at 16" centres, 2x10 floor joists, a stick-framed 6:12 main roof and a trussed garage roof — with the connectors that complete the load path.',
+    details: 11,
+    loads: true,
+    ar: { id: 'wood-frame', src: '/models/ar/wood-frame.glb', title: 'Wood-frame sample house', scale: '1:40 tabletop scale' },
+    note: 'Illustrative sample using typical light-frame details. Connectors are modelled on Simpson Strong-Tie® products commonly specified for light-frame construction. Member sizes are typical, not a design for any specific building.',
+  },
+  steel: {
+    members: STEEL_MEMBERS as Record<string, Member>,
+    groups: STEEL_GROUPS,
+    eyebrow: 'Steel-frame anatomy',
+    title: 'Inside a structural steel building.',
+    lead: 'A sample two-storey steel building — footings and base plates, W-shape columns and girders, a composite floor, open-web roof joists and chevron braced frames, down to every shear tab and bolt. Select any member to isolate it and open its section detail.',
+    loading: 'Erecting the steel…',
+    cardTitle: 'Two-storey steel frame',
+    cardText: 'Three bays by two with 14 ft storeys: W12 columns, W21 girders, W16 composite beams at 10 ft, 18K roof joists at 5 ft and HSS chevron braces in both directions.',
+    details: 7,
+    loads: false,
+    ar: { id: 'steel-frame', src: '/models/ar/steel-frame.glb', title: 'Steel-frame sample building', scale: '1:75 tabletop scale' },
+    note: 'Illustrative sample using typical structural steel details. Member sizes are typical, not a design for any specific building.',
+  },
+}[kind];
+const entries = Object.entries(CFG.members);
 ---
 
-<section class="section wf dark" data-wf aria-labelledby="wf-title">
+<section class="section wf dark" data-wf data-wf-kind={kind} aria-labelledby={`wf-title-${kind}`}>
   <div class="container">
     <div class="section-head section-head--split reveal">
       <div>
-        <p class="eyebrow">Light-frame anatomy</p>
-        <h2 id="wf-title">Every member of a wood-frame house.</h2>
+        <p class="eyebrow">{CFG.eyebrow}</p>
+        <h2 id={`wf-title-${kind}`}>{CFG.title}</h2>
       </div>
-      <p class="lead">
-        A sample two-storey home with an attached garage, framed piece by piece the way we detail it — from anchor bolts to hurricane ties. Select any member to isolate it and see what it does.
-      </p>
+      <p class="lead">{CFG.lead}</p>
     </div>
 
     <div class="wf__layout">
       <div class="wf__stage" data-wf-stage>
-        <div class="wf__loading mono" data-wf-loading>Framing the model…</div>
+        <div class="wf__loading mono" data-wf-loading>{CFG.loading}</div>
         <div class="wf__tip mono" data-wf-tip hidden></div>
         <div class="wf__pin" data-wf-pin hidden><span></span></div>
         <div class="wf__progress" aria-hidden="true"><span data-wf-bar></span></div>
@@ -30,9 +64,9 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
           <button type="button" data-wf-explode aria-pressed="false"><Icon name="Layers" size={16} /> <span>Exploded view</span></button>
           <button type="button" class="wf__icon-btn" data-wf-zoom="1" aria-label="Zoom in"><Icon name="Plus" size={16} /></button>
           <button type="button" class="wf__icon-btn" data-wf-zoom="-1" aria-label="Zoom out"><Icon name="Minus" size={16} /></button>
-          <ArView id="wood-frame" src="/models/ar/wood-frame.glb" title="Wood-frame sample house" scale="1:40 tabletop scale" variant="overlay" />
+          <ArView id={CFG.ar.id} src={CFG.ar.src} title={CFG.ar.title} scale={CFG.ar.scale} variant="overlay" />
         </div>
-        <div class="wf__loads" role="group" aria-label="Show load path">
+        <div class="wf__loads" role="group" aria-label="Show load path" hidden={!CFG.loads}>
           <span class="wf__loads-label mono">Load path</span>
           <button type="button" data-wf-load="gravity" aria-pressed="false"><Icon name="ArrowDownToLine" size={16} /> <span>Gravity</span></button>
           <button type="button" data-wf-load="wind" aria-pressed="false"><Icon name="Wind" size={16} /> <span>Wind</span></button>
@@ -54,17 +88,17 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
       <aside class="wf__panel" aria-label="Framing members">
         <div class="wf__card" data-wf-card aria-live="polite">
           <p class="wf__card-group mono">Sample model</p>
-          <h3>Two-storey wood frame + garage</h3>
-          <p>Slab-on-grade, 2x6 exterior walls at 16" centres, 2x10 floor joists, a stick-framed 6:12 main roof and a trussed garage roof — with the connectors that complete the load path.</p>
+          <h3>{CFG.cardTitle}</h3>
+          <p>{CFG.cardText}</p>
           <dl>
             <div><dt class="mono">Pieces</dt><dd data-wf-total>—</dd></div>
             <div><dt class="mono">Member types</dt><dd>{entries.length}</dd></div>
           </dl>
-          <button type="button" class="wf__detail-btn" data-wf-open="1"><Icon name="FileText" size={16} /> Browse the 11 section details</button>
+          <button type="button" class="wf__detail-btn" data-wf-open="1"><Icon name="FileText" size={16} /> Browse the {CFG.details} section details</button>
         </div>
         <div class="wf__legend">
           {
-            GROUPS.map((g) => (
+            CFG.groups.map((g) => (
               <div class="wf__group">
                 <h3 class="mono">{g}</h3>
                 <ul>
@@ -87,15 +121,15 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
       </aside>
     </div>
     <p class="wf__note mono">
-      Illustrative sample using typical light-frame details. Connectors are modelled on Simpson Strong-Tie® products commonly specified for light-frame construction. Member sizes are typical, not a design for any specific building.
+      {CFG.note}
     </p>
   </div>
 
-  <dialog class="wfd" data-wfd aria-labelledby="wfd-title">
+  <dialog class="wfd" data-wfd aria-labelledby={`wfd-title-${kind}`}>
     <div class="wfd__head">
       <div>
-        <p class="wfd__kicker mono" data-wfd-kicker>Sheet S-501</p>
-        <h3 id="wfd-title" data-wfd-title>Section detail</h3>
+        <p class="wfd__kicker mono" data-wfd-kicker>Section detail</p>
+        <h3 id={`wfd-title-${kind}`} data-wfd-title>Section detail</h3>
       </div>
       <button type="button" class="wfd__close" data-wfd-close aria-label="Close detail"><Icon name="X" size={20} /></button>
     </div>
@@ -282,10 +316,14 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     justify-content: center;
   }
 
+  .wf__loads[hidden] {
+    display: none;
+  }
+
   .wf__loads {
     position: absolute;
     right: 14px;
-    bottom: 14px;
+    top: 14px;
     z-index: 2;
     display: flex;
     align-items: center;
@@ -412,6 +450,10 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
 
   .wf__stage.has-load .wf__hint {
     display: none;
+  }
+
+  .wf__loads:not([hidden]) ~ .wf__hint {
+    top: 66px;
   }
 
   .wf__hint {
@@ -746,6 +788,46 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     stroke-width: 0.55;
   }
 
+  .wfd :global(.det .stc) {
+    fill: #343941;
+    stroke: #1d2025;
+    stroke-width: 0.8;
+  }
+
+  .wfd :global(.det .stb) {
+    fill: #1d2025;
+  }
+
+  .wfd :global(.det .grout) {
+    fill: #e4e0d3;
+    stroke: #1d2025;
+    stroke-width: 0.9;
+  }
+
+  .wfd :global(.det .deckl) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 2.2;
+    stroke-linejoin: round;
+  }
+
+  .wfd :global(.det .wwf) {
+    stroke: #1d2025;
+    stroke-width: 0.8;
+    stroke-dasharray: 2 3;
+  }
+
+  .wfd :global(.det .hl.stc),
+  .wfd :global(.det .hl.stb) {
+    fill: #2f76c8;
+  }
+
+  .wfd :global(.det .hl.deckl),
+  .wfd :global(.det .hl.wwf) {
+    fill: none;
+    stroke: #2f76c8;
+  }
+
   .wfd :global(.det .ply) {
     fill: url(#d-ply);
     stroke: #1d2025;
@@ -939,6 +1021,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
 
   @media (max-width: 999px) {
     .wf__loads {
+      top: auto;
       left: 14px;
       right: auto;
       bottom: 64px;
@@ -968,10 +1051,15 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
 </style>
 
 <script>
-  import { MEMBERS, type MemberId } from '../data/woodFrame';
+  import { MEMBERS, type Member } from '../data/woodFrame';
+  import { STEEL_MEMBERS } from '../data/steelFrame';
   import { getDetails } from '../scripts/frameDetails';
+  import { getSteelDetails } from '../scripts/steelDetails';
+  type MemberId = string;
 
   document.querySelectorAll<HTMLElement>('[data-wf]').forEach((section) => {
+    const steel = section.dataset.wfKind === 'steel';
+    const CAT: Record<string, Member> = steel ? STEEL_MEMBERS : MEMBERS;
     const stage = section.querySelector<HTMLElement>('[data-wf-stage]')!;
     const card = section.querySelector<HTMLElement>('[data-wf-card]')!;
     const defaultCard = card.innerHTML;
@@ -1043,7 +1131,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     const dlg = section.querySelector<HTMLDialogElement>('[data-wfd]')!;
     const sheet = dlg.querySelector<HTMLElement>('[data-wfd-sheet]')!;
     const list = dlg.querySelector<HTMLOListElement>('[data-wfd-list]')!;
-    const details = getDetails();
+    const details = steel ? getSteelDetails() : getDetails();
     let current = 1;
     let focusMember: MemberId | null = null;
     list.innerHTML = details.map((d) => `<li><button type="button" data-wfd-go="${d.no}" title="${d.title}">${d.no}</button></li>`).join('');
@@ -1051,14 +1139,14 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
       const d = details.find((x) => x.no === no) ?? details[0];
       current = d.no;
       sheet.innerHTML = d.svg;
-      dlg.querySelector('[data-wfd-kicker]')!.textContent = `Sheet S-501 · Detail ${d.no} of ${details.length}`;
+      dlg.querySelector('[data-wfd-kicker]')!.textContent = `Sheet ${d.sheet ?? 'S-501'} · Detail ${d.no} of ${details.length}`;
       dlg.querySelector('[data-wfd-title]')!.textContent = d.title;
       list.querySelectorAll<HTMLButtonElement>('button').forEach((b) => b.setAttribute('aria-current', String(Number(b.dataset.wfdGo) === d.no)));
       const m = focusMember && d.members.includes(focusMember) ? focusMember : null;
       if (m) sheet.querySelectorAll(`[data-m~="${m}"]`).forEach((el) => el.classList.add('hl'));
-      const shown = d.members.filter((id) => id in MEMBERS).map((id) => MEMBERS[id as MemberId].name);
+      const shown = d.members.filter((id) => id in CAT).map((id) => CAT[id as MemberId].name);
       dlg.querySelector('[data-wfd-member]')!.innerHTML = m
-        ? `Highlighted: <b>${esc(MEMBERS[m].name)}</b> — ${esc(MEMBERS[m].size)}`
+        ? `Highlighted: <b>${esc(CAT[m].name)}</b> — ${esc(CAT[m].size)}`
         : `Shows: ${esc(shown.slice(0, 6).join(', '))}${shown.length > 6 ? '…' : ''}`;
     };
     const openDetail = (no: number, m: MemberId | null) => {
@@ -1092,7 +1180,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
         if (total && api) total.textContent = api.total.toLocaleString();
         return;
       }
-      const m = MEMBERS[c];
+      const m = CAT[c];
       const n = api?.counts[c] ?? 0;
       card.innerHTML = `<p class="wf__card-group mono">${esc(m.group)}</p><h3>${esc(m.name)}</h3><p>${esc(m.role)}</p><dl><div><dt class="mono">Typical size</dt><dd>${esc(m.size)}</dd></div><div><dt class="mono">In this model</dt><dd>${n.toLocaleString()} ${n === 1 ? 'piece' : 'pieces'}</dd></div></dl><button type="button" class="wf__detail-btn" data-wf-open="${m.detail}" data-wf-member="${c}">View section detail ${m.detail}</button>`;
     };
@@ -1117,13 +1205,13 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
         if (!entries[0].isIntersecting || api) return;
         io.disconnect();
         try {
-          const { mountWoodFrame } = await import('../scripts/woodFrame');
-          api = mountWoodFrame(stage, {
+          const mount = steel ? (await import('../scripts/steelFrame')).mountSteelFrame : (await import('../scripts/woodFrame')).mountWoodFrame;
+          api = mount(stage, {
             tip: section.querySelector<HTMLElement>('[data-wf-tip]')!,
             pin: section.querySelector<HTMLElement>('[data-wf-pin]')!,
             onSelect: (c) => {
               show(c);
-              if (c) openDetail(MEMBERS[c].detail, c);
+              if (c) openDetail(CAT[c].detail, c);
             },
             onProgress: (p) => (bar.style.transform = `scaleX(${p})`),
             onLoad: showLoad,

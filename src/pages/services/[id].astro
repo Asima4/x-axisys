@@ -161,6 +161,7 @@ const siblings = group.services.filter((s) => s.id !== service.id);
   }
 
   {service.id === 'structural-engineering' && <FrameExplorer />}
+  {service.id === 'structural-engineering' && <FrameExplorer kind="steel" />}
   {service.id === 'structural-engineering' && <StructuralData />}
 
   {

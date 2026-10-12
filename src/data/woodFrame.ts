@@ -6,7 +6,7 @@ export type MemberGroup = 'Foundation' | 'Walls' | 'Floor' | 'Roof' | 'Connector
 
 export type Member = {
   name: string;
-  group: MemberGroup;
+  group: string;
   color: string;
   size: string;
   role: string;

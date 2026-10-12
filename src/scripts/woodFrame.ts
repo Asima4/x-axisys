@@ -3,11 +3,11 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { MEMBERS, type MemberId } from '../data/woodFrame';
+import { MEMBERS, type Member, type MemberId } from '../data/woodFrame';
 
 type Shape = 'box' | 'cyl';
 // k groups the plates of one physical connector (an H2.5A is three plates) so counts are per connector.
-export type Piece = { c: MemberId; lvl: number; shape: Shape; pos: THREE.Vector3; size: THREE.Vector3; quat: THREE.Quaternion; t: number; k?: string };
+export type Piece = { c: string; lvl: number; shape: Shape; pos: THREE.Vector3; size: THREE.Vector3; quat: THREE.Quaternion; t: number; k?: string };
 type Opening = { at: number; w: number; type: 'door' | 'window' | 'garage' };
 type WallOpts = {
   x0: number;
@@ -49,6 +49,7 @@ const PLUMB = D10 * Math.sqrt(1 + PITCH * PITCH);
 const FRAMING = new Set<MemberId>(['stud', 'king', 'trimmer', 'header', 'cripple', 'roughSill']);
 const EXPLODE_Y = [0, 2.4, 5.6, 8.6, 13];
 const DUR = 0.035;
+const CONNECT = new Set(['Connectors', 'Connections']);
 const BUILD_SECONDS = 15;
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
@@ -656,8 +657,9 @@ function loadData(mode: LoadMode) {
 }
 
 export type FrameApi = {
+  hasLoad: boolean;
   setLoad: (mode: LoadMode | null) => void;
-  select: (c: MemberId | null) => void;
+  select: (c: string | null) => void;
   setExplode: (on: boolean) => void;
   replay: () => void;
   zoom: (dir: 1 | -1) => void;
@@ -666,19 +668,43 @@ export type FrameApi = {
   dispose: () => void;
 };
 
-export function mountWoodFrame(
-  container: HTMLElement,
-  ui: {
-    onSelect?: (c: MemberId | null) => void;
-    onProgress?: (p: number) => void;
-    onLoad?: (mode: LoadMode | null) => void;
-    tip?: HTMLElement;
-    pin?: HTMLElement;
-  } = {},
-): FrameApi {
+export type FrameUi = {
+  onSelect?: (c: string | null) => void;
+  onProgress?: (p: number) => void;
+  onLoad?: (mode: LoadMode | null) => void;
+  tip?: HTMLElement;
+  pin?: HTMLElement;
+};
+
+/** A framing model the explorer can show: pieces + their catalogue, framing and (optionally) load paths. */
+export type FrameModel = {
+  pieces: Piece[];
+  members: Record<string, Member>;
+  explodeY: number[];
+  center: THREE.Vector3;
+  dist: number;
+  size: number;
+  load?: (mode: LoadMode) => { paths: THREE.Vector3[][]; arrows: Arrow[]; members: string[] };
+};
+
+export const woodModel = (): FrameModel => ({
+  pieces: buildPieces(),
+  members: MEMBERS,
+  explodeY: EXPLODE_Y,
+  center: new V3(8, 9.5, 12),
+  dist: 96,
+  size: 38,
+  load: loadData,
+});
+
+export const mountWoodFrame = (container: HTMLElement, ui: FrameUi = {}) => mountFrame(container, ui, woodModel());
+
+export function mountFrame(container: HTMLElement, ui: FrameUi, model: FrameModel): FrameApi {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
-  const pieces = buildPieces();
+  const pieces = model.pieces;
+  const M = model.members;
+  const SZ = model.size;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, coarse ? 1.5 : 2));
@@ -690,11 +716,11 @@ export function mountWoodFrame(
   container.prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog('#0d0f13', 95, 190);
-  const center = new V3(8, 9.5, 12);
+  scene.fog = new THREE.Fog('#0d0f13', model.dist, model.dist * 2);
+  const center = model.center.clone();
   const camera = new THREE.PerspectiveCamera(30, 1, 0.5, 600);
   const homeDir = new V3(-0.62, 0.5, -0.6).normalize();
-  let homeDist = 96;
+  let homeDist = model.dist;
   camera.position.copy(center).addScaledVector(homeDir, homeDist * 1.25);
 
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -715,10 +741,10 @@ export function mountWoodFrame(
 
   scene.add(new THREE.HemisphereLight('#eef3ff', '#2a2620', 1.15));
   const sun = new THREE.DirectionalLight('#fff3e2', 3.0);
-  sun.position.set(-34, 60, -28);
+  sun.position.set(center.x - SZ * 0.9, SZ * 1.6, center.z - SZ * 0.75);
   sun.castShadow = true;
   sun.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048);
-  Object.assign(sun.shadow.camera, { left: -38, right: 38, top: 38, bottom: -38, near: 1, far: 160 });
+  Object.assign(sun.shadow.camera, { left: -SZ, right: SZ, top: SZ, bottom: -SZ, near: 1, far: SZ * 4.2 });
   sun.shadow.bias = -0.0004;
   sun.shadow.normalBias = 0.02;
   sun.target.position.copy(center);
@@ -733,7 +759,7 @@ export function mountWoodFrame(
   ground.receiveShadow = true;
   (ground.material as THREE.Material).depthWrite = false;
   scene.add(ground);
-  const grid = new THREE.GridHelper(120, 60, '#3a414d', '#22262e');
+  const grid = new THREE.GridHelper(SZ * 3.2, 60, '#3a414d', '#22262e');
   grid.position.set(center.x, -0.51, center.z);
   (grid.material as THREE.Material).transparent = true;
   (grid.material as THREE.Material).opacity = 0.5;
@@ -743,16 +769,16 @@ export function mountWoodFrame(
   const boxGeo = new THREE.BoxGeometry(1, 1, 1);
   const cylGeo = new THREE.CylinderGeometry(0.5, 0.5, 1, 10);
   const osb = osbTexture();
-  const mats = new Map<MemberId, THREE.MeshStandardMaterial>();
+  const mats = new Map<string, THREE.MeshStandardMaterial>();
   const meshes: THREE.InstancedMesh[] = [];
   const slots: { mesh: THREE.InstancedMesh; i: number }[] = new Array(pieces.length);
   const counts: Record<string, number> = {};
-  const byCat = new Map<MemberId, number[]>();
+  const byCat = new Map<string, number[]>();
   let rng = 11;
   const rnd = () => ((rng = (rng * 16807) % 2147483647) / 2147483647);
 
-  for (const id of Object.keys(MEMBERS) as MemberId[]) {
-    const m = MEMBERS[id] as (typeof MEMBERS)[MemberId] & { kind?: string };
+  for (const id of Object.keys(M)) {
+    const m = M[id];
     const kind = m.kind ?? 'wood';
     const mat = new THREE.MeshStandardMaterial({
       color: '#ffffff',
@@ -797,7 +823,7 @@ export function mountWoodFrame(
 
   let sway = 0;
   const swayAt = (y: number) => (sway * Math.max(0, y + 0.5)) / (RB + 7);
-  const pieceWorld = (p: Piece, out: THREE.Vector3) => out.copy(p.pos).setY(p.pos.y + EXPLODE_Y[p.lvl] * ease(explode));
+  const pieceWorld = (p: Piece, out: THREE.Vector3) => out.copy(p.pos).setY(p.pos.y + model.explodeY[p.lvl] * ease(explode));
   const updateMatrices = () => {
     const ex = ease(explode);
     for (let i = 0; i < pieces.length; i++) {
@@ -807,7 +833,7 @@ export function mountWoodFrame(
       else {
         const k = easeOut(s);
         pos.copy(p.pos);
-        pos.y += EXPLODE_Y[p.lvl] * ex + (1 - k) * 2.6;
+        pos.y += model.explodeY[p.lvl] * ex + (1 - k) * 2.6;
         if (sway) pos.z += swayAt(p.pos.y);
         scl.copy(p.size).multiplyScalar(0.82 + 0.18 * k);
         m4.compose(pos, p.quat, scl);
@@ -824,7 +850,7 @@ export function mountWoodFrame(
   let idleTimer = 0;
   let intro = reduced ? 1 : 0;
   // ----- selection / ghosting -----
-  let selected: MemberId | null = null;
+  let selected: string | null = null;
   const applySelection = () => {
     for (const [id, mat] of mats) {
       const ghost = selected !== null && id !== selected;
@@ -832,13 +858,13 @@ export function mountWoodFrame(
       mat.opacity = ghost ? 0.06 : 1;
       mat.color.set(ghost ? '#7b8592' : '#ffffff');
       mat.depthWrite = !ghost;
-      mat.emissive.set(id === selected ? MEMBERS[id].color : '#000000');
+      mat.emissive.set(id === selected ? M[id].color : '#000000');
       mat.emissiveIntensity = id === selected ? 0.45 : 0;
       mat.needsUpdate = true;
     }
     for (const mesh of meshes) mesh.castShadow = selected === null ? mesh.userData.c !== 'slab' : mesh.userData.c === selected;
     if (ui.pin) ui.pin.hidden = selected === null;
-    if (ui.pin && selected) ui.pin.querySelector('span')!.textContent = MEMBERS[selected].name;
+    if (ui.pin && selected) ui.pin.querySelector('span')!.textContent = M[selected].name;
   };
   // camera flight: connectors are small, so fly in close to the nearest one; clearing flies back out
   let fly: { t: number; fromT: THREE.Vector3; toT: THREE.Vector3; fromP: THREE.Vector3; toP: THREE.Vector3 } | null = null;
@@ -847,7 +873,7 @@ export function mountWoodFrame(
     fly = { t: 0, fromT: controls.target.clone(), toT: target.clone(), fromP: camera.position.clone(), toP: target.clone().addScaledVector(dir, dist) };
     intro = 1;
   };
-  const select = (c: MemberId | null) => {
+  const select = (c: string | null) => {
     if (c && loadMode) {
       clearLoad();
       loadMode = null;
@@ -859,7 +885,7 @@ export function mountWoodFrame(
     if (c) {
       controls.autoRotate = false;
       window.clearTimeout(idleTimer);
-      if (MEMBERS[c].group === 'Connectors') {
+      if (CONNECT.has(M[c].group)) {
         let best = -1;
         let bestD = Infinity;
         const tmpV = new V3();
@@ -872,7 +898,7 @@ export function mountWoodFrame(
         }
         if (best >= 0) flyTo(pieceWorld(pieces[best], new V3()), 7.5);
       }
-    } else if (was && MEMBERS[was].group === 'Connectors') flyTo(center.clone().setY(center.y + 6.5 * ease(explode)), homeDist);
+    } else if (was && CONNECT.has(M[was].group)) flyTo(center.clone().setY(center.y + 6.5 * ease(explode)), homeDist);
     ui.onSelect?.(c);
   };
 
@@ -905,7 +931,7 @@ export function mountWoodFrame(
     dirty = true;
   };
   const buildLoad = (mode: LoadMode) => {
-    const { paths, arrows, members } = loadData(mode);
+    const { paths, arrows, members } = model.load!(mode);
     const col = new THREE.Color(LOAD_COLOR[mode]);
     const segs: number[] = [];
     for (const p of paths) for (let i = 0; i < p.length - 1; i++) segs.push(p[i].x, p[i].y, p[i].z, p[i + 1].x, p[i + 1].y, p[i + 1].z);
@@ -1004,13 +1030,13 @@ export function mountWoodFrame(
   const ray = new THREE.Raycaster();
   const ndc = new THREE.Vector2();
   let downAt: { x: number; y: number } | null = null;
-  const pick = (ev: PointerEvent): MemberId | null => {
+  const pick = (ev: PointerEvent): string | null => {
     const r = renderer.domElement.getBoundingClientRect();
     ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, camera);
     const targets = meshes.filter((m) => m.userData.c !== 'slab' && (selected === null || m.userData.c === selected));
     const hit = ray.intersectObjects(targets, false)[0];
-    return hit ? (hit.object.userData.c as MemberId) : null;
+    return hit ? (hit.object.userData.c as string) : null;
   };
   let hoverRaf = 0;
   const onMove = (ev: PointerEvent) => {
@@ -1023,7 +1049,7 @@ export function mountWoodFrame(
       renderer.domElement.style.cursor = c ? 'pointer' : 'grab';
       if (c) {
         const r = container.getBoundingClientRect();
-        tip.textContent = MEMBERS[c].name;
+        tip.textContent = M[c].name;
         tip.style.transform = `translate(${ev.clientX - r.left + 14}px, ${ev.clientY - r.top + 14}px)`;
       }
     });
@@ -1059,7 +1085,7 @@ export function mountWoodFrame(
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    homeDist = 96 / Math.min(1, camera.aspect / 1.45) ** 0.6;
+    homeDist = model.dist / Math.min(1, camera.aspect / 1.45) ** 0.6;
     controls.maxDistance = homeDist * 2;
     camera.updateProjectionMatrix();
   };
@@ -1149,6 +1175,7 @@ export function mountWoodFrame(
   updateMatrices();
 
   return {
+    hasLoad: !!model.load,
     select,
     setLoad,
     setExplode(on) {
