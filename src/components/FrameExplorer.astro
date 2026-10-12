@@ -1,6 +1,7 @@
 ---
 // Interactive light-frame anatomy: a sample two-storey wood house built member by member (src/scripts/woodFrame.ts).
 import Icon from './Icon.astro';
+import ArView from './ArView.astro';
 import { GROUPS, MEMBERS, type MemberId } from '../data/woodFrame';
 
 const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]][];
@@ -29,6 +30,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
           <button type="button" data-wf-explode aria-pressed="false"><Icon name="Layers" size={16} /> <span>Exploded view</span></button>
           <button type="button" class="wf__icon-btn" data-wf-zoom="1" aria-label="Zoom in"><Icon name="Plus" size={16} /></button>
           <button type="button" class="wf__icon-btn" data-wf-zoom="-1" aria-label="Zoom out"><Icon name="Minus" size={16} /></button>
+          <ArView id="wood-frame" src="/models/ar/wood-frame.glb" title="Wood-frame sample house" scale="1:40 tabletop scale" variant="overlay" />
         </div>
         <div class="wf__loads" role="group" aria-label="Show load path">
           <span class="wf__loads-label mono">Load path</span>

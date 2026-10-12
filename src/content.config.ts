@@ -36,6 +36,7 @@ const projects = defineCollection({
       structural: z.array(imageItem(image)).default([]),
       mep: z.array(imageItem(image)).default([]),
       model: z.string().optional(), // path to a .glb in /public, e.g. /models/my-project.glb
+      ar: z.string().optional(), // tabletop-scale AR .glb in /public/models/ar (see scripts/make-ar-models.ts)
       video: z.string().optional(), // path to an .mp4 in /public, e.g. /videos/my-project.mp4
       videoPoster: image().optional(),
       scope: z.array(z.string()).default([]),

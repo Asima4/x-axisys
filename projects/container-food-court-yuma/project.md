@@ -1,6 +1,7 @@
 ---
 title: Shipping-Container Food Court
 model: /models/container-food-court.glb
+ar: /models/ar/container-food-court.glb
 summary: "An outdoor food court built from modified shipping containers — kitchens, towers, bridges and a steel shade canopy, with full architectural and structural drawings."
 location: "Yuma, Arizona, USA"
 year: 2026

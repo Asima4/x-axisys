@@ -4,6 +4,7 @@ import { Image, getImage } from 'astro:assets';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
+import ArView from '../../components/ArView.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
@@ -270,6 +271,14 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
           <div class="model-frame">
             <ModelViewer modelUrl={p.model} zoom caption={`3D model of ${p.title}`} />
           </div>
+          {
+            p.ar && (
+              <div class="model-ar">
+                <ArView id={entry.id} src={p.ar} title={p.title} scale="1:50 tabletop scale" />
+                <p class="mono">See this building on your table with your phone's camera.</p>
+              </div>
+            )
+          }
         </div>
       </section>
     )
@@ -699,6 +708,20 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
   #compare,
   #engineering,
   #walkthrough,
+  .model-ar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin-top: 16px;
+  }
+
+  .model-ar p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--on-dark-2);
+  }
+
   #model {
     scroll-margin-top: 130px;
   }

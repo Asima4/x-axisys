@@ -7,7 +7,7 @@ import { MEMBERS, type MemberId } from '../data/woodFrame';
 
 type Shape = 'box' | 'cyl';
 // k groups the plates of one physical connector (an H2.5A is three plates) so counts are per connector.
-type Piece = { c: MemberId; lvl: number; shape: Shape; pos: THREE.Vector3; size: THREE.Vector3; quat: THREE.Quaternion; t: number; k?: string };
+export type Piece = { c: MemberId; lvl: number; shape: Shape; pos: THREE.Vector3; size: THREE.Vector3; quat: THREE.Quaternion; t: number; k?: string };
 type Opening = { at: number; w: number; type: 'door' | 'window' | 'garage' };
 type WallOpts = {
   x0: number;
@@ -55,7 +55,7 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-function buildPieces(): Piece[] {
+export function buildPieces(): Piece[] {
   const pieces: Piece[] = [];
   let K: string | undefined;
   let nextUnit = 0;
