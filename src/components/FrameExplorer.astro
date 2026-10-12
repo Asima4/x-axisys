@@ -30,6 +30,22 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
           <button type="button" class="wf__icon-btn" data-wf-zoom="1" aria-label="Zoom in"><Icon name="Plus" size={16} /></button>
           <button type="button" class="wf__icon-btn" data-wf-zoom="-1" aria-label="Zoom out"><Icon name="Minus" size={16} /></button>
         </div>
+        <div class="wf__loads" role="group" aria-label="Show load path">
+          <span class="wf__loads-label mono">Load path</span>
+          <button type="button" data-wf-load="gravity" aria-pressed="false"><Icon name="ArrowDownToLine" size={16} /> <span>Gravity</span></button>
+          <button type="button" data-wf-load="wind" aria-pressed="false"><Icon name="Wind" size={16} /> <span>Wind</span></button>
+          <button type="button" data-wf-load="seismic" aria-pressed="false"><Icon name="Activity" size={16} /> <span>Seismic</span></button>
+        </div>
+        <div class="wf__lp" data-wf-lp hidden aria-live="polite">
+          <p class="wf__lp-kicker mono" data-wf-lp-kicker></p>
+          <h3 data-wf-lp-title></h3>
+          <ol data-wf-lp-steps></ol>
+          <ul class="wf__lp-key mono">
+            <li><span class="wf__lp-sw" data-wf-lp-sw></span> Applied load</li>
+            <li><span class="wf__lp-dot" data-wf-lp-dot></span> Load path</li>
+            <li><span class="wf__lp-sw" style="--c:#9be15d"></span> Reaction</li>
+          </ul>
+        </div>
         <p class="wf__hint mono" aria-hidden="true">Scroll to zoom · drag to rotate · right-drag to pan · click any member</p>
       </div>
 
@@ -262,6 +278,138 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     width: 40px;
     padding: 0;
     justify-content: center;
+  }
+
+  .wf__loads {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid var(--line-dark);
+    background: rgba(13, 15, 19, 0.82);
+    backdrop-filter: blur(6px);
+  }
+
+  .wf__loads-label {
+    padding: 0 6px;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .wf__loads button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .wf__loads button:hover {
+    border-color: var(--line-dark);
+  }
+
+  .wf__loads button[data-wf-load='gravity'][aria-pressed='true'] {
+    background: #1d4f8c;
+  }
+
+  .wf__loads button[data-wf-load='wind'][aria-pressed='true'] {
+    background: #136c64;
+  }
+
+  .wf__loads button[data-wf-load='seismic'][aria-pressed='true'] {
+    background: #a3341c;
+  }
+
+  .wf__lp {
+    position: absolute;
+    left: 14px;
+    top: 16px;
+    z-index: 2;
+    width: min(330px, calc(100% - 28px));
+    padding: 14px 16px;
+    border: 1px solid var(--line-dark);
+    border-left: 3px solid var(--lp, var(--blue-on-dark));
+    background: rgba(13, 15, 19, 0.86);
+    backdrop-filter: blur(6px);
+    color: var(--on-dark);
+  }
+
+  .wf__lp[hidden] {
+    display: none;
+  }
+
+  .wf__lp-kicker {
+    margin: 0 0 4px;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--lp, var(--blue-on-dark));
+  }
+
+  .wf__lp h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+  }
+
+  .wf__lp ol {
+    display: grid;
+    gap: 3px;
+    margin: 0 0 10px;
+    padding-left: 18px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--on-dark-2);
+  }
+
+  .wf__lp-key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 0;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--line-dark);
+    list-style: none;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .wf__lp-key li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .wf__lp-sw {
+    width: 14px;
+    height: 3px;
+    background: var(--c, var(--lp));
+  }
+
+  .wf__lp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--lp);
+    box-shadow: 0 0 8px var(--lp);
+  }
+
+  .wf__stage.has-load .wf__hint {
+    display: none;
   }
 
   .wf__hint {
@@ -787,8 +935,21 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     color: var(--on-dark-2);
   }
 
+  @media (max-width: 999px) {
+    .wf__loads {
+      left: 14px;
+      right: auto;
+      bottom: 64px;
+    }
+  }
+
   @media (max-width: 640px) {
-    .wf__controls button span {
+    .wf__controls button span,
+    .wf__loads button span {
+      display: none;
+    }
+
+    .wf__lp ol {
       display: none;
     }
 
@@ -814,6 +975,64 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
     const defaultCard = card.innerHTML;
     const buttons = [...section.querySelectorAll<HTMLButtonElement>('[data-wf-member]')];
     const reset = section.querySelector<HTMLButtonElement>('[data-wf-reset]')!;
+    const loadBtns = [...section.querySelectorAll<HTMLButtonElement>('[data-wf-load]')];
+    const lp = section.querySelector<HTMLElement>('[data-wf-lp]')!;
+    const LOADS = {
+      gravity: {
+        color: '#5b9be6',
+        kicker: 'Load path · Gravity',
+        title: 'Roof and floor loads down to the soil',
+        steps: [
+          'Roof dead + snow load on the rafters and garage trusses',
+          'Rafters bear on the top plate (H2.5A ties) and the ridge (LSSU210)',
+          'Floor joists carry the second floor to the rim and centre bearing wall',
+          'Studs, king studs and trimmers take it down both storeys',
+          'Sill plate → slab and thickened footing → soil',
+        ],
+      },
+      wind: {
+        color: '#35d0c0',
+        kicker: 'Load path · Wind',
+        title: 'Lateral pressure and roof uplift',
+        steps: [
+          'Wind pressure on the wall is collected by the floor and roof diaphragms',
+          'LTP4 ties and A35 clips pass the shear into the wall top plates',
+          'Sheathed shear walls carry it to the foundation',
+          'HDU5 hold-downs and MSTC48B3 straps resist overturning',
+          'Roof uplift is tied down by H2.5A ties and LSTA21 ridge straps',
+        ],
+      },
+      seismic: {
+        color: '#ff6a45',
+        kicker: 'Load path · Seismic',
+        title: 'Inertial forces from the building’s own mass',
+        steps: [
+          'Ground shaking makes the mass sway — forces grow with height',
+          'Roof and floor diaphragms deliver the storey forces to the shear walls',
+          'Shear walls carry them down, MSTC48B3 straps across the floor',
+          'HDU5 hold-downs anchor the wall ends against overturning',
+          'Anchor bolts deliver base shear into the foundation',
+        ],
+      },
+    } as const;
+    const showLoad = (mode: keyof typeof LOADS | null) => {
+      loadBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wfLoad === mode)));
+      stage.classList.toggle('has-load', !!mode);
+      lp.hidden = !mode;
+      if (!mode) return;
+      const d = LOADS[mode];
+      lp.style.setProperty('--lp', d.color);
+      lp.querySelector('[data-wf-lp-kicker]')!.textContent = d.kicker;
+      lp.querySelector('[data-wf-lp-title]')!.textContent = d.title;
+      lp.querySelector('[data-wf-lp-steps]')!.innerHTML = d.steps.map((t) => `<li>${t}</li>`).join('');
+      explodeBtn.setAttribute('aria-pressed', 'false');
+    };
+    loadBtns.forEach((b) =>
+      b.addEventListener('click', () => {
+        const mode = b.dataset.wfLoad as keyof typeof LOADS;
+        api?.setLoad(b.getAttribute('aria-pressed') === 'true' ? null : mode);
+      }),
+    );
     const explodeBtn = section.querySelector<HTMLButtonElement>('[data-wf-explode]')!;
     const bar = section.querySelector<HTMLElement>('[data-wf-bar]')!;
     let api: import('../scripts/woodFrame').FrameApi | null = null;
@@ -905,6 +1124,7 @@ const entries = Object.entries(MEMBERS) as [MemberId, (typeof MEMBERS)[MemberId]
               if (c) openDetail(MEMBERS[c].detail, c);
             },
             onProgress: (p) => (bar.style.transform = `scaleX(${p})`),
+            onLoad: showLoad,
           });
           stage.classList.add('is-ready');
           show(null);

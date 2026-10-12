@@ -227,8 +227,8 @@ function buildPieces(): Piece[] {
   const g = { y0: 0, lvl: 1, plate: 'sill' as MemberId };
   wall({ ...g, x0: 0, z0: 0, dir: 'x', len: W, inward: 1, depth: D6, anchors: true, openings: [{ at: 6, w: 4, type: 'window' }, { at: 16, w: 3.17, type: 'door' }, { at: 26, w: 4, type: 'window' }] });
   wall({ ...g, x0: 0, z0: DP, dir: 'x', len: W, inward: -1, depth: D6, anchors: true, openings: [{ at: 9, w: 6, type: 'door' }, { at: 23, w: 3, type: 'window' }], sheath: [[0, 4], [W - 4, W]] });
-  wall({ ...g, x0: 0, z0: D6, dir: 'z', len: DP - 2 * D6, inward: 1, depth: D6, anchors: true, openings: [{ at: 1.6, w: 2.2, type: 'window' }, { at: 14, w: 3.17, type: 'door' }] });
-  wall({ ...g, x0: W, z0: D6, dir: 'z', len: DP - 2 * D6, inward: -1, depth: D6, anchors: true, openings: [{ at: 6, w: 3, type: 'window' }, { at: 16, w: 4, type: 'window' }] });
+  wall({ ...g, x0: 0, z0: D6, dir: 'z', len: DP - 2 * D6, inward: 1, depth: D6, anchors: true, openings: [{ at: 1.6, w: 2.2, type: 'window' }, { at: 14, w: 3.17, type: 'door' }], sheath: [[DP - 2 * D6 - 4, DP - 2 * D6]] });
+  wall({ ...g, x0: W, z0: D6, dir: 'z', len: DP - 2 * D6, inward: -1, depth: D6, anchors: true, openings: [{ at: 6, w: 3, type: 'window' }, { at: 16, w: 4, type: 'window' }], sheath: [[0, 4], [DP - 2 * D6 - 4, DP - 2 * D6]] });
   wall({ ...g, x0: D6, z0: 12 - D4 / 2, dir: 'x', len: W - 2 * D6, inward: 1, depth: D4, openings: [{ at: 9.5, w: 3.17, type: 'door' }, { at: 21, w: 6, type: 'door' }] });
   wall({ ...g, x0: 12, z0: D6, dir: 'z', len: 12 - D4 / 2 - D6, inward: 1, depth: D4, openings: [{ at: 6, w: 2.67, type: 'door' }] });
   // garage wing
@@ -338,8 +338,8 @@ function buildPieces(): Piece[] {
   const u = { y0: F2, lvl: 3, plate: 'bottomPlate' as MemberId };
   wall({ ...u, x0: 0, z0: 0, dir: 'x', len: W, inward: 1, depth: D6, openings: [{ at: 6, w: 3, type: 'window' }, { at: 16, w: 4, type: 'window' }, { at: 26, w: 3, type: 'window' }] });
   wall({ ...u, x0: 0, z0: DP, dir: 'x', len: W, inward: -1, depth: D6, openings: [{ at: 9, w: 3, type: 'window' }, { at: 23, w: 3, type: 'window' }], sheath: [[0, 4], [W - 4, W]] });
-  wall({ ...u, x0: 0, z0: D6, dir: 'z', len: DP - 2 * D6, inward: 1, depth: D6, openings: [{ at: 6, w: 3, type: 'window' }, { at: 17, w: 3, type: 'window' }] });
-  wall({ ...u, x0: W, z0: D6, dir: 'z', len: DP - 2 * D6, inward: -1, depth: D6, openings: [{ at: 6, w: 3, type: 'window' }, { at: 16, w: 3, type: 'window' }] });
+  wall({ ...u, x0: 0, z0: D6, dir: 'z', len: DP - 2 * D6, inward: 1, depth: D6, openings: [{ at: 6, w: 3, type: 'window' }, { at: 17, w: 3, type: 'window' }], sheath: [[DP - 2 * D6 - 4, DP - 2 * D6]] });
+  wall({ ...u, x0: W, z0: D6, dir: 'z', len: DP - 2 * D6, inward: -1, depth: D6, openings: [{ at: 6, w: 3, type: 'window' }, { at: 16, w: 3, type: 'window' }], sheath: [[0, 4], [DP - 2 * D6 - 4, DP - 2 * D6]] });
   wall({ ...u, x0: D6, z0: 12 - D4 / 2, dir: 'x', len: W - 2 * D6, inward: 1, depth: D4, openings: [{ at: 8, w: 2.67, type: 'door' }, { at: 24, w: 2.67, type: 'door' }] });
   wall({ ...u, x0: 16, z0: 12 + D4 / 2, dir: 'z', len: DP - D6 - (12 + D4 / 2), inward: 1, depth: D4, openings: [{ at: 4, w: 2.67, type: 'door' }] });
 
@@ -569,7 +569,94 @@ function osbTexture() {
   return tex;
 }
 
+export type LoadMode = 'gravity' | 'wind' | 'seismic';
+type Arrow = { at: THREE.Vector3; dir: THREE.Vector3; len: number; kind: 'load' | 'reaction'; w?: number };
+const LOAD_COLOR: Record<LoadMode, string> = { gravity: '#5b9be6', wind: '#35d0c0', seismic: '#ff6a45' };
+const REACTION_COLOR = '#9be15d';
+
+// Load paths drawn through the sample frame: each path is a polyline from where the load is applied
+// down/through the members and connectors that carry it, ending in the foundation.
+function loadData(mode: LoadMode) {
+  const paths: THREE.Vector3[][] = [];
+  const arrows: Arrow[] = [];
+  const v = (x: number, y: number, z: number) => new V3(x, y, z);
+  const rafterTop = (z: number) => RB + ((z <= 12 ? z : DP - z) - D6) * PITCH + PLUMB;
+  const garTop = (x: number) => WALL_H + 0.45 + (x <= -8 ? x + 16 : -0.01 - x) * PITCH + D4;
+  const zb = D6 / 2;
+  const column = (x: number, z: number, fromY: number) => [v(x, fromY, z), v(x, F2, z), v(x, WALL_H, z), v(x, 0.1, z), v(x, -0.5, z)];
+  const load = (tip: THREE.Vector3, dir: THREE.Vector3, len: number, w = 1) => arrows.push({ at: tip, dir, len, kind: 'load', w });
+  const react = (tip: THREE.Vector3, dir: THREE.Vector3, len: number) => arrows.push({ at: tip, dir, len, kind: 'reaction' });
+  const DOWN = v(0, -1, 0);
+  const UP = v(0, 1, 0);
+
+  if (mode === 'gravity') {
+    for (let x = 2; x <= 30; x += 4)
+      for (const back of [false, true]) {
+        const zz = (z: number) => (back ? DP - z : z);
+        paths.push([v(x, rafterTop(10.5), zz(10.5)), ...column(x, zz(zb), RB)]);
+        for (const z of [3, 7, 10.5]) load(v(x, rafterTop(z) + 0.25, zz(z)), DOWN, 2.6);
+      }
+    for (const x of [4, 9.33, 14.67, 28]) {
+      const top = WALL_H + D10;
+      for (const [z0, z1] of [[6, zb], [6, 12], [18, 12], [18, DP - zb]]) paths.push([v(x, top, z0), v(x, WALL_H + D10 / 2, z1), v(x, WALL_H, z1), v(x, 0.1, z1), v(x, -0.5, z1)]);
+      for (const z of [6, 18]) load(v(x, F2 + 0.1, z), DOWN, 1.8);
+    }
+    for (const z of [6, 10, 14, 18, 22]) {
+      const apex = v(-8, garTop(-8), z);
+      paths.push([apex, v(-16 + zb, WALL_H + 0.2, z), v(-16 + zb, 0.1, z), v(-16 + zb, -0.5, z)]);
+      paths.push([apex, v(-0.07, WALL_H + 0.2, z), v(0.25, WALL_H - 0.4, z), v(0.25, 0.1, z), v(0.25, -0.5, z)]);
+      for (const x of [-13, -8, -3]) load(v(x, garTop(x) + 0.25, z), DOWN, 2.4);
+    }
+    for (let x = 2; x <= 30; x += 7) for (const z of [zb, 12, DP - zb]) react(v(x, -0.55, z), UP, 2.2);
+    for (const z of [7, 17]) react(v(-16 + zb, -0.55, z), UP, 2.2);
+    return { paths, arrows, members: ['rafter', 'ridge', 'lssu', 'hurricane', 'topPlate', 'stud', 'king', 'trimmer', 'header', 'rim', 'joist', 'hanger', 'bottomPlate', 'sill', 'slab', 'truss', 'ledger'] as MemberId[] };
+  }
+
+  // lateral (wind / seismic) on the front face: floor & roof diaphragms span to the side-wall shear walls,
+  // which carry the shear down through straps and hold-downs into the foundation
+  const NORTH = v(0, 0, 1);
+  const SOUTH = v(0, 0, -1);
+  const shearDown = (x: number, z: number, yL: number) =>
+    yL > F2 ? [v(x, F2 + 0.3, z), v(x, WALL_H, z), v(x, 0.15, z), v(x, -0.5, z)] : [v(x, 0.15, z), v(x, -0.5, z)];
+  const xl = D6 / 2;
+  const xr = W - D6 / 2;
+  const zA = D6 + 2;
+  const zB = DP - D6 - 2;
+  for (const yL of [WALL_H + D10, RB])
+    for (const x0 of [6, 16, 26]) {
+      const start = v(x0, yL, 0.3);
+      const mid = v(x0, yL, 12);
+      if (x0 <= 16) paths.push([start, mid, v(xl, yL, zB), ...shearDown(xl, zB, yL)]);
+      if (x0 >= 16) {
+        paths.push([start, mid, v(xr, yL, zA), ...shearDown(xr, zA, yL)]);
+        paths.push([start, mid, v(xr, yL, zB), ...shearDown(xr, zB, yL)]);
+      }
+    }
+  react(v(W + 0.7, -0.25, D6 + 0.4), SOUTH, 3.2);
+  react(v(W + 0.7, -0.25, zB - 1.6), SOUTH, 3.2);
+  react(v(-0.7, -0.25, zB - 1.6), SOUTH, 3.2);
+
+  if (mode === 'wind') {
+    for (const x of [3, 8, 13, 18, 23, 28]) for (const y of [2.5, 6.5, 11.5, 15.5]) load(v(x, y, -0.3), NORTH, 2.6);
+    for (const x of [4, 12, 20, 28])
+      for (const back of [false, true]) {
+        const z = back ? DP - 5 : 5;
+        load(v(x, rafterTop(z) + 2.7, z), UP, 2.4);
+        paths.push([v(x, rafterTop(z), z), ...column(x, back ? DP - zb : zb, RB)]);
+      }
+    return { paths, arrows, members: ['sheathing', 'subfloor', 'ltp4', 'holdown', 'strap', 'hurricane', 'lsta', 'lssu', 'rafter', 'truss', 'anchor', 'a35', 'sill', 'slab', 'rim', 'topPlate'] as MemberId[] };
+  }
+
+  for (const x of [6, 16, 26]) {
+    load(v(x, RB + 0.4, -0.3), NORTH, 5.2, 2.4);
+    load(v(x, WALL_H + D10 / 2, -0.3), NORTH, 3.2, 1.9);
+  }
+  load(v(-8, WALL_H + 1.2, 3.7), NORTH, 2, 1.5);
+  return { paths, arrows, members: ['sheathing', 'subfloor', 'ltp4', 'holdown', 'strap', 'anchor', 'a35', 'sill', 'slab', 'rim', 'topPlate'] as MemberId[] };
+}
+
 export type FrameApi = {
+  setLoad: (mode: LoadMode | null) => void;
   select: (c: MemberId | null) => void;
   setExplode: (on: boolean) => void;
   replay: () => void;
@@ -584,6 +671,7 @@ export function mountWoodFrame(
   ui: {
     onSelect?: (c: MemberId | null) => void;
     onProgress?: (p: number) => void;
+    onLoad?: (mode: LoadMode | null) => void;
     tip?: HTMLElement;
     pin?: HTMLElement;
   } = {},
@@ -643,6 +731,7 @@ export function mountWoodFrame(
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.5;
   ground.receiveShadow = true;
+  (ground.material as THREE.Material).depthWrite = false;
   scene.add(ground);
   const grid = new THREE.GridHelper(120, 60, '#3a414d', '#22262e');
   grid.position.set(center.x, -0.51, center.z);
@@ -706,6 +795,8 @@ export function mountWoodFrame(
   const scl = new V3();
   const ZERO = new V3(1e-4, 1e-4, 1e-4);
 
+  let sway = 0;
+  const swayAt = (y: number) => (sway * Math.max(0, y + 0.5)) / (RB + 7);
   const pieceWorld = (p: Piece, out: THREE.Vector3) => out.copy(p.pos).setY(p.pos.y + EXPLODE_Y[p.lvl] * ease(explode));
   const updateMatrices = () => {
     const ex = ease(explode);
@@ -717,6 +808,7 @@ export function mountWoodFrame(
         const k = easeOut(s);
         pos.copy(p.pos);
         pos.y += EXPLODE_Y[p.lvl] * ex + (1 - k) * 2.6;
+        if (sway) pos.z += swayAt(p.pos.y);
         scl.copy(p.size).multiplyScalar(0.82 + 0.18 * k);
         m4.compose(pos, p.quat, scl);
       }
@@ -756,6 +848,11 @@ export function mountWoodFrame(
     intro = 1;
   };
   const select = (c: MemberId | null) => {
+    if (c && loadMode) {
+      clearLoad();
+      loadMode = null;
+      ui.onLoad?.(null);
+    }
     const was = selected;
     selected = c;
     applySelection();
@@ -777,6 +874,130 @@ export function mountWoodFrame(
       }
     } else if (was && MEMBERS[was].group === 'Connectors') flyTo(center.clone().setY(center.y + 6.5 * ease(explode)), homeDist);
     ui.onSelect?.(c);
+  };
+
+  // ----- load paths: applied loads, pulses travelling through the members, reactions -----
+  let loadMode: LoadMode | null = null;
+  let loadT = 0;
+  const loadGroup = new THREE.Group();
+  scene.add(loadGroup);
+  const pulseGeo = new THREE.SphereGeometry(0.17, 12, 8);
+  const shaftGeo = new THREE.CylinderGeometry(0.06, 0.06, 1, 8);
+  const headGeo = new THREE.ConeGeometry(0.21, 0.6, 14);
+  const IDQ = new THREE.Quaternion();
+  const pv = new V3();
+  const ps = new V3();
+  type PathRun = { pts: THREE.Vector3[]; cum: number[]; len: number; n: number };
+  let pulseMesh: THREE.InstancedMesh | null = null;
+  let runs: PathRun[] = [];
+  let arrowObjs: { obj: THREE.Object3D; base: THREE.Vector3; dir: THREE.Vector3; phase: number; kind: Arrow['kind'] }[] = [];
+  const clearLoad = () => {
+    loadGroup.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.Material | undefined;
+      m?.dispose();
+      if (o instanceof THREE.LineSegments) o.geometry.dispose();
+    });
+    loadGroup.clear();
+    pulseMesh = null;
+    runs = [];
+    arrowObjs = [];
+    sway = 0;
+    dirty = true;
+  };
+  const buildLoad = (mode: LoadMode) => {
+    const { paths, arrows, members } = loadData(mode);
+    const col = new THREE.Color(LOAD_COLOR[mode]);
+    const segs: number[] = [];
+    for (const p of paths) for (let i = 0; i < p.length - 1; i++) segs.push(p[i].x, p[i].y, p[i].z, p[i + 1].x, p[i + 1].y, p[i + 1].z);
+    const lg = new THREE.BufferGeometry();
+    lg.setAttribute('position', new THREE.Float32BufferAttribute(segs, 3));
+    loadGroup.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: 0.32, depthWrite: false })));
+    runs = paths.map((pts) => {
+      const cum = [0];
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
+      const len = cum[cum.length - 1];
+      return { pts, cum, len, n: Math.max(1, Math.round(len / 7)) };
+    });
+    const count = runs.reduce((a, r) => a + r.n, 0) * 3;
+    pulseMesh = new THREE.InstancedMesh(pulseGeo, new THREE.MeshBasicMaterial({ color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }), count);
+    pulseMesh.frustumCulled = false;
+    loadGroup.add(pulseMesh);
+    for (const a of arrows) {
+      const mat = new THREE.MeshBasicMaterial({ color: a.kind === 'load' ? col : REACTION_COLOR, transparent: true, opacity: 0.95, depthWrite: false });
+      const g = new THREE.Group();
+      const shaft = new THREE.Mesh(shaftGeo, mat);
+      shaft.scale.y = a.len - 0.55;
+      shaft.position.y = -(a.len - 0.55) / 2 - 0.55;
+      const head = new THREE.Mesh(headGeo, mat);
+      head.position.y = -0.3;
+      g.add(shaft, head);
+      g.quaternion.setFromUnitVectors(new V3(0, 1, 0), a.dir);
+      g.scale.set(a.w ?? 1, 1, a.w ?? 1);
+      g.position.copy(a.at);
+      loadGroup.add(g);
+      arrowObjs.push({ obj: g, base: a.at.clone(), dir: a.dir.clone(), phase: rnd() * 6.28, kind: a.kind });
+    }
+    // x-ray the frame: members on this load path stay visible, everything else nearly disappears
+    const keep = new Set(members);
+    for (const [id, mat] of mats) {
+      const on = keep.has(id);
+      mat.transparent = true;
+      mat.opacity = on ? 0.5 : 0.13;
+      mat.depthWrite = false;
+      mat.color.set(on ? '#ffffff' : '#7b8592');
+      mat.emissive.set('#000000');
+      mat.emissiveIntensity = 0;
+      mat.needsUpdate = true;
+    }
+    for (const mesh of meshes) mesh.castShadow = false;
+  };
+  const updateLoad = (dt: number) => {
+    loadT += dt;
+    if (loadMode === 'seismic') {
+      sway = 0.6 * Math.sin(loadT * Math.PI * 1.7) * (0.75 + 0.25 * Math.sin(loadT * 0.9));
+      dirty = true;
+    }
+    if (pulseMesh) {
+      let k = 0;
+      for (const r of runs) {
+        for (let j = 0; j < r.n; j++)
+          for (let t = 0; t < 3; t++) {
+            const u = ((((loadT * 5.5 + (j * r.len) / r.n - t * 0.45) % r.len) + r.len) % r.len);
+            let i = 1;
+            while (i < r.cum.length - 1 && r.cum[i] < u) i++;
+            const f = (u - r.cum[i - 1]) / (r.cum[i] - r.cum[i - 1] || 1);
+            pv.lerpVectors(r.pts[i - 1], r.pts[i], f);
+            pv.z += swayAt(pv.y);
+            m4.compose(pv, IDQ, ps.setScalar(1 - t * 0.3));
+            pulseMesh.setMatrixAt(k++, m4);
+          }
+      }
+      pulseMesh.instanceMatrix.needsUpdate = true;
+    }
+    for (const a of arrowObjs) {
+      const bob = a.kind === 'load' ? 0.35 * (0.5 + 0.5 * Math.sin(loadT * 4 + a.phase)) : 0;
+      a.obj.position.copy(a.base).addScaledVector(a.dir, -bob);
+      a.obj.position.z += swayAt(a.base.y);
+    }
+  };
+  const setLoad = (mode: LoadMode | null) => {
+    clearLoad();
+    loadMode = mode;
+    if (mode) {
+      if (selected) {
+        selected = null;
+        ui.onSelect?.(null);
+      }
+      if (ui.pin) ui.pin.hidden = true;
+      explodeTarget = 0;
+      if (T < 1 + DUR) {
+        T = 1 + DUR;
+        playing = false;
+        ui.onProgress?.(1);
+      }
+      buildLoad(mode);
+    } else applySelection();
+    ui.onLoad?.(mode);
   };
 
   // ----- pointer: hover tooltip + click to select -----
@@ -875,6 +1096,7 @@ export function mountWoodFrame(
       camera.position.sub(controls.target).multiplyScalar(1 + d * 0.22).add(controls.target);
       dirty = true;
     }
+    if (loadMode) updateLoad(dt);
     if (dirty) {
       updateMatrices();
       dirty = false;
@@ -928,7 +1150,9 @@ export function mountWoodFrame(
 
   return {
     select,
+    setLoad,
     setExplode(on) {
+      if (on && loadMode) setLoad(null);
       explodeTarget = on ? 1 : 0;
     },
     replay() {
