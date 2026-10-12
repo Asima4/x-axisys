@@ -9,6 +9,11 @@ axisys-website-upload.zip
 projects/**/*.pdf
 projects/**/*.dwg
 projects/**/*.rvt
+projects/**/*.ifc
+projects/**/*.fbx
+projects/**/*.obj
+projects/**/*.nwc
+projects/**/*.nwd
 projects/**/*.mp4
 projects/**/*.mov
 projects/**/*.ls12

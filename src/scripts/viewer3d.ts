@@ -715,6 +715,7 @@ export function mountViewer(container: HTMLElement, opts: ViewerOptions = {}) {
   sun.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048);
   Object.assign(sun.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 1, far: 80 });
   sun.shadow.bias = -0.0005;
+  if (opts.modelUrl) sun.shadow.normalBias = 0.04;
   scene.add(sun);
   const fill = new THREE.DirectionalLight('#9ec2ff', 0.6);
   fill.position.set(-20, 10, -14);
@@ -741,8 +742,8 @@ export function mountViewer(container: HTMLElement, opts: ViewerOptions = {}) {
   const materials: Record<Disc, THREE.MeshStandardMaterial[]> = { arch: [], str: [], mep: [], site: [] };
 
   if (opts.modelUrl) {
-    import('three/addons/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-      new GLTFLoader().load(opts.modelUrl!, (gltf) => {
+    Promise.all([import('three/addons/loaders/GLTFLoader.js'), import('three/addons/libs/meshopt_decoder.module.js')]).then(([{ GLTFLoader }, { MeshoptDecoder }]) => {
+      new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).load(opts.modelUrl!, (gltf) => {
         const obj = gltf.scene;
         const box = new THREE.Box3().setFromObject(obj);
         const size = box.getSize(new THREE.Vector3());
