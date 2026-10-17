@@ -570,9 +570,10 @@ function osbTexture() {
   return tex;
 }
 
-export type LoadMode = 'gravity' | 'wind' | 'seismic';
-type Arrow = { at: THREE.Vector3; dir: THREE.Vector3; len: number; kind: 'load' | 'reaction'; w?: number };
-const LOAD_COLOR: Record<LoadMode, string> = { gravity: '#5b9be6', wind: '#35d0c0', seismic: '#ff6a45' };
+/** A load path (gravity / wind / seismic) or, for services models, a flow (air / water / fire / power). */
+export type LoadMode = string;
+export type Arrow = { at: THREE.Vector3; dir: THREE.Vector3; len: number; kind: 'load' | 'reaction'; w?: number };
+const LOAD_COLOR: Record<string, string> = { gravity: '#5b9be6', wind: '#35d0c0', seismic: '#ff6a45' };
 const REACTION_COLOR = '#9be15d';
 
 // Load paths drawn through the sample frame: each path is a polyline from where the load is applied
@@ -685,6 +686,9 @@ export type FrameModel = {
   dist: number;
   size: number;
   load?: (mode: LoadMode) => { paths: THREE.Vector3[][]; arrows: Arrow[]; members: string[] };
+  loadColors?: Record<string, string>;
+  /** Pulse speed along load paths (ft/s). */
+  flowSpeed?: number;
 };
 
 export const woodModel = (): FrameModel => ({
@@ -855,7 +859,7 @@ export function mountFrame(container: HTMLElement, ui: FrameUi, model: FrameMode
     for (const [id, mat] of mats) {
       const ghost = selected !== null && id !== selected;
       mat.transparent = ghost;
-      mat.opacity = ghost ? 0.06 : 1;
+      mat.opacity = ghost ? (selected && M[selected].group === 'Coordination' ? 0.28 : 0.06) : 1;
       mat.color.set(ghost ? '#7b8592' : '#ffffff');
       mat.depthWrite = !ghost;
       mat.emissive.set(id === selected ? M[id].color : '#000000');
@@ -932,7 +936,7 @@ export function mountFrame(container: HTMLElement, ui: FrameUi, model: FrameMode
   };
   const buildLoad = (mode: LoadMode) => {
     const { paths, arrows, members } = model.load!(mode);
-    const col = new THREE.Color(LOAD_COLOR[mode]);
+    const col = new THREE.Color(model.loadColors?.[mode] ?? LOAD_COLOR[mode] ?? '#5b9be6');
     const segs: number[] = [];
     for (const p of paths) for (let i = 0; i < p.length - 1; i++) segs.push(p[i].x, p[i].y, p[i].z, p[i + 1].x, p[i + 1].y, p[i + 1].z);
     const lg = new THREE.BufferGeometry();
@@ -988,7 +992,7 @@ export function mountFrame(container: HTMLElement, ui: FrameUi, model: FrameMode
       for (const r of runs) {
         for (let j = 0; j < r.n; j++)
           for (let t = 0; t < 3; t++) {
-            const u = ((((loadT * 5.5 + (j * r.len) / r.n - t * 0.45) % r.len) + r.len) % r.len);
+            const u = ((((loadT * (model.flowSpeed ?? 5.5) + (j * r.len) / r.n - t * 0.45) % r.len) + r.len) % r.len);
             let i = 1;
             while (i < r.cum.length - 1 && r.cum[i] < u) i++;
             const f = (u - r.cum[i - 1]) / (r.cum[i] - r.cum[i - 1] || 1);

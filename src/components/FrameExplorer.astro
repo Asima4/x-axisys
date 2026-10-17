@@ -5,11 +5,126 @@ import Icon from './Icon.astro';
 import ArView from './ArView.astro';
 import { GROUPS, MEMBERS, type Member } from '../data/woodFrame';
 import { STEEL_GROUPS, STEEL_MEMBERS } from '../data/steelFrame';
+import { MEP_GROUPS, MEP_MEMBERS } from '../data/mepModel';
 
 interface Props {
-  kind?: 'wood' | 'steel';
+  kind?: 'wood' | 'steel' | 'mep';
 }
 const { kind = 'wood' } = Astro.props;
+type Flow = { id: string; label: string; icon: string; color: string; kicker: string; title: string; steps: string[]; key?: [string, string, string] };
+const WOOD_FLOWS: Flow[] = [
+  {
+    id: 'gravity',
+    label: 'Gravity',
+    icon: 'ArrowDownToLine',
+    color: '#5b9be6',
+    kicker: 'Load path · Gravity',
+    title: 'Roof and floor loads down to the soil',
+    steps: [
+      'Roof dead + snow load on the rafters and garage trusses',
+      'Rafters bear on the top plate (H2.5A ties) and the ridge (LSSU210)',
+      'Floor joists carry the second floor to the rim and centre bearing wall',
+      'Studs, king studs and trimmers take it down both storeys',
+      'Sill plate → slab and thickened footing → soil',
+    ],
+  },
+  {
+    id: 'wind',
+    label: 'Wind',
+    icon: 'Wind',
+    color: '#35d0c0',
+    kicker: 'Load path · Wind',
+    title: 'Lateral pressure and roof uplift',
+    steps: [
+      'Wind pressure on the wall is collected by the floor and roof diaphragms',
+      'LTP4 ties and A35 clips pass the shear into the wall top plates',
+      'Sheathed shear walls carry it to the foundation',
+      'HDU5 hold-downs and MSTC48B3 straps resist overturning',
+      'Roof uplift is tied down by H2.5A ties and LSTA21 ridge straps',
+    ],
+  },
+  {
+    id: 'seismic',
+    label: 'Seismic',
+    icon: 'Activity',
+    color: '#ff6a45',
+    kicker: 'Load path · Seismic',
+    title: 'Inertial forces from the building’s own mass',
+    steps: [
+      'Ground shaking makes the mass sway — forces grow with height',
+      'Roof and floor diaphragms deliver the storey forces to the shear walls',
+      'Shear walls carry them down, MSTC48B3 straps across the floor',
+      'HDU5 hold-downs anchor the wall ends against overturning',
+      'Anchor bolts deliver base shear into the foundation',
+    ],
+  },
+];
+const MEP_FLOWS: Flow[] = [
+  {
+    id: 'air',
+    key: ['Supply / diffuser', 'Air flow', 'Return grille'],
+    label: 'Air',
+    icon: 'Fan',
+    color: '#4f9de0',
+    kicker: 'Flow · Air',
+    title: 'Supply and return air',
+    steps: [
+      'The AHU filters and conditions the air in the mechanical room',
+      'The supply trunk runs through the plenum, below the beams',
+      'VAV boxes meter the airflow to each zone',
+      'Flex ducts feed the ceiling diffusers',
+      'Return grilles bring air back through the return main to the AHU',
+    ],
+  },
+  {
+    id: 'water',
+    key: ['Outlet', 'Water flow', 'Return'],
+    label: 'Water',
+    icon: 'Droplets',
+    color: '#2fb4a5',
+    kicker: 'Flow · Water',
+    title: 'Hydronic and domestic water',
+    steps: [
+      'Chilled and heating hot water rise from the central plant',
+      'Insulated mains run above the ducts to the AHU coils',
+      'Domestic water runs from the water heater to the restroom',
+      'Each fixture gets its own branch and drop',
+      'Sanitary drains by gravity below the slab',
+    ],
+  },
+  {
+    id: 'fire',
+    key: ['Sprinkler discharge', 'Water flow', 'Return'],
+    label: 'Fire',
+    icon: 'Flame',
+    color: '#e2483a',
+    kicker: 'Flow · Fire protection',
+    title: 'Sprinkler water from riser to heads',
+    steps: [
+      'The fire riser rises at the building corner',
+      'The cross main runs high, just below the beams',
+      'Branch lines run above all other services',
+      'Drops feed a pendent head in the ceiling',
+      'Spacing and pipe sizes come from the NFPA 13 hydraulic calculation',
+    ],
+  },
+  {
+    id: 'power',
+    key: ['Load', 'Power flow', 'Return'],
+    label: 'Power',
+    icon: 'Zap',
+    color: '#f2c14e',
+    kicker: 'Flow · Power',
+    title: 'Power from panel to light',
+    steps: [
+      'Panelboards in the electrical room feed the floor',
+      'Conduit rises above the piping to the cable tray',
+      'The ladder tray carries power and data along the corridor',
+      'Branch conduits drop to each row of fixtures',
+      'Flexible whips connect the LED troffers in the ceiling',
+    ],
+  },
+];
 const CFG = {
   wood: {
     members: MEMBERS as Record<string, Member>,
@@ -21,7 +136,8 @@ const CFG = {
     cardTitle: 'Two-storey wood frame + garage',
     cardText: 'Slab-on-grade, 2x6 exterior walls at 16" centres, 2x10 floor joists, a stick-framed 6:12 main roof and a trussed garage roof — with the connectors that complete the load path.',
     details: 11,
-    loads: true,
+    flows: WOOD_FLOWS,
+    flowsLabel: 'Load path',
     ar: { id: 'wood-frame', src: '/models/ar/wood-frame.glb', title: 'Wood-frame sample house', scale: '1:40 tabletop scale' },
     note: 'Illustrative sample using typical light-frame details. Connectors are modelled on Simpson Strong-Tie® products commonly specified for light-frame construction. Member sizes are typical, not a design for any specific building.',
   },
@@ -35,9 +151,25 @@ const CFG = {
     cardTitle: 'Two-storey steel frame',
     cardText: 'Three bays by two with 14 ft storeys: W12 columns, W21 girders, W16 composite beams at 10 ft, 18K roof joists at 5 ft and HSS chevron braces in both directions.',
     details: 7,
-    loads: false,
+    flows: [] as Flow[],
+    flowsLabel: '',
     ar: { id: 'steel-frame', src: '/models/ar/steel-frame.glb', title: 'Steel-frame sample building', scale: '1:75 tabletop scale' },
     note: 'Illustrative sample using typical structural steel details. Member sizes are typical, not a design for any specific building.',
+  },
+  mep: {
+    members: MEP_MEMBERS as Record<string, Member>,
+    groups: MEP_GROUPS,
+    eyebrow: 'MEP & BIM coordination',
+    title: 'Every system above the ceiling, coordinated in 3D.',
+    lead: 'A concept office floor modelled the way we coordinate MEP in BIM — ductwork, VAV boxes, chilled and hot water, domestic and sanitary piping, sprinklers, cable tray and lighting, all hung from the structure in a 3 ft plenum. Trace each system, check the clash points and open the details.',
+    loading: 'Federating the model…',
+    cardTitle: 'Concept MEP model — one office floor',
+    cardText: 'A 60 x 40 ft floor on a 20 ft grid with HVAC, hydronic, plumbing, fire protection and electrical systems at LOD 300, stacked in the ceiling plenum with their hangers and seismic bracing.',
+    details: 6,
+    flows: MEP_FLOWS,
+    flowsLabel: 'Show flow',
+    ar: { id: 'mep-model', src: '/models/ar/mep-model.glb', title: 'Concept MEP model', scale: '1:40 tabletop scale' },
+    note: 'Concept model for illustration — systems, sizes and routing are typical, not a design for a specific building.',
   },
 }[kind];
 const entries = Object.entries(CFG.members);
@@ -66,20 +198,25 @@ const entries = Object.entries(CFG.members);
           <button type="button" class="wf__icon-btn" data-wf-zoom="-1" aria-label="Zoom out"><Icon name="Minus" size={16} /></button>
           <ArView id={CFG.ar.id} src={CFG.ar.src} title={CFG.ar.title} scale={CFG.ar.scale} variant="overlay" />
         </div>
-        <div class="wf__loads" role="group" aria-label="Show load path" hidden={!CFG.loads}>
-          <span class="wf__loads-label mono">Load path</span>
-          <button type="button" data-wf-load="gravity" aria-pressed="false"><Icon name="ArrowDownToLine" size={16} /> <span>Gravity</span></button>
-          <button type="button" data-wf-load="wind" aria-pressed="false"><Icon name="Wind" size={16} /> <span>Wind</span></button>
-          <button type="button" data-wf-load="seismic" aria-pressed="false"><Icon name="Activity" size={16} /> <span>Seismic</span></button>
+        <div class="wf__loads" role="group" aria-label={CFG.flowsLabel || 'Flows'} hidden={!CFG.flows.length}>
+          <span class="wf__loads-label mono">{CFG.flowsLabel}</span>
+          {
+            CFG.flows.map((f) => (
+              <button type="button" data-wf-load={f.id} aria-pressed="false" style={`--flow:${f.color}`}>
+                <Icon name={f.icon} size={16} /> <span>{f.label}</span>
+              </button>
+            ))
+          }
         </div>
+        <script type="application/json" is:inline data-wf-flows set:html={JSON.stringify(CFG.flows).replace(/</g, '\\u003c')} />
         <div class="wf__lp" data-wf-lp hidden aria-live="polite">
           <p class="wf__lp-kicker mono" data-wf-lp-kicker></p>
           <h3 data-wf-lp-title></h3>
           <ol data-wf-lp-steps></ol>
           <ul class="wf__lp-key mono">
-            <li><span class="wf__lp-sw" data-wf-lp-sw></span> Applied load</li>
-            <li><span class="wf__lp-dot" data-wf-lp-dot></span> Load path</li>
-            <li><span class="wf__lp-sw" style="--c:#9be15d"></span> Reaction</li>
+            <li><span class="wf__lp-sw" data-wf-lp-sw></span> <span data-wf-key="0">Applied load</span></li>
+            <li><span class="wf__lp-dot" data-wf-lp-dot></span> <span data-wf-key="1">Load path</span></li>
+            <li data-wf-key-li="2"><span class="wf__lp-sw" style="--c:#9be15d"></span> <span data-wf-key="2">Reaction</span></li>
           </ul>
         </div>
         <p class="wf__hint mono" aria-hidden="true">Scroll to zoom · drag to rotate · right-drag to pan · click any member</p>
@@ -361,16 +498,8 @@ const entries = Object.entries(CFG.members);
     border-color: var(--line-dark);
   }
 
-  .wf__loads button[data-wf-load='gravity'][aria-pressed='true'] {
-    background: #1d4f8c;
-  }
-
-  .wf__loads button[data-wf-load='wind'][aria-pressed='true'] {
-    background: #136c64;
-  }
-
-  .wf__loads button[data-wf-load='seismic'][aria-pressed='true'] {
-    background: #a3341c;
+  .wf__loads button[aria-pressed='true'] {
+    background: color-mix(in srgb, var(--flow) 55%, #0d0f13);
   }
 
   .wf__lp {
@@ -426,6 +555,10 @@ const entries = Object.entries(CFG.members);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--on-dark-2);
+  }
+
+  .wf__lp-key li[hidden] {
+    display: none;
   }
 
   .wf__lp-key li {
@@ -828,6 +961,100 @@ const entries = Object.entries(CFG.members);
     stroke: #2f76c8;
   }
 
+  .wfd :global(.det .duct) {
+    fill: #eaf3fc;
+    stroke: #1d2025;
+    stroke-width: 1.3;
+  }
+
+  .wfd :global(.det .liner) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 0.5;
+    stroke-dasharray: 3 2;
+  }
+
+  .wfd :global(.det .flexd) {
+    fill: #f1f4f7;
+    stroke: #1d2025;
+    stroke-width: 1;
+  }
+
+  .wfd :global(.det .ceil) {
+    stroke: #1d2025;
+    stroke-width: 2.4;
+  }
+
+  .wfd :global(.det .rod) {
+    stroke: #1d2025;
+    stroke-width: 1.2;
+  }
+
+  .wfd :global(.det .ins) {
+    fill: #f6eedd;
+    stroke: #1d2025;
+    stroke-width: 0.8;
+    stroke-dasharray: 2 1.5;
+  }
+
+  .wfd :global(.det .pipe) {
+    fill: #cfd6dc;
+    stroke: #1d2025;
+    stroke-width: 1.2;
+  }
+
+  .wfd :global(.det .pipeR) {
+    fill: #f3c4bf;
+    stroke: #1d2025;
+    stroke-width: 1;
+  }
+
+  .wfd :global(.det .pipeh),
+  .wfd :global(.det .thick) {
+    stroke: #1d2025;
+    stroke-width: 2.4;
+  }
+
+  .wfd :global(.det .clash) {
+    fill: rgba(255, 45, 85, 0.08);
+    stroke: #e5193f;
+    stroke-width: 1.6;
+    stroke-dasharray: 5 3;
+  }
+
+  .wfd :global(.det .hanger),
+  .wfd :global(.det .hangerC) {
+    fill: none;
+    stroke: #4a5058;
+    stroke-width: 2;
+  }
+
+  .wfd :global(.det .cable) {
+    fill: #3a3f46;
+    stroke: #1d2025;
+    stroke-width: 0.4;
+  }
+
+  .wfd :global(.det .whip) {
+    fill: none;
+    stroke: #1d2025;
+    stroke-width: 2;
+    stroke-dasharray: 6 2;
+  }
+
+  .wfd :global(.det .wire) {
+    stroke: #1d2025;
+    stroke-width: 0.6;
+    stroke-dasharray: 4 3;
+  }
+
+  .wfd :global(.det .hl.hanger),
+  .wfd :global(.det .hl.hangerC),
+  .wfd :global(.det .hl.whip) {
+    fill: none;
+    stroke: #2f76c8;
+  }
+
   .wfd :global(.det .ply) {
     fill: url(#d-ply);
     stroke: #1d2025;
@@ -1053,13 +1280,15 @@ const entries = Object.entries(CFG.members);
 <script>
   import { MEMBERS, type Member } from '../data/woodFrame';
   import { STEEL_MEMBERS } from '../data/steelFrame';
+  import { MEP_MEMBERS } from '../data/mepModel';
+  import { getMepDetails } from '../scripts/mepDetails';
   import { getDetails } from '../scripts/frameDetails';
   import { getSteelDetails } from '../scripts/steelDetails';
   type MemberId = string;
 
   document.querySelectorAll<HTMLElement>('[data-wf]').forEach((section) => {
-    const steel = section.dataset.wfKind === 'steel';
-    const CAT: Record<string, Member> = steel ? STEEL_MEMBERS : MEMBERS;
+    const kind = section.dataset.wfKind ?? 'wood';
+    const CAT: Record<string, Member> = kind === 'steel' ? STEEL_MEMBERS : kind === 'mep' ? MEP_MEMBERS : MEMBERS;
     const stage = section.querySelector<HTMLElement>('[data-wf-stage]')!;
     const card = section.querySelector<HTMLElement>('[data-wf-card]')!;
     const defaultCard = card.innerHTML;
@@ -1067,45 +1296,11 @@ const entries = Object.entries(CFG.members);
     const reset = section.querySelector<HTMLButtonElement>('[data-wf-reset]')!;
     const loadBtns = [...section.querySelectorAll<HTMLButtonElement>('[data-wf-load]')];
     const lp = section.querySelector<HTMLElement>('[data-wf-lp]')!;
-    const LOADS = {
-      gravity: {
-        color: '#5b9be6',
-        kicker: 'Load path · Gravity',
-        title: 'Roof and floor loads down to the soil',
-        steps: [
-          'Roof dead + snow load on the rafters and garage trusses',
-          'Rafters bear on the top plate (H2.5A ties) and the ridge (LSSU210)',
-          'Floor joists carry the second floor to the rim and centre bearing wall',
-          'Studs, king studs and trimmers take it down both storeys',
-          'Sill plate → slab and thickened footing → soil',
-        ],
-      },
-      wind: {
-        color: '#35d0c0',
-        kicker: 'Load path · Wind',
-        title: 'Lateral pressure and roof uplift',
-        steps: [
-          'Wind pressure on the wall is collected by the floor and roof diaphragms',
-          'LTP4 ties and A35 clips pass the shear into the wall top plates',
-          'Sheathed shear walls carry it to the foundation',
-          'HDU5 hold-downs and MSTC48B3 straps resist overturning',
-          'Roof uplift is tied down by H2.5A ties and LSTA21 ridge straps',
-        ],
-      },
-      seismic: {
-        color: '#ff6a45',
-        kicker: 'Load path · Seismic',
-        title: 'Inertial forces from the building’s own mass',
-        steps: [
-          'Ground shaking makes the mass sway — forces grow with height',
-          'Roof and floor diaphragms deliver the storey forces to the shear walls',
-          'Shear walls carry them down, MSTC48B3 straps across the floor',
-          'HDU5 hold-downs anchor the wall ends against overturning',
-          'Anchor bolts deliver base shear into the foundation',
-        ],
-      },
-    } as const;
-    const showLoad = (mode: keyof typeof LOADS | null) => {
+    type Flow = { id: string; color: string; kicker: string; title: string; steps: string[]; key?: [string, string, string] };
+    const LOADS: Record<string, Flow> = Object.fromEntries(
+      (JSON.parse(section.querySelector('[data-wf-flows]')?.textContent || '[]') as Flow[]).map((f) => [f.id, f]),
+    );
+    const showLoad = (mode: string | null) => {
       loadBtns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.wfLoad === mode)));
       stage.classList.toggle('has-load', !!mode);
       lp.hidden = !mode;
@@ -1115,11 +1310,14 @@ const entries = Object.entries(CFG.members);
       lp.querySelector('[data-wf-lp-kicker]')!.textContent = d.kicker;
       lp.querySelector('[data-wf-lp-title]')!.textContent = d.title;
       lp.querySelector('[data-wf-lp-steps]')!.innerHTML = d.steps.map((t) => `<li>${t}</li>`).join('');
+      const key = d.key ?? ['Applied load', 'Load path', 'Reaction'];
+      key.forEach((k, i) => (lp.querySelector(`[data-wf-key="${i}"]`)!.textContent = k));
+      lp.querySelector<HTMLElement>('[data-wf-key-li="2"]')!.hidden = mode === 'fire' || mode === 'power' || mode === 'water';
       explodeBtn.setAttribute('aria-pressed', 'false');
     };
     loadBtns.forEach((b) =>
       b.addEventListener('click', () => {
-        const mode = b.dataset.wfLoad as keyof typeof LOADS;
+        const mode = b.dataset.wfLoad!;
         api?.setLoad(b.getAttribute('aria-pressed') === 'true' ? null : mode);
       }),
     );
@@ -1131,7 +1329,7 @@ const entries = Object.entries(CFG.members);
     const dlg = section.querySelector<HTMLDialogElement>('[data-wfd]')!;
     const sheet = dlg.querySelector<HTMLElement>('[data-wfd-sheet]')!;
     const list = dlg.querySelector<HTMLOListElement>('[data-wfd-list]')!;
-    const details = steel ? getSteelDetails() : getDetails();
+    const details = kind === 'steel' ? getSteelDetails() : kind === 'mep' ? getMepDetails() : getDetails();
     let current = 1;
     let focusMember: MemberId | null = null;
     list.innerHTML = details.map((d) => `<li><button type="button" data-wfd-go="${d.no}" title="${d.title}">${d.no}</button></li>`).join('');
@@ -1205,7 +1403,12 @@ const entries = Object.entries(CFG.members);
         if (!entries[0].isIntersecting || api) return;
         io.disconnect();
         try {
-          const mount = steel ? (await import('../scripts/steelFrame')).mountSteelFrame : (await import('../scripts/woodFrame')).mountWoodFrame;
+          const mount =
+            kind === 'steel'
+              ? (await import('../scripts/steelFrame')).mountSteelFrame
+              : kind === 'mep'
+                ? (await import('../scripts/mepFrame')).mountMepFrame
+                : (await import('../scripts/woodFrame')).mountWoodFrame;
           api = mount(stage, {
             tip: section.querySelector<HTMLElement>('[data-wf-tip]')!,
             pin: section.querySelector<HTMLElement>('[data-wf-pin]')!,

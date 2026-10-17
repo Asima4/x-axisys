@@ -1,0 +1,612 @@
+---
+// Live BIM model section: pick elements, toggle/explode systems, section cuts and live schedules
+// (data from scripts/ifc-to-bim.py, viewer in src/scripts/bimViewer.ts).
+import Icon from './Icon.astro';
+
+interface Props {
+  id: string;
+  title: string;
+  lod?: string;
+}
+const { id, title, lod } = Astro.props;
+const base = `/models/bim/${id}`;
+---
+
+<section class="section dark bim-v" id="bim-model" data-bim={base}>
+  <div class="container">
+    <div class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">Live BIM model</p>
+        <h2>Open the model. Click anything.</h2>
+      </div>
+      <p class="lead">The coordinated Revit model of {title}, streamed into your browser. Select any element to read its family, type, system and size, explode the systems, cut plan and section views, and run the schedules straight from the model.</p>
+    </div>
+
+    <div class="bim-v__stats mono" data-bim-stats></div>
+
+    <div class="bim-v__layout">
+      <div class="bim-v__stage" data-bim-stage>
+        <div class="bim-v__loading" data-bim-loading>
+          <span class="mono" data-bim-loading-text>Loading model…</span>
+          <span class="bim-v__bar"><span data-bim-bar></span></span>
+        </div>
+        <div class="bim-v__tools">
+          <button type="button" data-bim-explode aria-pressed="false"><Icon name="Layers" size={16} /> <span>Explode systems</span></button>
+          <button type="button" data-bim-home><Icon name="Maximize" size={16} /> <span>Reset view</span></button>
+          <button type="button" data-bim-clear hidden><Icon name="Eye" size={16} /> <span>Show all</span></button>
+        </div>
+        <div class="bim-v__cuts">
+          <label><span class="mono">Plan cut</span><input type="range" min="0" max="1000" value="1000" data-bim-cut="y" aria-label="Plan cut height" /></label>
+          <label><span class="mono">Section cut</span><input type="range" min="0" max="1000" value="1000" data-bim-cut="x" aria-label="Vertical section position" /></label>
+        </div>
+        <p class="bim-v__hint mono" aria-hidden="true">Scroll to zoom · drag to orbit · right-drag to pan · click an element</p>
+      </div>
+
+      <aside class="bim-v__side">
+        <div class="bim-v__props" data-bim-props aria-live="polite">
+          <p class="bim-v__kicker mono">Element properties</p>
+          <p class="bim-v__empty">Click any pipe, duct, fitting, valve or piece of equipment in the model.</p>
+        </div>
+        <div class="bim-v__layers">
+          <p class="bim-v__kicker mono">Systems</p>
+          <ul data-bim-layers></ul>
+        </div>
+      </aside>
+    </div>
+
+    <div class="bim-v__sched">
+      <div class="bim-v__tabs" role="tablist" data-bim-tabs></div>
+      <div class="bim-v__table" data-bim-table role="region" aria-label="Schedule" tabindex="0"></div>
+      <p class="bim-v__note mono">Schedules are generated live from the model data. Click a row to highlight those elements in 3D.{lod && ` · Model maturity: ${lod}`}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bim-v__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: -8px 0 18px;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .bim-v__stats :global(b) {
+    margin-right: 6px;
+    font-size: 1.05rem;
+    color: var(--on-dark);
+  }
+
+  .bim-v__layout {
+    display: grid;
+    gap: 16px;
+  }
+
+  @media (min-width: 1000px) {
+    .bim-v__layout {
+      grid-template-columns: minmax(0, 1fr) 320px;
+    }
+  }
+
+  .bim-v__stage {
+    position: relative;
+    height: clamp(440px, 64vw, 720px);
+    overflow: hidden;
+    border: 1px solid var(--line-dark);
+    background: radial-gradient(ellipse at 50% 30%, rgba(91, 155, 230, 0.1), transparent 60%), var(--steel);
+  }
+
+  .bim-v__stage :global(.bim__canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+  }
+
+  .bim-v__loading {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    transition: opacity 0.4s;
+  }
+
+  .bim-v__stage.is-ready .bim-v__loading {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .bim-v__bar {
+    width: 220px;
+    height: 3px;
+    background: var(--line-dark);
+  }
+
+  .bim-v__bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--blue-on-dark);
+    transition: width 0.2s;
+  }
+
+  .bim-v__tools {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .bim-v__tools button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--line-dark);
+    background: rgba(13, 15, 19, 0.82);
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+
+  .bim-v__tools button:hover {
+    border-color: var(--blue-on-dark);
+  }
+
+  .bim-v__tools button[aria-pressed='true'] {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .bim-v__tools button[hidden] {
+    display: none;
+  }
+
+  .bim-v__cuts {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    z-index: 2;
+    display: grid;
+    gap: 8px;
+    width: min(240px, 46%);
+    padding: 10px 12px;
+    border: 1px solid var(--line-dark);
+    background: rgba(13, 15, 19, 0.82);
+    backdrop-filter: blur(6px);
+  }
+
+  .bim-v__cuts label {
+    display: grid;
+    gap: 4px;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+  }
+
+  .bim-v__cuts input {
+    width: 100%;
+    accent-color: var(--blue-on-dark);
+  }
+
+  .bim-v__hint {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+    margin: 0;
+    font-size: 0.7rem;
+    color: var(--on-dark-2);
+    pointer-events: none;
+  }
+
+  .bim-v__side {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+  }
+
+  @media (min-width: 1000px) {
+    .bim-v__side {
+      max-height: clamp(440px, 64vw, 720px);
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+  }
+
+  .bim-v__props,
+  .bim-v__layers {
+    padding: 18px;
+    border: 1px solid var(--line-dark);
+    background: var(--steel-2);
+  }
+
+  .bim-v__props {
+    border-top: 3px solid var(--blue-on-dark);
+  }
+
+  .bim-v__layers {
+    overflow: auto;
+  }
+
+  .bim-v__kicker,
+  .bim-v__props :global(.bim-v__kicker) {
+    margin: 0 0 10px;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue-on-dark);
+  }
+
+  .bim-v__empty,
+  .bim-v__props :global(.bim-v__empty) {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--on-dark-2);
+  }
+
+  .bim-v__props :global(h3) {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    color: var(--on-dark);
+  }
+
+  .bim-v__props :global(dl) {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    margin: 0;
+    font-size: 0.86rem;
+  }
+
+  .bim-v__props :global(dt) {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    padding-top: 2px;
+  }
+
+  .bim-v__props :global(dd) {
+    margin: 0;
+    color: var(--on-dark);
+    word-break: break-word;
+  }
+
+  .bim-v__layers ul {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bim-v__layers :global(li) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bim-v__layers :global(input) {
+    accent-color: var(--blue-on-dark);
+  }
+
+  .bim-v__layers :global(button) {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.84rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .bim-v__layers :global(button:hover) {
+    border-color: var(--line-dark);
+  }
+
+  .bim-v__layers :global(.sw) {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    background: var(--c);
+  }
+
+  .bim-v__layers :global(.n) {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--on-dark-2);
+  }
+
+  .bim-v__sched {
+    margin-top: 28px;
+  }
+
+  .bim-v__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .bim-v__tabs :global(button) {
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--line-dark);
+    background: transparent;
+    color: var(--on-dark);
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .bim-v__tabs :global(button[aria-selected='true']) {
+    background: var(--blue);
+    border-color: var(--blue);
+  }
+
+  .bim-v__table {
+    max-height: 420px;
+    overflow: auto;
+    border: 1px solid var(--line-dark);
+  }
+
+  .bim-v__table :global(table) {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+  }
+
+  .bim-v__table :global(th),
+  .bim-v__table :global(td) {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line-dark);
+  }
+
+  .bim-v__table :global(thead th) {
+    position: sticky;
+    top: 0;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--on-dark-2);
+    background: var(--steel-2);
+  }
+
+  .bim-v__table :global(td) {
+    color: var(--on-dark);
+  }
+
+  .bim-v__table :global(td.num) {
+    font-family: var(--mono);
+    text-align: right;
+  }
+
+  .bim-v__table :global(tbody tr) {
+    cursor: pointer;
+  }
+
+  .bim-v__table :global(tbody tr:hover) {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .bim-v__table :global(tbody tr.is-on) {
+    background: rgba(255, 209, 102, 0.14);
+    box-shadow: inset 3px 0 0 #ffd166;
+  }
+
+  .bim-v__note {
+    margin: 10px 0 0;
+    font-size: 0.7rem;
+    color: var(--on-dark-2);
+  }
+
+  @media (max-width: 640px) {
+    .bim-v__tools button span {
+      display: none;
+    }
+
+    .bim-v__tools button {
+      width: 40px;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .bim-v__hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import type { BimApi, BimElement } from '../scripts/bimViewer';
+
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 1 });
+
+  document.querySelectorAll<HTMLElement>('[data-bim]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('[data-bim-stage]')!;
+    const props = section.querySelector<HTMLElement>('[data-bim-props]')!;
+    const emptyProps = props.innerHTML;
+    const clearBtn = section.querySelector<HTMLButtonElement>('[data-bim-clear]')!;
+    let api: BimApi | null = null;
+    let activeRow: HTMLTableRowElement | null = null;
+
+    const showProps = (e: BimElement | null) => {
+      if (!e || !api) {
+        props.innerHTML = emptyProps;
+        return;
+      }
+      const layer = api.meta.layers[e.l];
+      const fam = e.f.replace(/^M_/, '');
+      const rows: [string, unknown][] = [
+        ['Category', e.k ?? e.c.replace(/([a-z])([A-Z])/g, '$1 $2')],
+        ['Family', fam],
+        ['Type', e.t],
+        ['System', e.s?.join(', ')],
+        ['Layer', layer?.label],
+        ['Size', e.z],
+        ['Length', e.n ? `${fmt(e.n)} m` : ''],
+        ['Invert level', e.iv ? `${fmt(e.iv)} m` : ''],
+        ['Level', e.v],
+        ['Revit ID', e.id],
+      ];
+      const title = e.k ?? (e.c === 'FlowSegment' ? `${fam.replace(/ Types?$/, '').replace(/ with Fittings$/, '')} · ${e.t || e.z || ''}` : fam);
+      props.innerHTML = `<p class="bim-v__kicker mono">Element properties</p><h3>${esc(title)}</h3><dl>${rows
+        .filter(([, v]) => v)
+        .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`)
+        .join('')}</dl>`;
+    };
+
+    const select = (ids: number[] | null, fly = true) => {
+      api?.select(ids, fly);
+      clearBtn.hidden = !ids;
+      if (!ids) {
+        activeRow?.classList.remove('is-on');
+        activeRow = null;
+      }
+    };
+    clearBtn.addEventListener('click', () => {
+      select(null);
+      showProps(null);
+    });
+
+    const init = (a: BimApi) => {
+      api = a;
+      const m = a.meta;
+      section.querySelector('[data-bim-stats]')!.innerHTML = [
+        [m.stats.elements, 'model elements'],
+        [m.stats.systems, 'systems'],
+        [m.stats.equipment, 'equipment items'],
+        [m.stats.pipe_m, 'm of pipe'],
+        [m.stats.fittings, 'fittings'],
+      ]
+        .map(([n, l]) => `<span><b>${fmt(Number(n))}</b>${l}</span>`)
+        .join('');
+
+      // systems list: toggle visibility, click name to isolate
+      const ul = section.querySelector('[data-bim-layers]')!;
+      ul.innerHTML = m.layers
+        .map(
+          (L, i) =>
+            `<li><input type="checkbox" checked data-layer-vis="${i}" aria-label="Show ${esc(L.label)}" /><button type="button" data-layer-sel="${i}"><span class="sw" style="--c:${L.color}"></span>${esc(L.label)}<span class="n">${L.count}</span></button></li>`,
+        )
+        .join('');
+      ul.addEventListener('change', (ev) => {
+        const t = ev.target as HTMLInputElement;
+        if (t.dataset.layerVis) a.setLayerVisible(Number(t.dataset.layerVis), t.checked);
+      });
+      ul.addEventListener('click', (ev) => {
+        const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-layer-sel]');
+        if (!b) return;
+        const li = Number(b.dataset.layerSel);
+        select(m.elements.filter((e) => e.l === li).map((e) => e.i));
+      });
+
+      // schedules
+      const tabs = section.querySelector('[data-bim-tabs]')!;
+      const table = section.querySelector<HTMLElement>('[data-bim-table]')!;
+      const showSchedule = (k: number) => {
+        const s = m.schedules[k];
+        tabs.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-selected', String(i === k)));
+        const hasLen = s.rows.some((r) => r.length);
+        const cols = s.cols.slice(0, s.rows[0]?.cells.length ?? 0);
+        table.innerHTML = `<table><thead><tr>${cols.map((c) => `<th scope="col">${esc(c)}</th>`).join('')}<th scope="col" class="num">Qty</th>${hasLen ? '<th scope="col" class="num">Length (m)</th>' : ''}</tr></thead><tbody>${s.rows
+          .map(
+            (r, i) =>
+              `<tr data-row="${i}">${r.cells.map((c) => `<td>${esc(c)}</td>`).join('')}<td class="num">${r.count}</td>${hasLen ? `<td class="num">${r.length ? fmt(r.length) : '—'}</td>` : ''}</tr>`,
+          )
+          .join('')}</tbody></table>`;
+        table.onclick = (ev) => {
+          const tr = (ev.target as HTMLElement).closest<HTMLTableRowElement>('tr[data-row]');
+          if (!tr) return;
+          if (activeRow === tr) {
+            select(null);
+            return;
+          }
+          activeRow?.classList.remove('is-on');
+          activeRow = tr;
+          tr.classList.add('is-on');
+          select(s.rows[Number(tr.dataset.row)].ids);
+          stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+      };
+      tabs.innerHTML = m.schedules.map((s, i) => `<button type="button" role="tab" data-tab="${i}">${esc(s.title)} <span class="mono">${s.rows.length}</span></button>`).join('');
+      tabs.addEventListener('click', (ev) => {
+        const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-tab]');
+        if (b) showSchedule(Number(b.dataset.tab));
+      });
+      showSchedule(0);
+
+      // tools
+      const ex = section.querySelector<HTMLButtonElement>('[data-bim-explode]')!;
+      ex.addEventListener('click', () => {
+        const on = ex.getAttribute('aria-pressed') !== 'true';
+        ex.setAttribute('aria-pressed', String(on));
+        a.setExplode(on);
+      });
+      section.querySelector('[data-bim-home]')!.addEventListener('click', () => a.home());
+      section.querySelectorAll<HTMLInputElement>('[data-bim-cut]').forEach((inp) =>
+        inp.addEventListener('input', () => {
+          const axis = inp.dataset.bimCut as 'x' | 'y';
+          const [lo, hi] = a.range[axis];
+          const v = Number(inp.value) / 1000;
+          a.setSection(axis, v >= 0.999 ? null : lo + (hi - lo) * v);
+        }),
+      );
+    };
+
+    const io = new IntersectionObserver(
+      async ([entry]) => {
+        if (!entry.isIntersecting || api) return;
+        io.disconnect();
+        const bar = section.querySelector<HTMLElement>('[data-bim-bar]')!;
+        try {
+          const { mountBim } = await import('../scripts/bimViewer');
+          const a = await mountBim(stage, section.dataset.bim!, {
+            onPick: showProps,
+            onProgress: (p) => (bar.style.width = `${Math.round(p * 100)}%`),
+          });
+          init(a);
+          stage.classList.add('is-ready');
+        } catch (err) {
+          console.error(err);
+          section.querySelector('[data-bim-loading-text]')!.textContent = '3D model unavailable on this device';
+        }
+      },
+      { rootMargin: '300px 0px' },
+    );
+    io.observe(section);
+  });
+</script>

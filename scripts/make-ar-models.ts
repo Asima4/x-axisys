@@ -11,8 +11,10 @@ import draco3d from 'draco3dgltf';
 import { mkdirSync } from 'node:fs';
 import { buildPieces, type Piece } from '../src/scripts/woodFrame';
 import { buildSteelPieces } from '../src/scripts/steelFrame';
+import { buildMepPieces } from '../src/scripts/mepFrame';
 import { MEMBERS, type Member } from '../src/data/woodFrame';
 import { STEEL_MEMBERS } from '../src/data/steelFrame';
+import { MEP_MEMBERS } from '../src/data/mepModel';
 
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
   'draco3d.encoder': await draco3d.createEncoderModule(),
@@ -20,7 +22,7 @@ const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies(
 });
 mkdirSync('public/models/ar', { recursive: true });
 
-// ----- procedural frames (wood 1:40, steel 1:75) -----
+// ----- procedural models (wood 1:40, steel 1:75, MEP 1:40) -----
 const unitBox = new THREE.BoxGeometry(1, 1, 1);
 const unitCyl = new THREE.CylinderGeometry(0.5, 0.5, 1, 10);
 const m4 = new THREE.Matrix4();
@@ -55,6 +57,7 @@ async function exportFrame(name: string, pieces: Piece[], members: Record<string
 }
 await exportFrame('wood-frame', buildPieces(), MEMBERS, 40, 0.5);
 await exportFrame('steel-frame', buildSteelPieces(), STEEL_MEMBERS, 75, 3.5);
+await exportFrame('mep-model', buildMepPieces(), MEP_MEMBERS, 40, 2.2);
 
 // ----- food court (optional input) -----
 const fc = process.argv[2];

@@ -1,0 +1,426 @@
+---
+// How Axisys delivers MEP / BIM: LOD progression (illustrated on one duct run), coordination workflow and deliverables.
+import Icon from './Icon.astro';
+
+const lods = [
+  { lod: '100', name: 'Concept', text: 'Space reserved for each system as simple volumes — enough to check the plenum depth and riser locations early.' },
+  { lod: '200', name: 'Schematic', text: 'Generic ducts, pipes and equipment with approximate sizes and routes, used for early clash checks and sizing.' },
+  { lod: '300', name: 'Design / permit', text: 'Every element at its designed size, location and elevation, with insulation and clearances — the basis of coordinated drawings.' },
+  { lod: '400', name: 'Fabrication', text: 'Fittings, joints, hangers and supports modelled for fabrication and installation, ready for spool and shop drawings.' },
+  { lod: '500', name: 'As-built', text: 'The model updated to what was installed, with equipment data attached for operations and facility management.' },
+];
+
+const workflow = [
+  { icon: 'FileStack', title: 'Inputs', text: 'Architectural and structural models or CAD, design criteria and equipment selections.' },
+  { icon: 'Layers', title: 'Discipline models', text: 'HVAC, plumbing, fire protection and electrical modelled in Revit with system classifications and shared parameters.' },
+  { icon: 'Combine', title: 'Federate', text: 'All trades combined in one coordination model with the architecture and structure.' },
+  { icon: 'ScanSearch', title: 'Clash detection', text: 'Hard and clearance clashes found with Navisworks rules, grouped and assigned to a trade.' },
+  { icon: 'MessagesSquare', title: 'Coordinate', text: 'Clashes resolved by reroute, resize or elevation change, tracked to closure in coordination reviews.' },
+  { icon: 'FileCheck2', title: 'Issue', text: 'Coordinated drawings, sections, schedules, quantities and the model in RVT, NWD or IFC.' },
+];
+
+const deliverables = [
+  'Coordinated MEP plans, sections and 3D views',
+  'Clash detection reports with resolution status',
+  'Equipment, duct, pipe and fixture schedules',
+  'Quantity take-offs from the model',
+  'Hanger, sleeve and penetration layouts',
+  'IFC / NWD / RVT model exports',
+];
+const software = ['Revit MEP', 'Navisworks', 'AutoCAD MEP', 'Dynamo', 'ACC / BIM 360', 'HAP', 'DIALux'];
+---
+
+<section class="section section--white rule-top bim" id="bim-process">
+  <div class="container">
+    <div class="section-head section-head--split reveal">
+      <div>
+        <p class="eyebrow">How we deliver BIM</p>
+        <h2>From reserved space to as-built model.</h2>
+      </div>
+      <p class="lead">Level of Development (LOD) defines how complete and reliable each model element is at each stage. Here is the same supply duct and VAV box as it develops through a project.</p>
+    </div>
+
+    <a class="bim__live reveal" href="/projects/hvac-central-plant-room/#bim-model">
+      <span class="bim__live-icon"><Icon name="Box" size={22} /></span>
+      <span><strong>See a real project model live</strong> — our construction-issue Revit model of an HVAC central plant room: nearly 3,000 elements, 57 systems, schedules straight from the model.</span>
+      <Icon name="ArrowRight" />
+    </a>
+
+    <ol class="lod">
+      {
+        lods.map((l, i) => (
+          <li class="lod__item reveal">
+            <svg class="lod__art" viewBox="0 0 200 120" aria-hidden="true">
+              <g class="iso">
+                {i === 0 && (
+                  <g>
+                    <polygon class="vol" points="20,70 120,20 180,50 80,100" />
+                    <polygon class="vol2" points="20,70 80,100 80,112 20,82" />
+                    <polygon class="vol2" points="80,100 180,50 180,62 80,112" />
+                  </g>
+                )}
+                {i >= 1 && (
+                  <g>
+                    <polygon class={i >= 2 ? 'duct' : 'duct-g'} points="20,68 112,22 130,31 38,77" />
+                    <polygon class={i >= 2 ? 'duct-s' : 'duct-g2'} points="38,77 130,31 130,43 38,89" />
+                    <polygon class={i >= 2 ? 'duct-s2' : 'duct-g2'} points="20,68 38,77 38,89 20,80" />
+                    <polygon class={i >= 2 ? 'vav' : 'duct-g'} points="112,22 150,3 168,12 130,31" />
+                    <polygon class={i >= 2 ? 'vav-s' : 'duct-g2'} points="130,31 168,12 168,26 130,45" />
+                  </g>
+                )}
+                {i >= 2 && <polyline class="ins" points="16,66 110,19 133,30 133,46 38,93 16,82 16,66" />}
+                {i >= 2 && <text class="tag" x="52" y="58">30x14</text>}
+                {i >= 3 && (
+                  <g class="hang">
+                    <line x1="44" y1="0" x2="44" y2="94" />
+                    <line x1="88" y1="0" x2="88" y2="72" />
+                    <line x1="40" y1="94" x2="62" y2="83" />
+                    <line x1="84" y1="72" x2="106" y2="61" />
+                    <line class="joint" x1="66" y1="45" x2="84" y2="54" />
+                    <line class="joint" x1="84" y1="54" x2="84" y2="66" />
+                  </g>
+                )}
+                {i >= 4 && (
+                  <g>
+                    <rect class="data" x="146" y="66" width="48" height="36" rx="2" />
+                    <line class="data-l" x1="150" y1="76" x2="188" y2="76" />
+                    <line class="data-l" x1="150" y1="84" x2="180" y2="84" />
+                    <line class="data-l" x1="150" y1="92" x2="184" y2="92" />
+                    <polyline class="link" points="146,80 160,30" />
+                  </g>
+                )}
+              </g>
+            </svg>
+            <p class="lod__no mono">LOD {l.lod}</p>
+            <h3>{l.name}</h3>
+            <p>{l.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="flow reveal">
+      <h3 class="flow__title mono">Coordination workflow</h3>
+      <ol class="flow__list">
+        {
+          workflow.map((w, i) => (
+            <li>
+              <span class="flow__icon">
+                <Icon name={w.icon} size={22} />
+              </span>
+              <span class="flow__no mono">0{i + 1}</span>
+              <h4>{w.title}</h4>
+              <p>{w.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <div class="bim__grid">
+      <div class="bim__card reveal">
+        <h3 class="mono">What you receive</h3>
+        <ul class="check-list">
+          {
+            deliverables.map((d) => (
+              <li>
+                <Icon name="Check" />
+                <span>{d}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="bim__card reveal">
+        <h3 class="mono">Software</h3>
+        <ul class="bim__chips">{software.map((s) => <li>{s}</li>)}</ul>
+        <h3 class="mono">Standards we model to</h3>
+        <ul class="bim__chips">
+          <li>ASHRAE 62.1 / 90.1</li>
+          <li>SMACNA</li>
+          <li>IPC / UPC</li>
+          <li>NFPA 13</li>
+          <li>NEC (NFPA 70)</li>
+          <li>BIMForum LOD Spec</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .bim__live {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 0 28px;
+    padding: 16px 20px;
+    border: 1px solid var(--blue);
+    background: var(--blue-soft);
+    color: var(--ink);
+    text-decoration: none;
+    line-height: 1.45;
+  }
+
+  .bim__live:hover {
+    background: #d4e3f3;
+  }
+
+  .bim__live > :global(svg) {
+    flex: none;
+    color: var(--blue);
+  }
+
+  .bim__live-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .lod {
+    display: grid;
+    gap: 1px;
+    margin: 0 0 clamp(48px, 6vw, 72px);
+    padding: 0;
+    list-style: none;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  @media (min-width: 700px) {
+    .lod {
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
+  }
+
+  .lod__item {
+    padding: 20px 20px 24px;
+    background: var(--paper);
+  }
+
+  .lod__art {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    margin: 0 auto 14px;
+  }
+
+  .lod__no {
+    margin: 0 0 4px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+  }
+
+  .lod__item h3 {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+
+  .lod__item p:not(.lod__no) {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .iso .vol {
+    fill: rgba(0, 78, 146, 0.12);
+    stroke: var(--blue);
+    stroke-dasharray: 4 3;
+  }
+
+  .iso .vol2 {
+    fill: rgba(0, 78, 146, 0.06);
+    stroke: var(--blue);
+    stroke-dasharray: 4 3;
+  }
+
+  .iso .duct-g {
+    fill: #dfe3e8;
+    stroke: #7a828c;
+  }
+
+  .iso .duct-g2 {
+    fill: #c9ced5;
+    stroke: #7a828c;
+  }
+
+  .iso .duct {
+    fill: #9cc8f0;
+    stroke: #1d4f86;
+  }
+
+  .iso .duct-s {
+    fill: #5e9fdc;
+    stroke: #1d4f86;
+  }
+
+  .iso .duct-s2 {
+    fill: #3f82c4;
+    stroke: #1d4f86;
+  }
+
+  .iso .vav {
+    fill: #b8c4cf;
+    stroke: #3a4450;
+  }
+
+  .iso .vav-s {
+    fill: #8d9aa7;
+    stroke: #3a4450;
+  }
+
+  .iso .ins {
+    fill: none;
+    stroke: #c58b2a;
+    stroke-dasharray: 3 2;
+  }
+
+  .iso .tag {
+    font: 600 9px var(--mono);
+    fill: #0b2f57;
+  }
+
+  .iso .hang line {
+    stroke: #3a4450;
+    stroke-width: 1.6;
+  }
+
+  .iso .hang .joint {
+    stroke: #fff;
+    stroke-width: 1.2;
+  }
+
+  .iso .data {
+    fill: #fff;
+    stroke: var(--blue);
+  }
+
+  .iso .data-l {
+    stroke: #9aa3ad;
+    stroke-width: 2;
+  }
+
+  .iso .link {
+    fill: none;
+    stroke: var(--blue);
+    stroke-dasharray: 2 2;
+  }
+
+  .flow {
+    margin-bottom: clamp(40px, 5vw, 64px);
+  }
+
+  .flow__title,
+  .bim__card h3 {
+    margin: 0 0 16px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .flow__list {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: f;
+  }
+
+  @media (min-width: 760px) {
+    .flow__list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .flow__list {
+      grid-template-columns: repeat(6, 1fr);
+    }
+  }
+
+  .flow__list li {
+    position: relative;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--blue);
+    background: var(--white);
+  }
+
+  .flow__icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  .flow__no {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .flow__list h4 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .flow__list p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+
+  .bim__grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  @media (min-width: 900px) {
+    .bim__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .bim__card {
+    padding: 24px;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .bim__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 22px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bim__chips li {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--blue);
+    background: var(--white);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+</style>

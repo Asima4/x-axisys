@@ -5,6 +5,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ModelViewer from '../../components/ModelViewer.astro';
 import ArView from '../../components/ArView.astro';
+import BimViewer from '../../components/BimViewer.astro';
 import Lightbox from '../../components/Lightbox.astro';
 import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
@@ -139,6 +140,7 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
           {hasEng && <a href="#engineering">Engineering data</a>}
           {p.compare.length > 0 && <a href="#compare">Drawing ↔ 3D</a>}
           {p.video && <a href="#walkthrough">Walkthrough</a>}
+          {p.bim && <a href="#bim-model">Live BIM model</a>}
           {p.model && <a href="#model">3D model</a>}
           {galleries.map((g) => (
             <a href={`#${g.id}`}>
@@ -259,6 +261,8 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
       </section>
     )
   }
+
+  {p.bim && <BimViewer id={p.bim} title={p.title.toLowerCase()} lod={p.lod} />}
 
   {
     p.model && (
@@ -706,6 +710,7 @@ const poster = p.videoPoster ? await getImage({ src: p.videoPoster, width: 1600,
   .gallery-section,
   #case-study,
   #compare,
+  #bim-model,
   #engineering,
   #walkthrough,
   .model-ar {

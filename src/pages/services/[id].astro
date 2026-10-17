@@ -11,6 +11,7 @@ import CtaBand from '../../components/CtaBand.astro';
 import Icon from '../../components/Icon.astro';
 import StructuralData from '../../components/StructuralData.astro';
 import FrameExplorer from '../../components/FrameExplorer.astro';
+import BimProcess from '../../components/BimProcess.astro';
 import { allServices, processSteps, serviceGroups, type Service } from '../../data/site';
 
 type Category = 'renders' | 'plans' | 'elevations' | 'sections' | 'structural' | 'mep';
@@ -162,6 +163,8 @@ const siblings = group.services.filter((s) => s.id !== service.id);
 
   {service.id === 'structural-engineering' && <FrameExplorer />}
   {service.id === 'structural-engineering' && <FrameExplorer kind="steel" />}
+  {(service.id === 'mep-engineering' || service.id === 'bim-services') && <FrameExplorer kind="mep" />}
+  {(service.id === 'mep-engineering' || service.id === 'bim-services') && <BimProcess />}
   {service.id === 'structural-engineering' && <StructuralData />}
 
   {

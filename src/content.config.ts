@@ -37,6 +37,8 @@ const projects = defineCollection({
       mep: z.array(imageItem(image)).default([]),
       model: z.string().optional(), // path to a .glb in /public, e.g. /models/my-project.glb
       ar: z.string().optional(), // tabletop-scale AR .glb in /public/models/ar (see scripts/make-ar-models.ts)
+      bim: z.string().optional(), // live BIM viewer data folder in /public/models/bim (see scripts/ifc-to-bim.py)
+      lod: z.string().optional(),
       video: z.string().optional(), // path to an .mp4 in /public, e.g. /videos/my-project.mp4
       videoPoster: image().optional(),
       scope: z.array(z.string()).default([]),
